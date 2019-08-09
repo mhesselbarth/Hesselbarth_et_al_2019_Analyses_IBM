@@ -58,7 +58,7 @@ spatstat::marks(pattern_1999_reconstructed) <- data.frame(species = NA, dbh = NA
 
 for (i in seq_along(seq_along(pattern_1999_split_flat))) {
   
-  message("> Progress: ", i, "/", length(pattern_1999_split_flat), "\t\t\t", 
+  message("\r> Progress: ", i, "/", length(pattern_1999_split_flat), "\t\t\t", 
           appendLF = FALSE)
   
   name_split <- stringr::str_split(pattern_1999_split_flat_names[[i]], 
