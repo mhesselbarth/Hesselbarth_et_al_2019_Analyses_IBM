@@ -30,16 +30,15 @@ ci_index_10 <- purrr::map_dbl(0:20, function(x) (10 ^ parameters$ci_alpha) * exp
 
 # create ggplot
 plot_kernel <- ggplot() + 
-  geom_line(aes(x = -20:20, y = c(rev(ci_index$ci_10), ci_index$ci_10[-1]),
+  geom_line(aes(x = -20:20, y = c(rev(ci_index_10), ci_index_10[-1]),
             linetype = "DBH 10")) + 
-  geom_line(aes(x = -20:20, y = c(rev(ci_index$ci_20), ci_index$ci_20[-1]), 
+  geom_line(aes(x = -20:20, y = c(rev(ci_index_20), ci_index_20[-1]), 
             linetype = "DBH 20")) + 
   scale_linetype_manual(name = "DBH [cm]", 
                         values = c("DBH 10" = 2, "DBH 20" = 1)) + 
   scale_x_continuous(breaks = seq(-20, 20, 5),
                      labels = abs(seq(-20, 20, 5))) + 
   labs(x = "Distance", y = "Exponential competition kernel") + 
-  
   theme_classic(base_size = 15)
 
 #### Plot point pattern ####
@@ -75,10 +74,10 @@ helpeR::save_ggplot(plot = plot_kernel,
 helpeR::save_ggplot(plot = plot_pattern,
                     filename = "plot_pattern.png",
                     path = "Figures",
-                    dpi = 300, height = 12, width = 12, units = "cm")
+                    dpi = 300, height = 15, width = 15, units = "cm")
 
 helpeR::save_ggplot(plot = plot_pattern_ci,
                     filename = "plot_pattern_ci.png",
                     path = "Figures",
-                    dpi = 300, height = 12, width = 12, units = "cm")
+                    dpi = 300, height = 15, width = 15, units = "cm")
 
