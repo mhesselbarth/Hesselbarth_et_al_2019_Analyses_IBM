@@ -1,4 +1,3 @@
-
 # load packages
 library(helpeR) # devtools::install_github("mhesselbarth/helpeR")
 library(shar) # devtools::install_github("r-spatialecology/SHAR")
@@ -42,11 +41,11 @@ pattern_1999_split <- purrr::map(spatstat::split.ppp(pattern_1999, "Species"),
 
 pattern_1999_split_flat <- purrr::flatten(pattern_1999_split)
 
-pattern_1999_split_flat_names <- c("Beech_dead", "Beech_living",
-                                   "Ash_dead", "Ash_living",
-                                   "Hornbeam_dead", "Hornbeam_living",
-                                   "Sycamore_dead", "Sycamore_living",
-                                   "others_dead", "others_living")
+names(pattern_1999_split_flat) <- c("Beech_dead", "Beech_living",
+                                    "Ash_dead", "Ash_living",
+                                    "Hornbeam_dead", "Hornbeam_living",
+                                    "Sycamore_dead", "Sycamore_living",
+                                    "others_dead", "others_living")
 
 # set reconstruction parameters
 max_runs <- 20000
@@ -61,7 +60,7 @@ for (i in seq_along(seq_along(pattern_1999_split_flat))) {
   message("\r> Progress: ", i, "/", length(pattern_1999_split_flat), "\t\t\t", 
           appendLF = FALSE)
   
-  name_split <- stringr::str_split(pattern_1999_split_flat_names[[i]], 
+  name_split <- stringr::str_split(names(pattern_1999_split_flat)[i], 
                                    pattern = "_", simplify = TRUE)
   
   current_reconstruction <- reconstruction_helper(pattern = pattern_1999_split_flat[[i]], 
