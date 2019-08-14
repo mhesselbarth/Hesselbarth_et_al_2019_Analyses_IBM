@@ -3,7 +3,6 @@
 # load packages
 library(helpeR) # devtools::install_github("mhesselbarth/helpeR")
 library(rabmp)
-library(shar) # devtools::install_github("r-spatialecology/SHAR")
 library(spatstat)
 library(tidyverse)
 
@@ -36,7 +35,9 @@ plot_dist_density <- ggplot(data = distance_density) +
 set.seed(42)
 id <- sample(1:nrow(input_data), size = 20)
 
-seedlings <- simulate_seed_dispersal(data = input_data[id, ], parameters = parameters) %>%
+seedlings <- simulate_seed_dispersal(data = input_data[id, ], parameters = parameters, 
+                                     plot_area = spatstat::owin(xrange = c(0, 500), 
+                                                                yrange = c(0, 500))) %>%
   tidyr::unnest()
 
 plot_seed_pattern <- ggplot(data = seedlings) +  

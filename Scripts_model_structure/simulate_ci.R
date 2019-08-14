@@ -3,7 +3,6 @@
 # load packages
 library(helpeR) # devtools::install_github("mhesselbarth/helpeR")
 library(rabmp)
-library(shar) # devtools::install_github("r-spatialecology/SHAR")
 library(spatstat)
 library(tidyverse)
 
