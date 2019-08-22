@@ -30,7 +30,7 @@ change_parameters <- function(x, change, return_list = TRUE) {
 
 #### SA_local_results_spatial.R ####
 
-calc_pcf <- function(data, window, length.out = 250, ...) {
+calc_pcf <- function(data, window, r, ...) {
   
   names_input <- names(data)
   
@@ -44,11 +44,6 @@ calc_pcf <- function(data, window, length.out = 250, ...) {
     
     data <- spatstat::ppp(x = data$x, y = data$y, 
                           window = window)
-    
-    r <- seq(from = 0,
-             to = spatstat::rmax.rule(W = data$window,
-                                      lambda = spatstat::intensity.ppp(data)),
-             length.out = length.out)
     
     sf <- shar::estimate_pcf_fast(data, r = r, ...)
     
@@ -58,7 +53,7 @@ calc_pcf <- function(data, window, length.out = 250, ...) {
   }, .id = "id") 
 }
 
-calc_nnd <- function(data, window, length.out = 250, ...) {
+calc_nnd <- function(data, window, r, ...) {
   
   names_input <- names(data)
   
@@ -72,11 +67,6 @@ calc_nnd <- function(data, window, length.out = 250, ...) {
     
     data <- spatstat::ppp(x = data$x, y = data$y, 
                           window = window)
-    
-    r <- seq(from = 0,
-             to = spatstat::rmax.rule(W = data$window,
-                                      lambda = spatstat::intensity.ppp(data)),
-             length.out = length.out)
     
     sf <- spatstat::Gest(data, ...)
     
@@ -114,4 +104,100 @@ calc_kmm <- function(data, window, length.out = 250, ...) {
                        parameter = names_input[[x]], .before = 1)
     
   }, .id = "id") 
+}
+
+
+calc_clark <- function(data, window, ...) {
+  
+  names_input <- names(data)
+  
+  length_input <- length(data)
+  
+  purrr::map_dfr(seq_along(data), function(x) {
+    
+    data <- dplyr::filter(data[[x]], i == max(i))
+    
+    message("> Progress: ", x, "/", length_input, " || Using ", nrow(data), " points.")
+    
+    data <- spatstat::ppp(x = data$x, y = data$y, 
+                              window = window)
+    
+    index <- spatstat::clarkevans(data, ...)
+    
+    tibble::add_column(tibble::tibble(clark = index), 
+                       parameter = names_input[[x]], .before = 1)
+    
+  }, .id = "id") 
+}
+
+#### SA_local_results_structure.R ####
+
+calc_dbh_dist <- function(data, threshold, by = 1) {
+  
+  names_input <- names(data)
+  
+  length_input <- length(data)
+  
+  purrr::map_dfr(seq_along(data), function(x) {
+    
+    data <- dplyr::filter(data[[x]], i == max(i), dbh > threshold)
+    
+    message("> Progress: ", x, "/", length_input, " || Using ", nrow(data), " points.")
+    
+    dplyr::mutate(data, dbh_group = cut(dbh, breaks = seq(from = 0, to = max(dbh) + by, by = by))) %>%
+      dplyr::group_by(dbh_group) %>% 
+      dplyr::summarise(n = dplyr::n()) %>% 
+      dplyr::mutate(dbh_group = 1:nrow(.)) %>%
+      tibble::add_column(parameter = names_input[[x]], .before = 1)
+  }, .id = "id")
+}
+
+calc_growth <- function(data, threshold, by = 1) {
+  
+  names_input <- names(data)
+  
+  length_input <- length(data)
+  
+  purrr::map_dfr(seq_along(data), function(x) {
+    
+    years <- max(data[[x]]$i)
+    
+    data_start <- dplyr::filter(data[[x]], i == min(i))
+    data_end <- dplyr::filter(data[[x]], i == max(i))
+    
+    data_merge <- dplyr::left_join(x = data_end[, c("id", "dbh")], 
+                                   y = data_start[, c("id", "dbh")], 
+                                   by = "id", suffix = c("_end", "_start"))
+    
+    message("> Progress: ", x, "/", length_input, " || Using ", nrow(data_merge), " points.")
+    
+    dplyr::mutate(data_merge, 
+                  dbh_start = dplyr::case_when(is.na(dbh_start) ~ 0, 
+                                   !is.na(dbh_start) ~ dbh_start),
+                  dbh_inc = (dbh_end - dbh_start) / years) %>%
+      tibble::add_column(parameter = names_input[[x]], .before = 1)
+  }, .id = "id_map")
+}
+
+calc_died <- function(data) {
+  
+  names_input <- names(data)
+  
+  length_input <- length(data)
+  
+  purrr::map_dfr(seq_along(data), function(x) {
+    
+    data_dead <- dplyr::filter(data[[x]], type == "dead")
+    
+    data_start <- dplyr::filter(data[[x]], i == min(i))
+
+    data_merge <- dplyr::anti_join(x = data_dead[, "id"], 
+                                   y = data_start[, "id"], 
+                                   by = "id", suffix = c("_dead", "_start"))
+    
+    message("> Progress: ", x, "/", length_input, " || Using ", nrow(data_merge), " points.")
+    
+    tibble::tibble(n_died = nrow(data_merge)) %>%
+      tibble::add_column(parameter = names_input[[x]], .before = 1)
+  }, .id = "id_map")
 }
