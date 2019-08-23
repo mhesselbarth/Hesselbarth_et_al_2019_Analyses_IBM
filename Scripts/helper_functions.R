@@ -140,14 +140,21 @@ calc_dbh_dist <- function(data, threshold, by = 1) {
   
   purrr::map_dfr(seq_along(data), function(x) {
     
-    data <- dplyr::filter(data[[x]], i == max(i), dbh > threshold)
+    data <- dplyr::filter(data[[x]], 
+                          i == max(i), dbh > threshold, type != "dead")
     
-    message("> Progress: ", x, "/", length_input, " || Using ", nrow(data), " points.")
+    n_points <- nrow(data)
     
-    dplyr::mutate(data, dbh_group = cut(dbh, breaks = seq(from = 0, to = max(dbh) + by, by = by))) %>%
+    message("> Progress: ", x, "/", length_input, " || Using ", n_points, " points.")
+    
+    dplyr::mutate(data, 
+                  dbh_group = cut(dbh, breaks = seq(from = 0, 
+                                                    to = max(dbh) + by, 
+                                                    by = by), labels = FALSE)) %>%
       dplyr::group_by(dbh_group) %>% 
-      dplyr::summarise(n = dplyr::n()) %>% 
-      dplyr::mutate(dbh_group = 1:nrow(.)) %>%
+      dplyr::summarise(n = dplyr::n(), 
+                       n_rel = n / n_points) %>% 
+      dplyr::mutate(dbh_group = dbh_group - 1) %>%
       tibble::add_column(parameter = names_input[[x]], .before = 1)
   }, .id = "id")
 }

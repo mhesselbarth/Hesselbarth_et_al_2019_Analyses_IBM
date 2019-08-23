@@ -24,8 +24,6 @@ save_each <- 50
 return_nested <- FALSE
 verbose <- FALSE
 
-rm(pattern_1999_recon)
-
 #### Create parameters ####
 # increase parameters by 5% and 10%
 parameters_beech_inc_5 <- change_parameters(x = parameters_beech_default, 
@@ -56,6 +54,8 @@ data <- tibble::as_tibble(pattern_1999_recon) %>%
                 species = "beech") %>%
   rabmp::prepare_data(x = "x", y = "y", species = "species", type = "type", dbh = "dbh")
 
+rm(pattern_1999_recon)
+
 #### Default parameters ####
 # sa_default <- purrr::map(parameters_beech_default, function(x) {
 #   rabmp::run_model(data = data,
@@ -80,7 +80,7 @@ sa_default <- suppoRt::submit_to_cluster(rabmp::run_model,
                                          template = list(job_name = "sa_default",
                                                          walltime = "06:00:00",
                                                          queue = "medium", 
-                                                         mem_cpu = "3G", 
+                                                         mem_cpu = "3072", 
                                                          log_file = "sa_default.log"))
 
 names(sa_default) <- rep("default", times = repetitions)
@@ -102,7 +102,7 @@ rm(sa_default)
 #                    return_nested = return_nested,
 #                    verbose = TRUE)})
 
-sa_increased_5 <- suppoRt::submit_to_cluster(wrap_run_model,
+sa_increased_5 <- suppoRt::submit_to_cluster(rabmp::run_model,
                                              parameters = parameters_beech_inc_5,
                                              const = list(data = data,
                                                           plot_area = plot_area,
@@ -115,7 +115,7 @@ sa_increased_5 <- suppoRt::submit_to_cluster(wrap_run_model,
                                              template = list(job_name = "sa_inc_5",
                                                              walltime = "06:00:00",
                                                              queue = "medium", 
-                                                             mem_cpu = "3G", 
+                                                             mem_cpu = "3072", 
                                                              log_file = "sa_inc_5.log"))
 
 names(sa_increased_5) <- names(parameters_beech_inc_5)
@@ -136,7 +136,7 @@ rm(sa_increased_5)
 #                    return_nested = return_nested,
 #                    verbose = TRUE)})
 
-sa_increased_10 <- suppoRt::submit_to_cluster(wrap_run_model,
+sa_increased_10 <- suppoRt::submit_to_cluster(rabmp::run_model,
                                               parameters = parameters_beech_inc_10,
                                               const = list(data = data,
                                                            plot_area = plot_area,
@@ -149,7 +149,7 @@ sa_increased_10 <- suppoRt::submit_to_cluster(wrap_run_model,
                                               template = list(job_name = "sa_inc_10",
                                                               walltime = "06:00:00",
                                                               queue = "medium", 
-                                                              mem_cpu = "3G", 
+                                                              mem_cpu = "3072", 
                                                               log_file = "sa_inc_10.log"))
 
 names(sa_increased_10) <- names(parameters_beech_inc_10)
@@ -171,7 +171,7 @@ rm(sa_increased_10)
 #                    return_nested = return_nested,
 #                    verbose = TRUE)})
 
-sa_decreased_5 <- suppoRt::submit_to_cluster(wrap_run_model,
+sa_decreased_5 <- suppoRt::submit_to_cluster(rabmp::run_model,
                                              parameters = parameters_beech_dec_5,
                                              const = list(data = data,
                                                           plot_area = plot_area,
@@ -184,7 +184,7 @@ sa_decreased_5 <- suppoRt::submit_to_cluster(wrap_run_model,
                                              template = list(job_name = "sa_dec_5",
                                                              walltime = "06:00:00",
                                                              queue = "medium", 
-                                                             mem_cpu = "3G", 
+                                                             mem_cpu = "3072", 
                                                              log_file = "sa_dec_5.log"))
 
 names(sa_decreased_5) <- names(parameters_beech_dec_5)
@@ -205,7 +205,7 @@ rm(sa_decreased_5)
 #                    return_nested = return_nested,
 #                    verbose = TRUE)})
 
-sa_decreased_10 <- suppoRt::submit_to_cluster(wrap_run_model,
+sa_decreased_10 <- suppoRt::submit_to_cluster(rabmp::run_model,
                                               parameters = parameters_beech_dec_10,
                                               const = list(data = data,
                                                            plot_area = plot_area,
@@ -218,7 +218,7 @@ sa_decreased_10 <- suppoRt::submit_to_cluster(wrap_run_model,
                                               template = list(job_name = "sa_dec_10",
                                                               walltime = "06:00:00",
                                                               queue = "medium", 
-                                                              mem_cpu = "3G", 
+                                                              mem_cpu = "3072", 
                                                               log_file = "sa_dec_10.log"))
 
 names(sa_decreased_10) <- names(parameters_beech_dec_10)

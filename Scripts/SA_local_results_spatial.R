@@ -12,15 +12,15 @@ source("Scripts/helper_functions.R")
 #### Import data ####
 
 # import model runs default
-sa_default <- readr::read_rds("Data/Output/sa_default.rds")
+sa_default <- readr::read_rds("Data/Output/Example/sa_default.rds")
 
 # import increased parameters
-sa_increased_5 <- readr::read_rds("Data/Output/sa_increased_5.rds")
-sa_increased_10 <- readr::read_rds("Data/Output/sa_increased_10.rds")
+sa_increased_5 <- readr::read_rds("Data/Output/Example/sa_increased_5.rds")
+sa_increased_10 <- readr::read_rds("Data/Output/Example/sa_increased_10.rds")
 
 # import decreased parameters
-sa_decreased_5 <- readr::read_rds("Data/Output/sa_decreased_5.rds")
-sa_decreased_10 <- readr::read_rds("Data/Output/sa_decreased_10.rds")
+sa_decreased_5 <- readr::read_rds("Data/Output/Example/sa_decreased_5.rds")
+sa_decreased_10 <- readr::read_rds("Data/Output/Example/sa_decreased_10.rds")
 
 # get observation window
 window <- spatstat::owin(xrange = c(0, 500), yrange = c(0, 500))
@@ -268,7 +268,7 @@ sa_inc_5_clark <- calc_clark(data = sa_increased_5, correction = "cdf",
                              window = window) %>% 
   dplyr::group_by(parameter) %>% 
   dplyr::summarise(diff_abs = mean(clark) - sa_default_clark$mean, 
-                   diff_rel = diff_abs / sa_default_clark$mean, 
+                   diff_rel = diff_abs / sa_default_clark$mean * 100, 
                    n = n()) %>% 
   dplyr::mutate(diff_scl = diff_rel / max(abs(diff_rel)), 
                 direction = "Increased", 
@@ -278,7 +278,7 @@ sa_inc_10_clark <- calc_clark(data = sa_increased_10, correction = "cdf",
                           window = window) %>% 
   dplyr::group_by(parameter) %>% 
   dplyr::summarise(diff_abs = mean(clark) - sa_default_clark$mean, 
-                   diff_rel = diff_abs / sa_default_clark$mean, 
+                   diff_rel = diff_abs / sa_default_clark$mean * 100, 
                    n = n()) %>% 
   dplyr::mutate(diff_scl = diff_rel / max(abs(diff_rel)), 
                 direction = "Increased", 
@@ -288,7 +288,7 @@ sa_dec_5_clark <- calc_clark(data = sa_decreased_5, correction = "cdf",
                          window = window) %>% 
   dplyr::group_by(parameter) %>% 
   dplyr::summarise(diff_abs = mean(clark) - sa_default_clark$mean, 
-                   diff_rel = diff_abs / sa_default_clark$mean, 
+                   diff_rel = diff_abs / sa_default_clark$mean * 100, 
                    n = n()) %>% 
   dplyr::mutate(diff_scl = diff_rel / max(abs(diff_rel)), 
                 direction = "Decreased", 
@@ -298,7 +298,7 @@ sa_dec_10_clark <- calc_clark(data = sa_decreased_10, correction = "cdf",
                               window = window) %>% 
   dplyr::group_by(parameter) %>% 
   dplyr::summarise(diff_abs = mean(clark) - sa_default_clark$mean, 
-                   diff_rel = diff_abs / sa_default_clark$mean, 
+                   diff_rel = diff_abs / sa_default_clark$mean * 100, 
                    n = n()) %>% 
   dplyr::mutate(diff_scl = diff_rel / max(abs(diff_rel)), 
                 direction = "Decreased", 
@@ -318,10 +318,15 @@ sa_ggplot_clark <- ggplot(data = sa_overall_clark) +
            stat = "identity", width = 0.75, position = "dodge",
            col = "black") +
   geom_hline(yintercept = 0) +
+  geom_hline(yintercept = 5, linetype = 2, col = "#440154FF") + 
+  geom_hline(yintercept = 10, linetype = 2, col = "#FDE725FF") + 
+  geom_hline(yintercept = -5, linetype = 2, col = "#440154FF") + 
+  geom_hline(yintercept = -10, linetype = 2, col = "#FDE725FF") + 
   facet_wrap(~ direction) +   
   coord_flip() +
+  scale_y_continuous(breaks = seq(-10, 10, 5)) + 
   scale_fill_viridis_d(name = "Parameter\nchange", option = "D") + 
-  labs(x = "Parameter", y = "Relative difference CE Index") + 
+  labs(x = "Parameter", y = "Relative difference CE Index [%]") + 
   theme_classic(base_size = 15)
 
 suppoRt::save_ggplot(plot = sa_ggplot_clark, 
