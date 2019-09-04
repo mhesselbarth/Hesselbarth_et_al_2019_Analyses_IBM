@@ -12,15 +12,15 @@ source("Scripts/helper_functions.R")
 #### Import data ####
 
 # import model runs default
-sa_default <- readr::read_rds("Data/Output/Example/sa_default.rds")
+sa_default <- readr::read_rds("Data/Output/sa_default.rds")
 
 # import increased parameters
-sa_increased_5 <- readr::read_rds("Data/Output/Example/sa_increased_5.rds")
-sa_increased_10 <- readr::read_rds("Data/Output/Example/sa_increased_10.rds")
+sa_increased_5 <- readr::read_rds("Data/Output/sa_increased_5.rds")
+sa_increased_10 <- readr::read_rds("Data/Output/sa_increased_10.rds")
 
 # import decreased parameters
-sa_decreased_5 <- readr::read_rds("Data/Output/Example/sa_decreased_5.rds")
-sa_decreased_10 <- readr::read_rds("Data/Output/Example/sa_decreased_10.rds")
+sa_decreased_5 <- readr::read_rds("Data/Output/sa_decreased_5.rds")
+sa_decreased_10 <- readr::read_rds("Data/Output/sa_decreased_10.rds")
 
 threshold <- 5
 overwrite <- TRUE
@@ -29,7 +29,7 @@ overwrite <- TRUE
 #### Default parameters ####
 
 sa_default_dbh_dist <- calc_dbh_dist(data = sa_default, threshold = threshold) %>% 
-  dplyr::group_by(parameter, dbh_group) %>% 
+  dplyr::group_by(parameter, dbh_class) %>% 
   dplyr::summarise(mean = mean(n_rel), 
                    min = min(n_rel), 
                    max = max(n_rel), 
@@ -37,7 +37,7 @@ sa_default_dbh_dist <- calc_dbh_dist(data = sa_default, threshold = threshold) %
 
 #### Calculate changed parameters ####
 sa_inc_5_dbh_dist <- calc_dbh_dist(data = sa_increased_5, threshold = threshold) %>% 
-  dplyr::group_by(parameter, dbh_group) %>% 
+  dplyr::group_by(parameter, dbh_class) %>% 
   dplyr::summarise(mean = mean(n_rel), 
                    min = min(n_rel), 
                    max = max(n_rel), 
@@ -46,7 +46,7 @@ sa_inc_5_dbh_dist <- calc_dbh_dist(data = sa_increased_5, threshold = threshold)
                 strength = "5%")
 
 sa_inc_10_dbh_dist <- calc_dbh_dist(data = sa_increased_10, threshold = threshold) %>% 
-  dplyr::group_by(parameter, dbh_group) %>% 
+  dplyr::group_by(parameter, dbh_class) %>% 
   dplyr::summarise(mean = mean(n_rel), 
                    min = min(n_rel), 
                    max = max(n_rel), 
@@ -55,7 +55,7 @@ sa_inc_10_dbh_dist <- calc_dbh_dist(data = sa_increased_10, threshold = threshol
                 strength = "10%")
 
 sa_dec_5_dbh_dist <- calc_dbh_dist(data = sa_decreased_5, threshold = threshold) %>% 
-  dplyr::group_by(parameter, dbh_group) %>% 
+  dplyr::group_by(parameter, dbh_class) %>% 
   dplyr::summarise(mean = mean(n_rel), 
                    min = min(n_rel), 
                    max = max(n_rel), 
@@ -64,7 +64,7 @@ sa_dec_5_dbh_dist <- calc_dbh_dist(data = sa_decreased_5, threshold = threshold)
                 strength = "5%")
 
 sa_dec_10_dbh_dist <- calc_dbh_dist(data = sa_decreased_10, threshold = threshold) %>% 
-  dplyr::group_by(parameter, dbh_group) %>% 
+  dplyr::group_by(parameter, dbh_class) %>% 
   dplyr::summarise(mean = mean(n_rel), 
                    min = min(n_rel), 
                    max = max(n_rel), 
@@ -82,8 +82,8 @@ sa_overall_dbh_dist <- dplyr::bind_rows(sa_inc_5_dbh_dist,
                 strength = forcats::as_factor(strength))
 
 sa_ggplot_dbh_dist <- ggplot(data = sa_overall_dbh_dist) + 
-  geom_bar(data = sa_default_dbh_dist, aes(x = dbh_group, y = mean), stat = "identity") +
-  geom_line(aes(x = dbh_group, y = mean, col = parameter), linetype = 1) +
+  geom_bar(data = sa_default_dbh_dist, aes(x = dbh_class, y = mean), stat = "identity") +
+  geom_line(aes(x = dbh_class, y = mean, col = parameter), linetype = 1) +
   facet_wrap(~ combined) +
   scale_colour_viridis_d(name = "Parameter", option = "D") +
   scale_x_continuous(name = "DBH class [cm]",

@@ -60,7 +60,7 @@ rm(pattern_1999_recon)
 # sa_default <- purrr::map(parameters_beech_default, function(x) {
 #   rabmp::run_model(data = data,
 #                    parameters = x,
-#                    # plot_area = plot_area,
+#                    plot_area = plot_area,
 #                    years = years,
 #                    seed_dispersal = seed_dispersal,
 #                    save_each = save_each,
@@ -95,7 +95,7 @@ rm(sa_default)
 # sa_increased_5 <- purrr::map(parameters_beech_inc_5, function(x) {
 #   rabmp::run_model(data = data,
 #                    parameters = x,
-#                    # plot_area = plot_area,
+#                    plot_area = plot_area,
 #                    years = years,
 #                    seed_dispersal = seed_dispersal,
 #                    save_each = save_each,
@@ -129,7 +129,7 @@ rm(sa_increased_5)
 # sa_increased_10 <- purrr::map(parameters_beech_inc_10, function(x) {
 #   rabmp::run_model(data = data,
 #                    parameters = x,
-#                    # plot_area = plot_area,
+#                    plot_area = plot_area,
 #                    years = years,
 #                    seed_dispersal = seed_dispersal,
 #                    save_each = save_each,
@@ -164,7 +164,7 @@ rm(sa_increased_10)
 # sa_decreased_5 <- purrr::map(parameters_beech_dec_5, function(x) {
 #   rabmp::run_model(data = data,
 #                    parameters = x,
-#                    # plot_area = plot_area,
+#                    plot_area = plot_area,
 #                    years = years,
 #                    seed_dispersal = seed_dispersal,
 #                    save_each = save_each,
@@ -198,7 +198,7 @@ rm(sa_decreased_5)
 # sa_decreased_10 <- purrr::map(parameters_beech_dec_10, function(x) {
 #   rabmp::run_model(data = data,
 #                    parameters = x,
-#                    # plot_area = plot_area,
+#                    plot_area = plot_area,
 #                    years = years,
 #                    seed_dispersal = seed_dispersal,
 #                    save_each = save_each,

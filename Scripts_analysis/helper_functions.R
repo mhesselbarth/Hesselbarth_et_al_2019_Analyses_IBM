@@ -30,22 +30,51 @@ change_parameters <- function(x, change, return_list = TRUE) {
 
 #### SA_local_results_spatial.R ####
 
-calc_pcf <- function(data, window, r, ...) {
+calc_pcf <- function(data, window, r, 
+                     fast = TRUE,
+                     smaller = NULL, bigger = NULL, ...) {
   
   names_input <- names(data)
   
   length_input <- length(data)
   
   purrr::map_dfr(seq_along(data), function(x) {
+  
+    if (is.null(smaller) && is.null(bigger)) {
+      
+      data <- dplyr::filter(data[[x]], i == max(i))
+    }
     
-    data <- dplyr::filter(data[[x]], i == max(i))
+    else{
+      
+      if (!is.null(smaller) && is.null(bigger)) { 
+        
+        data <- dplyr::filter(data[[x]], i == max(i), dbh < smaller)
+      }
+      
+      else if (is.null(smaller) && !is.null(bigger)) {
+        
+        data <- dplyr::filter(data[[x]], i == max(i), dbh > bigger)
+      }
+      
+      else {
+        
+        stop("Not possible to provide 'smaller' and 'bigger'.")
+      }
+    }
     
     message("> Progress: ", x, "/", length_input, " || Using ", nrow(data), " points.")
     
     data <- spatstat::ppp(x = data$x, y = data$y, 
                           window = window)
     
-    sf <- shar::estimate_pcf_fast(data, r = r, ...)
+    if (fast) {
+      sf <- shar::estimate_pcf_fast(data, r = r, ...)
+    }
+    
+    else{
+      sf <- spatstat::pcf(data, r = r, ...)
+    }
     
     tibble::add_column(tibble::as_tibble(sf), 
                        parameter = names_input[[x]], .before = 1)
@@ -53,7 +82,7 @@ calc_pcf <- function(data, window, r, ...) {
   }, .id = "id") 
 }
 
-calc_nnd <- function(data, window, r, ...) {
+calc_nnd <- function(data, window, r, smaller = NULL, bigger = NULL, ...) {
   
   names_input <- names(data)
   
@@ -61,7 +90,28 @@ calc_nnd <- function(data, window, r, ...) {
   
   purrr::map_dfr(seq_along(data), function(x) {
     
-    data <- dplyr::filter(data[[x]], i == max(i))
+    if (is.null(smaller) && is.null(bigger)) {
+      
+      data <- dplyr::filter(data[[x]], i == max(i))
+    }
+    
+    else{
+      
+      if (!is.null(smaller) && is.null(bigger)) { 
+        
+        data <- dplyr::filter(data[[x]], i == max(i), dbh < smaller)
+      }
+      
+      else if (is.null(smaller) && !is.null(bigger)) {
+        
+        data <- dplyr::filter(data[[x]], i == max(i), dbh > bigger)
+      }
+      
+      else {
+        
+        stop("Not possible to provide 'smaller' and 'bigger'.")
+      }
+    }
     
     message("> Progress: ", x, "/", length_input, " || Using ", nrow(data), " points.")
     
@@ -154,7 +204,7 @@ calc_dbh_dist <- function(data, threshold, by = 1) {
       dplyr::group_by(dbh_group) %>% 
       dplyr::summarise(n = dplyr::n(), 
                        n_rel = n / n_points) %>% 
-      dplyr::mutate(dbh_group = dbh_group - 1) %>%
+      dplyr::mutate(dbh_class = dbh_group - 1) %>%
       tibble::add_column(parameter = names_input[[x]], .before = 1)
   }, .id = "id")
 }
@@ -169,8 +219,8 @@ calc_growth <- function(data, threshold, by = 1) {
     
     years <- max(data[[x]]$i)
     
-    data_start <- dplyr::filter(data[[x]], i == min(i))
-    data_end <- dplyr::filter(data[[x]], i == max(i))
+    data_start <- dplyr::filter(data[[x]], i == min(i), type != "dead")
+    data_end <- dplyr::filter(data[[x]], i == max(i), type != "dead")
     
     data_merge <- dplyr::left_join(x = data_end[, c("id", "dbh")], 
                                    y = data_start[, c("id", "dbh")], 
