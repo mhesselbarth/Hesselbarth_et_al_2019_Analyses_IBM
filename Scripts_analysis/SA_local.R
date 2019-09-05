@@ -11,7 +11,7 @@ parameters_beech_default <- rabmp::read_parameters("Data/Input/parameters_beech.
 
 pattern_1999_recon <- readr::read_rds("Data/Input/pattern_1999_reconstructed.rds")
 
-source("Scripts/helper_functions.R")
+source("Scripts_analysis/helper_functions_sa.R")
 
 #### Set SA parameters ####
 repetitions <- 10 # 50
@@ -19,7 +19,6 @@ repetitions <- 10 # 50
 
 plot_area <- pattern_1999_recon$window
 years <- 50 # 50
-seed_dispersal <- TRUE
 save_each <- 50
 return_nested <- FALSE
 verbose <- FALSE
@@ -62,7 +61,6 @@ rm(pattern_1999_recon)
 #                    parameters = x,
 #                    plot_area = plot_area,
 #                    years = years,
-#                    seed_dispersal = seed_dispersal,
 #                    save_each = save_each,
 #                    return_nested = return_nested,
 #                    verbose = TRUE)})
@@ -72,7 +70,6 @@ sa_default <- suppoRt::submit_to_cluster(rabmp::run_model,
                                          const = list(data = data,
                                                       plot_area = plot_area,
                                                       years = years,
-                                                      seed_dispersal = seed_dispersal,
                                                       save_each = save_each,
                                                       return_nested = return_nested,
                                                       verbose = verbose),
@@ -97,7 +94,6 @@ rm(sa_default)
 #                    parameters = x,
 #                    plot_area = plot_area,
 #                    years = years,
-#                    seed_dispersal = seed_dispersal,
 #                    save_each = save_each,
 #                    return_nested = return_nested,
 #                    verbose = TRUE)})
@@ -107,7 +103,6 @@ sa_increased_5 <- suppoRt::submit_to_cluster(rabmp::run_model,
                                              const = list(data = data,
                                                           plot_area = plot_area,
                                                           years = years,
-                                                          seed_dispersal = seed_dispersal,
                                                           save_each = save_each,
                                                           return_nested = return_nested,
                                                           verbose = verbose),
@@ -131,7 +126,6 @@ rm(sa_increased_5)
 #                    parameters = x,
 #                    plot_area = plot_area,
 #                    years = years,
-#                    seed_dispersal = seed_dispersal,
 #                    save_each = save_each,
 #                    return_nested = return_nested,
 #                    verbose = TRUE)})
@@ -141,7 +135,6 @@ sa_increased_10 <- suppoRt::submit_to_cluster(rabmp::run_model,
                                               const = list(data = data,
                                                            plot_area = plot_area,
                                                            years = years,
-                                                           seed_dispersal = seed_dispersal,
                                                            save_each = save_each,
                                                            return_nested = return_nested,
                                                            verbose = verbose),
@@ -166,7 +159,6 @@ rm(sa_increased_10)
 #                    parameters = x,
 #                    plot_area = plot_area,
 #                    years = years,
-#                    seed_dispersal = seed_dispersal,
 #                    save_each = save_each,
 #                    return_nested = return_nested,
 #                    verbose = TRUE)})
@@ -176,7 +168,6 @@ sa_decreased_5 <- suppoRt::submit_to_cluster(rabmp::run_model,
                                              const = list(data = data,
                                                           plot_area = plot_area,
                                                           years = years,
-                                                          seed_dispersal = seed_dispersal,
                                                           save_each = save_each,
                                                           return_nested = return_nested,
                                                           verbose = verbose),
@@ -200,7 +191,6 @@ rm(sa_decreased_5)
 #                    parameters = x,
 #                    plot_area = plot_area,
 #                    years = years,
-#                    seed_dispersal = seed_dispersal,
 #                    save_each = save_each,
 #                    return_nested = return_nested,
 #                    verbose = TRUE)})
@@ -210,7 +200,6 @@ sa_decreased_10 <- suppoRt::submit_to_cluster(rabmp::run_model,
                                               const = list(data = data,
                                                            plot_area = plot_area,
                                                            years = years,
-                                                           seed_dispersal = seed_dispersal,
                                                            save_each = save_each,
                                                            return_nested = return_nested,
                                                            verbose = verbose),
