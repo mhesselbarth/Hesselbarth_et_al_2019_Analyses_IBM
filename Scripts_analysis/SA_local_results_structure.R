@@ -7,7 +7,7 @@ library(sensitivity)
 library(spatstat)
 library(tidyverse)
 
-source("Scripts/helper_functions.R")
+source("Scripts_analysis/helper_functions_sa_structure.R")
 
 #### Import data ####
 
@@ -22,21 +22,40 @@ sa_increased_10 <- readr::read_rds("Data/Output/sa_increased_10.rds")
 sa_decreased_5 <- readr::read_rds("Data/Output/sa_decreased_5.rds")
 sa_decreased_10 <- readr::read_rds("Data/Output/sa_decreased_10.rds")
 
-threshold <- 5
 overwrite <- TRUE
 
 #### DBH distribution ####
-#### Default parameters ####
+smaller_small <- 1
 
-sa_default_dbh_dist <- calc_dbh_dist(data = sa_default, threshold = threshold) %>% 
+bigger_large <- 1
+bigger_small <- 0
+
+by_large <- 10
+by_small <- 0.1
+
+#### Default parameters ####
+sa_default_dbh_dist_large <- calc_dbh_dist(data = sa_default, bigger = bigger_large, 
+                                           by = by_large) %>% 
   dplyr::group_by(parameter, dbh_class) %>% 
   dplyr::summarise(mean = mean(n_rel), 
                    min = min(n_rel), 
                    max = max(n_rel), 
                    sd = sd(n_rel))
 
+sa_default_dbh_dist_small <- calc_dbh_dist(data = sa_default,
+                                           bigger = bigger_small, smaller = smaller_small,
+                                           by = by_small) %>%
+  dplyr::group_by(parameter, dbh_class) %>%
+  dplyr::summarise(mean = mean(n_rel),
+                   min = min(n_rel),
+                   max = max(n_rel),
+                   sd = sd(n_rel))
+
 #### Calculate changed parameters ####
-sa_inc_5_dbh_dist <- calc_dbh_dist(data = sa_increased_5, threshold = threshold) %>% 
+# Increased #
+sa_inc_5_dbh_dist_large <- calc_dbh_dist(data = sa_increased_5, 
+                                         bigger = bigger_large,
+                                         by = by_large) %>% 
   dplyr::group_by(parameter, dbh_class) %>% 
   dplyr::summarise(mean = mean(n_rel), 
                    min = min(n_rel), 
@@ -45,7 +64,20 @@ sa_inc_5_dbh_dist <- calc_dbh_dist(data = sa_increased_5, threshold = threshold)
   dplyr::mutate(direction = "Increased", 
                 strength = "5%")
 
-sa_inc_10_dbh_dist <- calc_dbh_dist(data = sa_increased_10, threshold = threshold) %>% 
+sa_inc_5_dbh_dist_small <- calc_dbh_dist(data = sa_increased_5,
+                                         bigger = bigger_small, smaller = smaller,
+                                         by = by_small) %>%
+  dplyr::group_by(parameter, dbh_class) %>%
+  dplyr::summarise(mean = mean(n_rel),
+                   min = min(n_rel),
+                   max = max(n_rel),
+                   sd = sd(n_rel)) %>%
+  dplyr::mutate(direction = "Increased",
+                strength = "5%")
+
+sa_inc_10_dbh_dist_large <- calc_dbh_dist(data = sa_increased_10, 
+                                          bigger = bigger_large, 
+                                          by = by_large) %>% 
   dplyr::group_by(parameter, dbh_class) %>% 
   dplyr::summarise(mean = mean(n_rel), 
                    min = min(n_rel), 
@@ -54,7 +86,21 @@ sa_inc_10_dbh_dist <- calc_dbh_dist(data = sa_increased_10, threshold = threshol
   dplyr::mutate(direction = "Increased", 
                 strength = "10%")
 
-sa_dec_5_dbh_dist <- calc_dbh_dist(data = sa_decreased_5, threshold = threshold) %>% 
+sa_inc_10_dbh_dist_small <- calc_dbh_dist(data = sa_increased_10,
+                                          bigger = bigger_small, smaller = smaller,
+                                          by = by_small) %>%
+  dplyr::group_by(parameter, dbh_class) %>%
+  dplyr::summarise(mean = mean(n_rel),
+                   min = min(n_rel),
+                   max = max(n_rel),
+                   sd = sd(n_rel)) %>%
+  dplyr::mutate(direction = "Increased",
+                strength = "10%")
+
+# Decreased #
+sa_dec_5_dbh_dist_large <- calc_dbh_dist(data = sa_decreased_5, 
+                                         bigger = bigger_large, 
+                                         by = by_large) %>% 
   dplyr::group_by(parameter, dbh_class) %>% 
   dplyr::summarise(mean = mean(n_rel), 
                    min = min(n_rel), 
@@ -63,42 +109,110 @@ sa_dec_5_dbh_dist <- calc_dbh_dist(data = sa_decreased_5, threshold = threshold)
   dplyr::mutate(direction = "Decreased", 
                 strength = "5%")
 
-sa_dec_10_dbh_dist <- calc_dbh_dist(data = sa_decreased_10, threshold = threshold) %>% 
+sa_dec_5_dbh_dist_small <- calc_dbh_dist(data = sa_decreased_5,
+                                         bigger = bigger_small, smaller = smaller,
+                                         by = by_small) %>%
+  dplyr::group_by(parameter, dbh_class) %>%
+  dplyr::summarise(mean = mean(n_rel),
+                   min = min(n_rel),
+                   max = max(n_rel),
+                   sd = sd(n_rel)) %>%
+  dplyr::mutate(direction = "Decreased",
+                strength = "5%")
+
+sa_dec_10_dbh_dist_large <- calc_dbh_dist(data = sa_decreased_10, 
+                                          bigger = bigger_large,
+                                          by = by_large) %>% 
   dplyr::group_by(parameter, dbh_class) %>% 
   dplyr::summarise(mean = mean(n_rel), 
                    min = min(n_rel), 
                    max = max(n_rel), 
                    sd = sd(n_rel)) %>%
   dplyr::mutate(direction = "Decreased", 
+                strength = "10%")
+
+sa_dec_10_dbh_dist_small <- calc_dbh_dist(data = sa_decreased_10,
+                                          bigger = bigger_small, smaller = smaller,
+                                          by = by_small) %>%
+  dplyr::group_by(parameter, dbh_class) %>%
+  dplyr::summarise(mean = mean(n_rel),
+                   min = min(n_rel),
+                   max = max(n_rel),
+                   sd = sd(n_rel)) %>%
+  dplyr::mutate(direction = "Decreased",
                 strength = "10%")
 
 #### Plot results ####
-sa_overall_dbh_dist <- dplyr::bind_rows(sa_inc_5_dbh_dist, 
-                                        sa_inc_10_dbh_dist, 
-                                        sa_dec_5_dbh_dist,
-                                        sa_dec_10_dbh_dist) %>% 
+sa_overall_dbh_dist_large <- dplyr::bind_rows(sa_inc_5_dbh_dist_large, 
+                                              sa_inc_10_dbh_dist_large, 
+                                              sa_dec_5_dbh_dist_large,
+                                              sa_dec_10_dbh_dist_large) %>% 
+  dplyr::ungroup() %>% 
   dplyr::mutate(combined = forcats::as_factor(paste(direction, strength)),
                 direction = forcats::as_factor(direction),
-                strength = forcats::as_factor(strength))
+                strength = forcats::as_factor(strength), 
+                parameter = forcats::as_factor(parameter))
 
-sa_ggplot_dbh_dist <- ggplot(data = sa_overall_dbh_dist) + 
-  geom_bar(data = sa_default_dbh_dist, aes(x = dbh_class, y = mean), stat = "identity") +
-  geom_line(aes(x = dbh_class, y = mean, col = parameter), linetype = 1) +
+min_class_large <- min(sa_overall_dbh_dist_large$dbh_class)
+max_class_large <- max(sa_overall_dbh_dist_large$dbh_class)
+
+sa_overall_dbh_dist_small <- dplyr::bind_rows(sa_inc_5_dbh_dist_small,
+                                              sa_inc_10_dbh_dist_small,
+                                              sa_dec_5_dbh_dist_small,
+                                              sa_dec_10_dbh_dist_small) %>%
+  dplyr::ungroup() %>%
+  dplyr::mutate(combined = forcats::as_factor(paste(direction, strength)),
+                direction = forcats::as_factor(direction),
+                strength = forcats::as_factor(strength),
+                parameter = forcats::as_factor(parameter))
+
+min_class_small <- min(sa_overall_dbh_dist_small$dbh_class)
+max_class_small <- max(sa_overall_dbh_dist_small$dbh_class)
+
+sa_ggplot_dbh_dist_large <- ggplot(data = sa_overall_dbh_dist_large) + 
+  geom_bar(data = sa_default_dbh_dist_large, 
+           aes(x = dbh_class, y = mean), stat = "identity") +
+  geom_errorbar(data = sa_default_dbh_dist_large, 
+                aes(x = dbh_class, ymin = min, ymax = max), width = 0.5) + 
+  geom_point(aes(x = dbh_class, y = mean, col = parameter), pch = 19) +
   facet_wrap(~ combined) +
   scale_colour_viridis_d(name = "Parameter", option = "D") +
   scale_x_continuous(name = "DBH class [cm]",
-                     breaks = seq(from = threshold,
-                                  to = 120,
-                                  by = 10),
-                     labels = paste0(">" ,seq(from = threshold,
-                                              to = 120,
-                                              by = 10))) +
+                     breaks = seq(from = min_class_large,
+                                  to = max_class_large,
+                                  by = 1),
+                     labels = paste0(">", seq(from = min_class_large,
+                                              to = max_class_large * by_large,
+                                              by = by_large))) +
   scale_y_continuous(name = "Relative frequency") +
   theme_classic(base_size = 15)
 
-suppoRt::save_ggplot(plot = sa_ggplot_dbh_dist, 
-                     filename = "sa_ggplot_dbh_dist.png", path = "Figures/", 
-                     dpi = 300, width = 30, height = 15, units = "cm", 
+sa_ggplot_dbh_dist_small <- ggplot(data = sa_overall_dbh_dist_small) +
+  geom_bar(data = sa_default_dbh_dist_small,
+           aes(x = dbh_class, y = mean), stat = "identity") +
+  geom_errorbar(data = sa_default_dbh_dist_small,
+                aes(x = dbh_class, ymin = min, ymax = max), width = 0.5) +
+  geom_point(aes(x = dbh_class, y = mean, col = parameter), pch = 19) +
+  facet_wrap(~ combined) +
+  scale_colour_viridis_d(name = "Parameter", option = "D") +
+  scale_x_continuous(name = "DBH class [cm]",
+                     breaks = seq(from = min_class_small,
+                                  to = max_class_small,
+                                  by = 1),
+                     labels = paste0(">", seq(from = bigger_small + by_small,
+                                              to = smaller_small - by_small,
+                                              by = by_small))) +
+  scale_y_continuous(name = "Relative frequency") +
+  theme_classic(base_size = 15)
+
+suppoRt::save_ggplot(plot = sa_ggplot_dbh_dist_large, 
+                     filename = "sa_ggplot_dbh_dist_large.png", path = "Figures/", 
+                     dpi = 300, width = 35, height = 15, units = "cm", 
+                     overwrite = overwrite)
+
+suppoRt::save_ggplot(plot = sa_ggplot_dbh_dist_small,
+                     filename = "sa_ggplot_dbh_dist_small.png", path = "Figures/",
+                     dpi = 300, width = 35, height = 15, units = "cm",
                      overwrite = overwrite)
 
 #### DBH growth ####
