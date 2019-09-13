@@ -10,14 +10,11 @@ parameters_beech_default <- rabmp::read_parameters("Data/Input/parameters_beech.
 
 pattern_1999_recon <- readr::read_rds("Data/Input/pattern_1999_reconstructed.rds")
 
-source("Scripts/helper_functions.R")
-
 #### Set SA parameters ####
 repetitions <- 50 # 50
 
 plot_area <- pattern_1999_recon$window
 years <- rep(x = 100, times = repetitions) # 50
-seed_dispersal <- TRUE
 save_each <- 100
 return_nested <- FALSE
 verbose <- FALSE
@@ -39,7 +36,6 @@ rm(pattern_1999_recon)
 #                    parameters = parameters_beech_default,
 #                    plot_area = plot_area,
 #                    years = x,
-#                    seed_dispersal = seed_dispersal,
 #                    save_each = save_each,
 #                    return_nested = return_nested,
 #                    verbose = TRUE)})
@@ -49,7 +45,6 @@ model_run_y100_r50_e100 <- suppoRt::submit_to_cluster(rabmp::run_model,
                                                       const = list(data = data,
                                                                    parameters = parameters_beech_default,
                                                                    plot_area = plot_area,
-                                                                   seed_dispersal = seed_dispersal,
                                                                    save_each = save_each,
                                                                    return_nested = return_nested,
                                                                    verbose = verbose),

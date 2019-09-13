@@ -5,7 +5,7 @@ library(suppoRt) # devtools::install_github("mhesselbarth/suppoRt")
 library(spatstat)
 library(tidyverse)
 
-source("Scripts_analysis/helper_functions.R")
+source("Helper_functions/helper_functions_comparison.R")
 
 pattern_1999 <- readr::read_rds("Data/Input/pattern_1999.rds")
 pattern_2007 <- readr::read_rds("Data/Input/pattern_2007.rds")

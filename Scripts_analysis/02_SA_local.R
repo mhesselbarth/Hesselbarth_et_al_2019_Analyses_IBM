@@ -1,3 +1,13 @@
+###################################################
+##    Author: Maximilian H.K. Hesselbarth        ##
+##    Department of Ecosystem Modelling          ##
+##    University of Goettingen                   ##
+##    maximilian.hesselbarth@uni-goettingen.de   ##
+##    www.github.com/mhesselbarth                ##
+###################################################
+
+#### Local sensitivity analysis ####
+
 #### Import libraries and data ####
 
 # load packages #
@@ -9,15 +19,14 @@ library(tidyverse)
 
 parameters_beech_default <- rabmp::read_parameters("Data/Input/parameters_beech.txt", return_list = TRUE)
 
-pattern_1999_recon <- readr::read_rds("Data/Input/pattern_1999_reconstructed.rds")
+beech_1999_rec <- readr::read_rds("Data/Input/beech_1999_rec.rds")
 
-source("Scripts_analysis/helper_functions_sa.R")
+source("Helper_functions/helper_functions_sa.R")
 
 #### Set SA parameters ####
 repetitions <- 10 # 50
-# repetitions_hpc <- rep(x = 1, times = repetitions)
 
-plot_area <- pattern_1999_recon$window
+plot_area <- beech_1999_rec$window
 years <- 50 # 50
 save_each <- 50
 return_nested <- FALSE
@@ -46,11 +55,7 @@ parameters_beech_default <- list(parameters_beech_default) %>%
 
 #### Pre-processing of input data ####
 
-data <- tibble::as_tibble(pattern_1999_recon) %>%
-  dplyr::filter(species == "Beech") %>%
-  dplyr::mutate(type = dplyr::case_when(type == "living" ~ "adult",
-                                        type == "dead" ~ "dead"),
-                species = "beech") %>%
+data <- tibble::as_tibble(beech_1999_rec) %>%
   rabmp::prepare_data(x = "x", y = "y", species = "species", type = "type", dbh = "dbh")
 
 rm(pattern_1999_recon)
