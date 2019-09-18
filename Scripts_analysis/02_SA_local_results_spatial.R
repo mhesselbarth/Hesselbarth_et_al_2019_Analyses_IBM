@@ -7,10 +7,10 @@ library(sensitivity)
 library(spatstat)
 library(tidyverse)
 
-source("Scripts_analysis/helper_functions_sa_spatial.R")
+source("Helper_functions/helper_functions_sa_spatial.R")
 
 #### Import data ####
-pattern_1999_recon <- readr::read_rds("Data/Input/pattern_1999_reconstructed.rds")
+beech_1999_rec <- readr::read_rds("Data/Input/beech_1999_rec.rds")
 
 # import model runs default
 sa_default <- readr::read_rds("Data/Output/sa_default.rds")
@@ -25,571 +25,422 @@ sa_decreased_10 <- readr::read_rds("Data/Output/sa_decreased_10.rds")
 
 #### Set parameters ####
 # get observation window
-window <- pattern_1999_recon$window
+window <- readr::read_rds("Data/Raw/plot_area_owin.rds")
 
 # rm(pattern_1999_recon)
 
-# calulate r 
-r <- seq(from = 0,
-         to = spatstat::rmax.rule(W = window,
-                                  lambda = nrow(dplyr::filter(sa_default[[1]], 
-                                                              i == max(i))) / 
-                                    spatstat::area(window)),
-         length.out = 515)
-
 # set parameters
 overwrite <- FALSE
+base_size <- 15
 
 #### Pair-correlation function ####
-#### Calculate default result #### 
-sa_default_pcf_large <- calc_pcf(data = sa_default, correction = "Ripley", r = r,
-                                 fast = FALSE, divisor = "d",
-                                 window = window, bigger = 10) %>% 
-  dplyr::group_by(r) %>% 
-  dplyr::summarise(theo = mean(theo), 
-                   min = min(iso), 
-                   max = max(iso), 
-                   n = n())
 
-sa_default_pcf_small <- calc_pcf(data = sa_default, correction = "Ripley", r = r,
-                                 fast = FALSE, divisor = "d",
-                                 window = window, bigger = 1, smaller = 10) %>% 
-  dplyr::group_by(r) %>% 
-  dplyr::summarise(theo = mean(theo), 
-                   min = min(iso), 
-                   max = max(iso), 
-                   n = n())
+# set parameters #
+correction <- "good"
+divisor <- "d" 
+fast <- FALSE
+r <- seq(from = 0, to = 50, length.out = 525)
 
-# rm(sa_default)
+# r <- seq(from = 0,
+#          to = spatstat::rmax.rule(W = window,
+#                                   lambda = nrow(dplyr::filter(sa_default[[1]], 
+#                                                               i == max(i))) / 
+#                                     spatstat::area(window)),
+#          length.out = 525)
 
-#### Calculate changed parameters ####
-# Increased #
-sa_inc_5_pcf_large <- calc_pcf(data = sa_increased_5, correction = "Ripley", r = r,
-                            fast = FALSE, divisor = "d",
-                            window = window, bigger = 10) %>% 
-  dplyr::group_by(parameter, r) %>% 
-  dplyr::summarise(theo = mean(theo), 
-                   pcf = mean(iso),
-                   n = n()) %>%
-  dplyr::mutate(direction = "Increased", 
-                strength = "5%")
+# increased parameters #
+sa_pcf_increased_5 <- calc_pcf(default = sa_default,
+                               changed = sa_increased_5,
+                               correction = correction,
+                               window = window, r = r, 
+                               fast = fast) %>% 
+  dplyr::bind_rows(.id = "parameter") %>% 
+  dplyr::group_by(parameter, r) %>%
+  dplyr::summarise(theo.default = mean(theo.default, na.rm = TRUE),
+                   theo.changed = mean(theo.changed, na.rm = TRUE),
+                   pcf_diff = mean(pcf_diff, na.rm = TRUE)) %>% 
+  dplyr::ungroup() %>%
+  dplyr::mutate(parameter = factor(parameter),
+                direction = "Increased 5%")
 
-sa_inc_5_pcf_small <- calc_pcf(data = sa_increased_5, correction = "Ripley", r = r,
-                               fast = FALSE, divisor = "d",
-                               window = window, bigger = 1, smaller = 10) %>% 
-  dplyr::group_by(parameter, r) %>% 
-  dplyr::summarise(theo = mean(theo), 
-                   pcf = mean(iso),
-                   n = n()) %>%
-  dplyr::mutate(direction = "Increased", 
-                strength = "5%")
+sa_pcf_increased_10 <- calc_pcf(default = sa_default,
+                                changed = sa_increased_10,
+                                correction = correction,
+                                window = window, r = r, 
+                                fast = fast) %>% 
+  dplyr::bind_rows(.id = "parameter") %>% 
+  dplyr::group_by(parameter, r) %>%
+  dplyr::summarise(theo.default = mean(theo.default, na.rm = TRUE),
+                   theo.changed = mean(theo.changed, na.rm = TRUE),
+                   pcf_diff = mean(pcf_diff, na.rm = TRUE)) %>% 
+  dplyr::ungroup() %>%
+  dplyr::mutate(parameter = factor(parameter),
+                direction = "Increased 10%")
 
-sa_inc_10_pcf_large <- calc_pcf(data = sa_increased_10, correction = "Ripley", r = r,
-                             fast = FALSE, divisor = "d",
-                             window = window, bigger = 10) %>% 
-  dplyr::group_by(parameter, r) %>% 
-  dplyr::summarise(theo = mean(theo), 
-                   pcf = mean(iso),
-                   n = n()) %>%
-  dplyr::mutate(direction = "Increased", 
-                strength = "10%")
+sa_pcf_increased <- dplyr::bind_rows(sa_pcf_increased_5, sa_pcf_increased_10) %>% 
+  dplyr::mutate(direction = factor(direction, 
+                                   levels = c("Increased 5%", 
+                                              "Increased 10%")))
 
-sa_inc_10_pcf_small <- calc_pcf(data = sa_increased_10, correction = "Ripley", r = r,
-                                fast = FALSE, divisor = "d",
-                                window = window, bigger = 1, smaller = 10) %>% 
-  dplyr::group_by(parameter, r) %>% 
-  dplyr::summarise(theo = mean(theo), 
-                   pcf = mean(iso),
-                   n = n()) %>%
-  dplyr::mutate(direction = "Increased", 
-                strength = "10%")
+ggplot_sa_pcf_inc <- ggplot(data = sa_pcf_increased) + 
+  geom_line(aes(x = r, y = pcf_diff * 100, col = parameter)) + 
+  geom_hline(yintercept = 0) + 
+  facet_wrap(~ direction) +
+  scale_x_continuous(name = "r [m]" ,) +
+  scale_y_continuous(name = "Relative difference pcf(r) [%]") +
+  scale_color_viridis_d(name = "Parameter change") +
+  theme_classic(base_size = base_size) + 
+  theme(legend.position = "bottom")
 
-# rm(list = c("sa_increased_5", "sa_increased_10"))
+suppoRt::save_ggplot(plot = ggplot_sa_pcf_inc, 
+                     filename = "ggplot_sa_pcf_inc.png", 
+                     path = "Figures/", 
+                     width = 29.7, height = 21.0, units = "cm", dpi = 300)
 
-# Decreased #
-sa_dec_5_pcf_large <- calc_pcf(data = sa_decreased_5, correction = "Ripley", r = r,
-                               fast = FALSE, divisor = "d",
-                               window = window, bigger = 10) %>% 
-  dplyr::group_by(parameter, r) %>% 
-  dplyr::summarise(theo = mean(theo), 
-                   pcf = mean(iso),
-                   n = n()) %>%
-  dplyr::mutate(direction = "Decreased", 
-                strength = "5%")
+# decreased parameters #
+sa_pcf_decreased_5 <- calc_pcf(default = sa_default,
+                               changed = sa_decreased_5,
+                               correction = correction,
+                               window = window, r = r, 
+                               fast = fast) %>% 
+  dplyr::bind_rows(.id = "parameter") %>% 
+  dplyr::group_by(parameter, r) %>%
+  dplyr::summarise(theo.default = mean(theo.default, na.rm = TRUE),
+                   theo.changed = mean(theo.changed, na.rm = TRUE),
+                   pcf_diff = mean(pcf_diff, na.rm = TRUE)) %>% 
+  dplyr::ungroup() %>%
+  dplyr::mutate(parameter = factor(parameter),
+                direction = "Decreased 5%")
 
-sa_dec_5_pcf_small <- calc_pcf(data = sa_decreased_5, correction = "Ripley", r = r,
-                               fast = FALSE, divisor = "d",
-                               window = window, bigger = 1, smaller = 10) %>% 
-  dplyr::group_by(parameter, r) %>% 
-  dplyr::summarise(theo = mean(theo), 
-                   pcf = mean(iso),
-                   n = n()) %>%
-  dplyr::mutate(direction = "Decreased", 
-                strength = "5%")
+sa_pcf_decreased_10 <- calc_pcf(default = sa_default,
+                                changed = sa_decreased_10,
+                                correction = correction,
+                                window = window, r = r, 
+                                fast = fast) %>% 
+  dplyr::bind_rows(.id = "parameter") %>% 
+  dplyr::group_by(parameter, r) %>%
+  dplyr::summarise(theo.default = mean(theo.default, na.rm = TRUE),
+                   theo.changed = mean(theo.changed, na.rm = TRUE),
+                   pcf_diff = mean(pcf_diff, na.rm = TRUE)) %>% 
+  dplyr::ungroup() %>%
+  dplyr::mutate(parameter = factor(parameter),
+                direction = "Decreased 10%")
 
-sa_dec_10_pcf_large <- calc_pcf(data = sa_decreased_10, correction = "Ripley", r = r,
-                                fast = FALSE, divisor = "d",
-                                window = window, bigger = 10) %>% 
-  dplyr::group_by(parameter, r) %>% 
-  dplyr::summarise(theo = mean(theo), 
-                   pcf = mean(iso),
-                   n = n()) %>%
-  dplyr::mutate(direction = "Decreased", 
-                strength = "10%")
+sa_pcf_decreased <- dplyr::bind_rows(sa_pcf_decreased_5, sa_pcf_decreased_10) %>% 
+  dplyr::mutate(direction = factor(direction, 
+                                   levels = c("Decreased 5%", 
+                                              "Decreased 10%")))
 
-sa_dec_10_pcf_small <- calc_pcf(data = sa_decreased_10, correction = "Ripley", r = r,
-                                fast = FALSE, divisor = "d",
-                                window = window, bigger = 1, smaller = 10) %>% 
-  dplyr::group_by(parameter, r) %>% 
-  dplyr::summarise(theo = mean(theo), 
-                   pcf = mean(iso),
-                   n = n()) %>%
-  dplyr::mutate(direction = "Decreased", 
-                strength = "10%")
+ggplot_sa_pcf_dec <- ggplot(data = sa_pcf_decreased) + 
+  geom_line(aes(x = r, y = pcf_diff * 100, col = parameter)) + 
+  geom_hline(yintercept = 0) + 
+  facet_wrap(~ direction) +
+  scale_x_continuous(name = "r [m]" ,) +
+  scale_y_continuous(name = "Relative difference pcf(r) [%]") +
+  scale_color_viridis_d(name = "Parameter change") +
+  theme_classic(base_size = base_size) + 
+  theme(legend.position = "bottom")
 
-# rm(list = c("sa_decreased_5", "sa_decreased_10"))
-
-#### Plot results ####
-sa_overall_pcf_large <- dplyr::bind_rows(sa_inc_5_pcf_large, 
-                                         sa_inc_10_pcf_large, 
-                                         sa_dec_5_pcf_large,
-                                         sa_dec_10_pcf_large) %>% 
-  dplyr::ungroup() %>% 
-  dplyr::mutate(combined = forcats::as_factor(paste(direction, strength)),
-                direction = forcats::as_factor(direction),
-                strength = forcats::as_factor(strength), 
-                parameter = forcats::as_factor(parameter))
-
-sa_overall_pcf_small <- dplyr::bind_rows(sa_inc_5_pcf_small, 
-                                         sa_inc_10_pcf_small, 
-                                         sa_dec_5_pcf_small,
-                                         sa_dec_10_pcf_small) %>% 
-  dplyr::ungroup() %>% 
-  dplyr::mutate(combined = forcats::as_factor(paste(direction, strength)),
-                direction = forcats::as_factor(direction),
-                strength = forcats::as_factor(strength), 
-                parameter = forcats::as_factor(parameter))
-
-# create plot
-sa_ggplot_pcf_large <- ggplot(data = sa_overall_pcf_large) + 
-  geom_ribbon(data = sa_default_pcf_large,
-              aes(x = r, ymin = min, ymax = max), fill = "grey") +
-  geom_line(aes(x = r, y = pcf, col = parameter)) +
-  geom_hline(yintercept = 1, linetype = 2) +
-  facet_wrap(~ combined) +
-  scale_colour_viridis_d(name = "Parameter", option = "D") +
-  labs(x = "r [m]", y = "pcf(r)") + 
-  theme_classic(base_size = 15)
-
-sa_ggplot_pcf_small <- ggplot(data = sa_overall_pcf_small) + 
-  geom_ribbon(data = sa_default_pcf_small,
-              aes(x = r, ymin = min, ymax = max), fill = "grey") +
-  geom_line(aes(x = r, y = pcf, col = parameter)) +
-  geom_hline(yintercept = 1, linetype = 2) +
-  facet_wrap(~ combined) +
-  scale_colour_viridis_d(name = "Parameter", option = "D") +
-  labs(x = "r [m]", y = "pcf(r)") + 
-  theme_classic(base_size = 15)
-
-suppoRt::save_ggplot(plot = sa_ggplot_pcf_large, 
-                     filename = "sa_ggplot_pcf_large.png", path = "Figures/", 
-                     dpi = 300, width = 30, height = 15, units = "cm", 
-                     overwrite = overwrite)
-
-suppoRt::save_ggplot(plot = sa_ggplot_pcf_small, 
-                     filename = "sa_ggplot_pcf_small.png", path = "Figures/", 
-                     dpi = 300, width = 30, height = 15, units = "cm", 
-                     overwrite = overwrite)
+suppoRt::save_ggplot(plot = ggplot_sa_pcf_dec, 
+                     filename = "ggplot_sa_pcf_dec.png", 
+                     path = "Figures/", 
+                     width = 29.7, height = 21.0, units = "cm", dpi = 300)
 
 #### Nearest neighbor distribution function ####
-#### Calculate default result #### 
-sa_default_nnd_large <- calc_nnd(data = sa_default, correction = "km", r = r, 
-                              window = window, bigger = 10) %>% 
-  dplyr::group_by(r) %>% 
-  dplyr::summarise(theo = mean(theo), 
-                   min = min(km), 
-                   max = max(km), 
-                   n = n())
 
-sa_default_nnd_small <- calc_nnd(data = sa_default, correction = "km", r = r, 
-                                 window = window, bigger = 1, smaller = 10) %>% 
-  dplyr::group_by(r) %>% 
-  dplyr::summarise(theo = mean(theo), 
-                   min = min(km), 
-                   max = max(km), 
-                   n = n())
+# set parameters #
+correction <- "km"
+r <- seq(from = 0, to = 10, length.out = 525)
 
-#### Calculate changed parameters ####
-# Increased # 
-sa_inc_5_nnd_large <- calc_nnd(data = sa_increased_5, correction = "km", r = r, 
-                               window = window, bigger = 10) %>% 
+# increased parameters #
+sa_nnd_increased_5 <- calc_nnd(default = sa_default,
+                               changed = sa_increased_5,
+                               correction = correction,
+                               window = window, r = r) %>% 
+  dplyr::bind_rows(.id = "parameter") %>% 
   dplyr::group_by(parameter, r) %>% 
-  dplyr::summarise(theo = mean(theo), 
-                   iso = mean(km),
-                   n = n()) %>%
-  dplyr::mutate(direction = "Increased", 
-                strength = "5%")
-
-sa_inc_5_nnd_small <- calc_nnd(data = sa_increased_5, correction = "km", r = r, 
-                               window = window, bigger = 1, smaller = 10) %>% 
-  dplyr::group_by(parameter, r) %>% 
-  dplyr::summarise(theo = mean(theo), 
-                   iso = mean(km),
-                   n = n()) %>%
-  dplyr::mutate(direction = "Increased", 
-                strength = "5%")
-
-sa_inc_10_nnd_large <- calc_nnd(data = sa_increased_10, correction = "km", r = r, 
-                                window = window, bigger = 5) %>% 
-  dplyr::group_by(parameter, r) %>% 
-  dplyr::summarise(theo = mean(theo), 
-                   iso = mean(km),
-                   n = n()) %>%
-  dplyr::mutate(direction = "Increased", 
-                strength = "10%")
-
-sa_inc_10_nnd_small <- calc_nnd(data = sa_increased_10, correction = "km", r = r, 
-                                window = window, bigger = 1, smaller = 10) %>% 
-  dplyr::group_by(parameter, r) %>% 
-  dplyr::summarise(theo = mean(theo), 
-                   iso = mean(km),
-                   n = n()) %>%
-  dplyr::mutate(direction = "Increased", 
-                strength = "10%")
-
-# rm(list = c("sa_increased_5", "sa_increased_10"))
-
-# Decreased # 
-sa_dec_5_nnd_large <- calc_nnd(data = sa_decreased_5, correction = "km", r = r, 
-                               window = window, bigger = 10) %>% 
-  dplyr::group_by(parameter, r) %>% 
-  dplyr::summarise(theo = mean(theo), 
-                   iso = mean(km),
-                   n = n()) %>%
-  dplyr::mutate(direction = "Decreased", 
-                strength = "5%")
-
-sa_dec_5_nnd_small <- calc_nnd(data = sa_decreased_5, correction = "km", r = r, 
-                               window = window, bigger = 1, smaller = 10) %>% 
-  dplyr::group_by(parameter, r) %>% 
-  dplyr::summarise(theo = mean(theo), 
-                   iso = mean(km),
-                   n = n()) %>%
-  dplyr::mutate(direction = "Decreased", 
-                strength = "5%")
-
-sa_dec_10_nnd_large <- calc_nnd(data = sa_decreased_10, correction = "km", r = r, 
-                             window = window, bigger = 10) %>% 
-  dplyr::group_by(parameter, r) %>% 
-  dplyr::summarise(theo = mean(theo), 
-                   iso = mean(km),
-                   n = n()) %>%
-  dplyr::mutate(direction = "Decreased", 
-                strength = "10%")
-
-sa_dec_10_nnd_small <- calc_nnd(data = sa_decreased_10, correction = "km", r = r, 
-                                window = window, bigger = 1, smaller = 10) %>% 
-  dplyr::group_by(parameter, r) %>% 
-  dplyr::summarise(theo = mean(theo), 
-                   iso = mean(km),
-                   n = n()) %>%
-  dplyr::mutate(direction = "Decreased", 
-                strength = "10%")
-
-# rm(list = c("sa_decreased_5", "sa_decreased_10"))
-
-#### Plot results ####
-sa_overall_nnd_large <- dplyr::bind_rows(sa_inc_5_nnd_large, 
-                                         sa_inc_10_nnd_large, 
-                                         sa_dec_5_nnd_large,
-                                         sa_dec_10_nnd_large) %>% 
+  dplyr::summarise(theo.default = mean(theo.default, na.rm = TRUE), 
+                   theo.changed = mean(theo.changed, na.rm = TRUE), 
+                   nnd_diff = mean(nnd_diff, na.rm = TRUE)) %>% 
   dplyr::ungroup() %>% 
-  dplyr::mutate(combined = forcats::as_factor(paste(direction, strength)),
-                direction = forcats::as_factor(direction),
-                strength = forcats::as_factor(strength), 
-                parameter = forcats::as_factor(parameter))
+  dplyr::mutate(parameter = factor(parameter), 
+                direction = "Increased 5%")
 
-sa_overall_nnd_small <- dplyr::bind_rows(sa_inc_5_nnd_small, 
-                                         sa_inc_10_nnd_small, 
-                                         sa_dec_5_nnd_small,
-                                         sa_dec_10_nnd_small) %>% 
+sa_nnd_increased_10 <- calc_nnd(default = sa_default,
+                                changed = sa_increased_10,
+                                correction = correction,
+                                window = window, r = r) %>% 
+  dplyr::bind_rows(.id = "parameter") %>% 
+  dplyr::group_by(parameter, r) %>% 
+  dplyr::summarise(theo.default = mean(theo.default, na.rm = TRUE), 
+                   theo.changed = mean(theo.changed, na.rm = TRUE), 
+                   nnd_diff = mean(nnd_diff, na.rm = TRUE)) %>% 
   dplyr::ungroup() %>% 
-  dplyr::mutate(combined = forcats::as_factor(paste(direction, strength)),
-                direction = forcats::as_factor(direction),
-                strength = forcats::as_factor(strength), 
-                parameter = forcats::as_factor(parameter))
+  dplyr::mutate(parameter = factor(parameter), 
+                direction = "Increased 10%")
 
-sa_ggplot_nnd_large <- ggplot(data = sa_overall_nnd_large) + 
-  geom_ribbon(data = sa_default_nnd_large, aes(x = r, ymin = min, ymax = max), 
-              fill = "grey") +
-  geom_line(aes(x = r, y = iso, col = parameter)) +
-  facet_wrap(~ combined) +
-  scale_colour_viridis_d(name = "Parameter", option = "D") +
-  labs(x = "r [m]", y = "nnd(r)") + 
-  coord_cartesian(xlim = c(0, 10)) +
-  theme_classic(base_size = 15)
+sa_nnd_increased <- dplyr::bind_rows(sa_nnd_increased_5, sa_nnd_increased_10) %>% 
+  dplyr::mutate(direction = factor(direction, 
+                                   levels = c("Increased 5%", 
+                                              "Increased 10%")))
 
-sa_ggplot_nnd_small <- ggplot(data = sa_overall_nnd_small) + 
-  geom_ribbon(data = sa_default_nnd_small, aes(x = r, ymin = min, ymax = max), 
-              fill = "grey") +
-  geom_line(aes(x = r, y = iso, col = parameter)) +
-  facet_wrap(~ combined) +
-  scale_colour_viridis_d(name = "Parameter", option = "D") +
-  labs(x = "r [m]", y = "nnd(r)") + 
-  coord_cartesian(xlim = c(0, 10)) +
-  theme_classic(base_size = 15)
+ggplot_sa_nnd_inc <- ggplot(data = sa_nnd_increased) + 
+  geom_line(aes(x = r, y = nnd_diff * 100, col = parameter)) + 
+  geom_hline(yintercept = 0) + 
+  facet_wrap(~ direction) +
+  scale_x_continuous(name = "r [m]" ,) +
+  scale_y_continuous(name = "Relative difference G(r) [%]") +
+  scale_color_viridis_d(name = "Parameter change") +
+  theme_classic(base_size = base_size) + 
+  theme(legend.position = "bottom")
 
-suppoRt::save_ggplot(plot = sa_ggplot_nnd_large, 
-                     filename = "sa_ggplot_nnd_large.png", path = "Figures/", 
-                     dpi = 300, width = 30, height = 15, units = "cm", 
-                     overwrite = overwrite)
+suppoRt::save_ggplot(plot = ggplot_sa_nnd_inc, 
+                     filename = "ggplot_sa_nnd_inc.png", 
+                     path = "Figures/", 
+                     width = 29.7, height = 21.0, units = "cm", dpi = 300)
 
-suppoRt::save_ggplot(plot = sa_ggplot_nnd_small, 
-                     filename = "sa_ggplot_nnd_small.png", path = "Figures/", 
-                     dpi = 300, width = 30, height = 15, units = "cm", 
-                     overwrite = overwrite)
+# decreased values #
+sa_nnd_decreased_5 <- calc_nnd(default = sa_default,
+                               changed = sa_decreased_5,
+                               correction = correction,
+                               window = window, r = r) %>% 
+  dplyr::bind_rows(.id = "parameter") %>% 
+  dplyr::group_by(parameter, r) %>% 
+  dplyr::summarise(theo.default = mean(theo.default, na.rm = TRUE), 
+                   theo.changed = mean(theo.changed, na.rm = TRUE), 
+                   nnd_diff = mean(nnd_diff, na.rm = TRUE)) %>% 
+  dplyr::ungroup() %>% 
+  dplyr::mutate(parameter = factor(parameter), 
+                direction = "Decreased 5%")
 
-# #### Mark-correlation function ####
-# 
-# # STH WRONG HERE! # 
-# 
-# #### Calculate default result #### 
-# 
-# sa_default_kmm <- calc_kmm(data = sa_default, correction = "Ripley",
-#                            window = window) %>% 
-#   # dplyr::mutate(id = as.numeric(id)) %>%
-#   dplyr::group_by(r) %>% 
-#   dplyr::summarise(theo = mean(theo), 
-#                    min = min(iso), 
-#                    max = max(iso), 
-#                    n = n())
-# 
-# #### Calculate changed parameters ####
-# 
-# sa_inc_5_kmm <- calc_kmm(data = sa_increased_5, correction = "Ripley", 
-#                          window = window) %>% 
-#   # dplyr::mutate(id = as.numeric(id)) %>% 
-#   dplyr::group_by(parameter, r) %>% 
-#   dplyr::summarise(theo = mean(theo), 
-#                    iso = mean(iso),
-#                    n = n()) %>%
-#   dplyr::mutate(direction = "Increased 5%")
-# 
-# sa_inc_10_kmm <- calc_kmm(data = sa_increased_10, correction = "Ripley", 
-#                           window = window) %>% 
-#   # dplyr::mutate(id = as.numeric(id)) %>% 
-#   dplyr::group_by(parameter, r) %>% 
-#   dplyr::summarise(theo = mean(theo), 
-#                    iso = mean(iso),
-#                    n = n()) %>%
-#   dplyr::mutate(direction = "Increased 10%")
-# 
-# sa_dec_5_kmm <- calc_kmm(data = sa_decreased_5, correction = "Ripley", 
-#                          window = window) %>% 
-#   # dplyr::mutate(id = as.numeric(id)) %>% 
-#   dplyr::group_by(parameter, r) %>% 
-#   dplyr::summarise(theo = mean(theo), 
-#                    iso = mean(iso),
-#                    n = n()) %>%
-#   dplyr::mutate(direction = "Decreased 5%")
-# 
-# sa_dec_10_kmm <- calc_kmm(data = sa_decreased_10, correction = "Ripley", 
-#                           window = window) %>% 
-#   # dplyr::mutate(id = as.numeric(id)) %>% 
-#   dplyr::group_by(parameter, r) %>% 
-#   dplyr::summarise(theo = mean(theo), 
-#                    iso = mean(iso),
-#                    n = n()) %>%
-#   dplyr::mutate(direction = "Decreased 10%")
-# 
-# sa_overall_kmm <- dplyr::bind_rows(sa_inc_5_kmm,
-#                                    sa_inc_10_kmm,
-#                                    sa_dec_5_kmm,
-#                                    sa_dec_10_kmm) %>%
-#   dplyr::mutate(direction = forcats::as_factor(direction))
-# 
-# sa_ggplot_kmm <- ggplot(data = sa_overall_kmm) + 
-#   geom_ribbon(data = sa_default_kmm, aes(x = r, ymin = min, ymax = max), 
-#               fill = "grey") +
-#   # geom_line(aes(x = r, y = iso, col = parameter)) +
-#   facet_wrap(~ direction) +
-#   scale_colour_viridis_d(name = "Parameter", option = "D") +
-#   labs(x = "r [m]", y = "kmm(r)") + 
-#   coord_cartesian(xlim = c(0, 10)) +
-#   theme_classic(base_size = 15)
-# 
-# suppoRt::save_ggplot(plot = sa_ggplot_kmm, 
-#                      filename = "sa_ggplot_kmm.png", path = "Figures/", 
-#                      dpi = 300, width = 30, height = 15, units = "cm", 
-#                      overwrite = overwrite)
+sa_nnd_decreased_10 <- calc_nnd(default = sa_default,
+                                changed = sa_decreased_10,
+                                correction = correction,
+                                window = window, r = r) %>% 
+  dplyr::bind_rows(.id = "parameter") %>% 
+  dplyr::group_by(parameter, r) %>% 
+  dplyr::summarise(theo.default = mean(theo.default, na.rm = TRUE), 
+                   theo.changed = mean(theo.changed, na.rm = TRUE), 
+                   nnd_diff = mean(nnd_diff, na.rm = TRUE)) %>% 
+  dplyr::ungroup() %>% 
+  dplyr::mutate(parameter = factor(parameter), 
+                direction = "Decreased 10%")
 
+sa_nnd_decreased <- dplyr::bind_rows(sa_nnd_decreased_5, sa_nnd_decreased_10) %>% 
+  dplyr::mutate(direction = factor(direction, 
+                                   levels = c("Decreased 5%", 
+                                              "Decreased 10%")))
+
+ggplot_sa_nnd_dec <- ggplot(data = sa_nnd_decreased) + 
+  geom_line(aes(x = r, y = nnd_diff * 100, col = parameter)) + 
+  geom_hline(yintercept = 0) + 
+  facet_wrap(~ direction) +
+  scale_x_continuous(name = "r [m]" ,) +
+  scale_y_continuous(name = "Relative difference G(r) [%]") +
+  scale_color_viridis_d(name = "Parameter change") +
+  theme_classic(base_size = base_size) + 
+  theme(legend.position = "bottom")
+
+suppoRt::save_ggplot(plot = ggplot_sa_nnd_dec, 
+                     filename = "ggplot_sa_nnd_dec.png", 
+                     path = "Figures/", 
+                     width = 29.7, height = 21.0, units = "cm", dpi = 300)
+
+### Mark-correlation function ####
+
+# set parameters #
+correction <- "Ripley"
+r <- seq(from = 0, to = 50, length.out = 525)
+
+# r <- seq(from = 0,
+#          to = spatstat::rmax.rule(W = window,
+#                                   lambda = nrow(dplyr::filter(sa_default[[1]], 
+#                                                               i == max(i))) / 
+#                                     spatstat::area(window)),
+#          length.out = 525)
+
+# increased values #
+sa_kmm_increased_5 <- calc_kmm(default = sa_default,
+                               changed = sa_increased_5,
+                               window = window, r = r, 
+                               correction = correction) %>% 
+  dplyr::bind_rows(.id = "parameter") %>% 
+  dplyr::group_by(parameter, r) %>% 
+  dplyr::summarise(kmm_diff = mean(kmm_diff, na.rm = TRUE)) %>% 
+  dplyr::ungroup() %>% 
+  dplyr::mutate(parameter = factor(parameter), 
+                direction = "Increased 5%")
+
+sa_kmm_increased_10 <- calc_kmm(default = sa_default,
+                                changed = sa_increased_10,
+                                window = window, r = r, 
+                                correction = correction) %>% 
+  dplyr::bind_rows(.id = "parameter") %>% 
+  dplyr::group_by(parameter, r) %>% 
+  dplyr::summarise(kmm_diff = mean(kmm_diff, na.rm = TRUE)) %>% 
+  dplyr::ungroup() %>% 
+  dplyr::mutate(parameter = factor(parameter), 
+                direction = "Increased 10%")
+
+sa_kmm_increased <- dplyr::bind_rows(sa_kmm_increased_5, sa_kmm_increased_10) %>% 
+  dplyr::mutate(direction = factor(direction, 
+                                   levels = c("Increased 5%", 
+                                              "Increased 10%")))
+
+ggplot_sa_kmm_inc <- ggplot(data = sa_kmm_increased) + 
+  geom_line(aes(x = r, y = kmm_diff * 100, col = parameter)) + 
+  geom_hline(yintercept = 0) + 
+  facet_wrap(~ direction) +
+  scale_x_continuous(name = "r [m]" ,) +
+  scale_y_continuous(name = "Relative difference kmm(r) [%]") +
+  scale_color_viridis_d(name = "Parameter change") +
+  theme_classic(base_size = base_size) + 
+  theme(legend.position = "bottom")
+
+suppoRt::save_ggplot(plot = ggplot_sa_kmm_inc, 
+                     filename = "ggplot_sa_kmm_inc.png", 
+                     path = "Figures/", 
+                     width = 29.7, height = 21.0, units = "cm", dpi = 300)
+
+# decreased values #
+sa_kmm_decreased_5 <- calc_kmm(default = sa_default,
+                               changed = sa_decreased_5,
+                               window = window, r = r, 
+                               correction = correction) %>% 
+  dplyr::bind_rows(.id = "parameter") %>% 
+  dplyr::group_by(parameter, r) %>% 
+  dplyr::summarise(kmm_diff = mean(kmm_diff, na.rm = TRUE)) %>% 
+  dplyr::ungroup() %>% 
+  dplyr::mutate(parameter = factor(parameter), 
+                direction = "Decreased 5%")
+
+sa_kmm_decreased_10 <- calc_kmm(default = sa_default,
+                                changed = sa_decreased_10,
+                                window = window, r = r, 
+                                correction = correction) %>% 
+  dplyr::bind_rows(.id = "parameter") %>% 
+  dplyr::group_by(parameter, r) %>% 
+  dplyr::summarise(kmm_diff = mean(kmm_diff, na.rm = TRUE)) %>% 
+  dplyr::ungroup() %>% 
+  dplyr::mutate(parameter = factor(parameter), 
+                direction = "Decreased 10%")
+
+sa_kmm_decreased <- dplyr::bind_rows(sa_kmm_decreased_5, sa_kmm_decreased_10) %>% 
+  dplyr::mutate(direction = factor(direction, 
+                                   levels = c("Decreased 5%", 
+                                              "Decreased 10%")))
+
+ggplot_sa_kmm_dec <- ggplot(data = sa_kmm_decreased) + 
+  geom_line(aes(x = r, y = kmm_diff * 100, col = parameter)) + 
+  geom_hline(yintercept = 0) + 
+  facet_wrap(~ direction) +
+  scale_x_continuous(name = "r [m]" ,) +
+  scale_y_continuous(name = "Relative difference kmm(r) [%]") +
+  scale_color_viridis_d(name = "Parameter change") +
+  theme_classic(base_size = base_size) + 
+  theme(legend.position = "bottom")
+
+suppoRt::save_ggplot(plot = ggplot_sa_kmm_dec, 
+                     filename = "ggplot_sa_kmm_dec.png", 
+                     path = "Figures/", 
+                     width = 29.7, height = 21.0, units = "cm", dpi = 300)
 
 #### Clark and Evans Index ####
-#### Calculate default result #### 
-sa_default_clark_large <- calc_clark(data = sa_default, correction = "cdf",
-                                     window = window, bigger = 10) %>% 
+
+# increased parameters #
+sa_clark_increased_5 <- calc_clark(default = sa_default,
+                                   changed = sa_increased_5,
+                                   window = window) %>% 
+  dplyr::bind_rows(.id = "parameter") %>% 
   dplyr::group_by(parameter) %>% 
-  dplyr::summarise(mean = mean(clark), 
-                   min = min(clark), 
-                   max = max(clark),
-                   n = n())
-
-sa_default_clark_small <- calc_clark(data = sa_default, correction = "cdf",
-                                     window = window, bigger = 1, smaller = 10) %>% 
-  dplyr::group_by(parameter) %>% 
-  dplyr::summarise(mean = mean(clark), 
-                   min = min(clark), 
-                   max = max(clark),
-                   n = n())
-
-# rm(sa_default)
-
-#### Calculate changed parameters ####
-# Increased #
-sa_inc_5_clark_large <- calc_clark(data = sa_increased_5, correction = "cdf", 
-                                   window = window, bigger = 10) %>% 
-  dplyr::group_by(parameter) %>% 
-  dplyr::summarise(diff_abs = mean(clark) - sa_default_clark_large$mean, 
-                   diff_rel = diff_abs / sa_default_clark_large$mean * 100, 
-                   n = n()) %>% 
-  dplyr::mutate(diff_scl = diff_rel / max(abs(diff_rel)), 
-                direction = "Increased", 
-                strength = "5%")
-
-sa_inc_5_clark_small <- calc_clark(data = sa_increased_5, correction = "cdf", 
-                                   window = window, bigger = 1, smaller = 10) %>% 
-  dplyr::group_by(parameter) %>% 
-  dplyr::summarise(diff_abs = mean(clark) - sa_default_clark_small$mean, 
-                   diff_rel = diff_abs / sa_default_clark_small$mean * 100, 
-                   n = n()) %>% 
-  dplyr::mutate(diff_scl = diff_rel / max(abs(diff_rel)), 
-                direction = "Increased", 
-                strength = "5%")
-
-sa_inc_10_clark_large <- calc_clark(data = sa_increased_10, correction = "cdf", 
-                                    window = window, bigger = 10) %>% 
-  dplyr::group_by(parameter) %>% 
-  dplyr::summarise(diff_abs = mean(clark) - sa_default_clark_large$mean, 
-                   diff_rel = diff_abs / sa_default_clark_large$mean * 100, 
-                   n = n()) %>% 
-  dplyr::mutate(diff_scl = diff_rel / max(abs(diff_rel)), 
-                direction = "Increased", 
-                strength = "10%")
-
-sa_inc_10_clark_small <- calc_clark(data = sa_increased_10, correction = "cdf", 
-                                    window = window, bigger = 1, smaller = 10) %>% 
-  dplyr::group_by(parameter) %>% 
-  dplyr::summarise(diff_abs = mean(clark) - sa_default_clark_small$mean, 
-                   diff_rel = diff_abs / sa_default_clark_small$mean * 100, 
-                   n = n()) %>% 
-  dplyr::mutate(diff_scl = diff_rel / max(abs(diff_rel)), 
-                direction = "Increased", 
-                strength = "10%")
-
-# rm(list = c("sa_increased_5", "sa_increased_10"))
-
-# Decreased #
-sa_dec_5_clark_large <- calc_clark(data = sa_decreased_5, correction = "cdf", 
-                                   window = window, bigger = 10) %>% 
-  dplyr::group_by(parameter) %>% 
-  dplyr::summarise(diff_abs = mean(clark) - sa_default_clark_large$mean, 
-                   diff_rel = diff_abs / sa_default_clark_large$mean * 100, 
-                   n = n()) %>% 
-  dplyr::mutate(diff_scl = diff_rel / max(abs(diff_rel)), 
-                direction = "Decreased", 
-                strength = "5%")
-
-sa_dec_5_clark_small <- calc_clark(data = sa_decreased_5, correction = "cdf", 
-                                   window = window, bigger = 1, smaller = 10) %>% 
-  dplyr::group_by(parameter) %>% 
-  dplyr::summarise(diff_abs = mean(clark) - sa_default_clark_small$mean, 
-                   diff_rel = diff_abs / sa_default_clark_small$mean * 100, 
-                   n = n()) %>% 
-  dplyr::mutate(diff_scl = diff_rel / max(abs(diff_rel)), 
-                direction = "Decreased", 
-                strength = "5%")
-
-sa_dec_10_clark_large <- calc_clark(data = sa_decreased_10, correction = "cdf", 
-                                    window = window, bigger = 10) %>% 
-  dplyr::group_by(parameter) %>% 
-  dplyr::summarise(diff_abs = mean(clark) - sa_default_clark_large$mean, 
-                   diff_rel = diff_abs / sa_default_clark_large$mean * 100, 
-                   n = n()) %>% 
-  dplyr::mutate(diff_scl = diff_rel / max(abs(diff_rel)), 
-                direction = "Decreased", 
-                strength = "10%")
-
-sa_dec_10_clark_small <- calc_clark(data = sa_decreased_10, correction = "cdf", 
-                                    window = window, bigger = 1, smaller = 10) %>% 
-  dplyr::group_by(parameter) %>% 
-  dplyr::summarise(diff_abs = mean(clark) - sa_default_clark_small$mean, 
-                   diff_rel = diff_abs / sa_default_clark_small$mean * 100, 
-                   n = n()) %>% 
-  dplyr::mutate(diff_scl = diff_rel / max(abs(diff_rel)), 
-                direction = "Decreased", 
-                strength = "10%")
-
-# rm(list = c("sa_decreased_5", "sa_decreased_10"))
-
-#### Plot results ####
-sa_overall_clark_large <- dplyr::bind_rows(sa_inc_5_clark_large, 
-                                           sa_inc_10_clark_large, 
-                                           sa_dec_5_clark_large,
-                                           sa_dec_10_clark_large) %>% 
+  dplyr::summarise(diff_ce = mean(diff_ce, na.rm = TRUE)) %>% 
   dplyr::ungroup() %>% 
-  dplyr::mutate(combined = forcats::as_factor(paste(direction, strength)),
-                direction = forcats::as_factor(direction),
-                strength = forcats::as_factor(strength), 
-                parameter = forcats::as_factor(parameter))
+  dplyr::mutate(parameter = factor(parameter), 
+                direction = "Increased 5%")
 
-sa_overall_clark_small <- dplyr::bind_rows(sa_inc_5_clark_small, 
-                                           sa_inc_10_clark_small, 
-                                           sa_dec_5_clark_small,
-                                           sa_dec_10_clark_small) %>% 
+sa_clark_increased_10 <- calc_clark(default = sa_default,
+                                    changed = sa_increased_10,
+                                    window = window) %>% 
+  dplyr::bind_rows(.id = "parameter") %>% 
+  dplyr::group_by(parameter) %>% 
+  dplyr::summarise(diff_ce = mean(diff_ce, na.rm = TRUE)) %>% 
   dplyr::ungroup() %>% 
-  dplyr::mutate(combined = forcats::as_factor(paste(direction, strength)),
-                direction = forcats::as_factor(direction),
-                strength = forcats::as_factor(strength), 
-                parameter = forcats::as_factor(parameter))
+  dplyr::mutate(parameter = factor(parameter), 
+                direction = "Increased 10%")
 
-sa_ggplot_clark_large <- ggplot(data = sa_overall_clark_large) + 
-  geom_bar(aes(x = parameter, y = diff_rel, fill = strength), 
-           stat = "identity", width = 0.75, position = "dodge",
-           col = "black") +
-  geom_hline(yintercept = 0) +
+sa_clark_increased <- dplyr::bind_rows(sa_clark_increased_5, sa_clark_increased_10) %>% 
+  dplyr::mutate(direction = factor(direction, 
+                                   levels = c("Increased 5%", 
+                                              "Increased 10%")))
+
+ggplot_sa_clark_inc <-  ggplot(data = sa_clark_increased) + 
+  geom_bar(aes(x = parameter, y = diff_ce * 100, 
+               fill = direction), col = "black",
+           stat = "identity", position = "dodge") + 
+  geom_hline(yintercept = -10, linetype = 2, col = "#FDE725FF") + 
+  geom_hline(yintercept = -5, linetype = 2, col = "#440154FF") + 
+  geom_hline(yintercept = 0, linetype = 1) + 
   geom_hline(yintercept = 5, linetype = 2, col = "#440154FF") + 
   geom_hline(yintercept = 10, linetype = 2, col = "#FDE725FF") + 
-  geom_hline(yintercept = -5, linetype = 2, col = "#440154FF") + 
-  geom_hline(yintercept = -10, linetype = 2, col = "#FDE725FF") + 
-  facet_wrap(~ direction) +   
   coord_flip() +
-  scale_y_continuous(breaks = seq(-10, 10, 5)) + 
-  scale_fill_viridis_d(name = "Parameter\nchange", option = "D") + 
-  labs(x = "Parameter", y = "Relative difference CE Index [%]") + 
-  theme_classic(base_size = 15)
+  scale_x_discrete(name = "Parameter" ,) +
+  scale_y_continuous(name = "Relative difference CE index [%]", 
+                     limits = c(-12.5, 12.5)) +
+  scale_color_viridis_d(name = "Parameter change") +
+  scale_fill_viridis_d(name = "Parameter change") +
+  theme_classic(base_size = base_size) + 
+  theme(legend.position = "bottom")
 
-sa_ggplot_clark_small <- ggplot(data = sa_overall_clark_small) + 
-  geom_bar(aes(x = parameter, y = diff_rel, fill = strength), 
-           stat = "identity", width = 0.75, position = "dodge",
-           col = "black") +
-  geom_hline(yintercept = 0) +
+suppoRt::save_ggplot(plot = ggplot_sa_clark_inc, 
+                     filename = "ggplot_sa_clark_inc.png", 
+                     path = "Figures/", 
+                     width = 29.7, height = 21.0, units = "cm", dpi = 300)
+
+# decreased values #
+sa_clark_decreased_5 <- calc_clark(default = sa_default,
+                                   changed = sa_decreased_5,
+                                   window = window) %>% 
+  dplyr::bind_rows(.id = "parameter") %>% 
+  dplyr::group_by(parameter) %>% 
+  dplyr::summarise(diff_ce = mean(diff_ce, na.rm = TRUE)) %>% 
+  dplyr::ungroup() %>% 
+  dplyr::mutate(parameter = factor(parameter), 
+                direction = "Decreased 5%")
+
+sa_clark_decreased_10 <- calc_clark(default = sa_default,
+                                    changed = sa_decreased_10,
+                                    window = window) %>% 
+  dplyr::bind_rows(.id = "parameter") %>% 
+  dplyr::group_by(parameter) %>% 
+  dplyr::summarise(diff_ce = mean(diff_ce, na.rm = TRUE)) %>% 
+  dplyr::ungroup() %>% 
+  dplyr::mutate(parameter = factor(parameter), 
+                direction = "Decreased 10%")
+
+sa_clark_decreased <- dplyr::bind_rows(sa_clark_decreased_5, sa_clark_decreased_10) %>% 
+  dplyr::mutate(direction = factor(direction, 
+                                   levels = c("Decreased 5%", 
+                                              "Decreased 10%")))
+
+ggplot_sa_clark_dec <-  ggplot(data = sa_clark_decreased) + 
+  geom_bar(aes(x = parameter, y = diff_ce * 100, 
+               fill = direction), col = "black",
+           stat = "identity", position = "dodge") + 
+  geom_hline(yintercept = -10, linetype = 2, col = "#FDE725FF") + 
+  geom_hline(yintercept = -5, linetype = 2, col = "#440154FF") + 
+  geom_hline(yintercept = 0, linetype = 1) + 
   geom_hline(yintercept = 5, linetype = 2, col = "#440154FF") + 
   geom_hline(yintercept = 10, linetype = 2, col = "#FDE725FF") + 
-  geom_hline(yintercept = -5, linetype = 2, col = "#440154FF") + 
-  geom_hline(yintercept = -10, linetype = 2, col = "#FDE725FF") + 
-  facet_wrap(~ direction) +   
   coord_flip() +
-  scale_y_continuous(breaks = seq(-10, 10, 5)) + 
-  scale_fill_viridis_d(name = "Parameter\nchange", option = "D") + 
-  labs(x = "Parameter", y = "Relative difference CE Index [%]") + 
-  theme_classic(base_size = 15)
+  scale_x_discrete(name = "Parameter" ,) +
+  scale_y_continuous(name = "Relative difference CE index [%]", 
+                     limits = c(-12.5, 12.5)) +
+  scale_color_viridis_d(name = "Parameter change") +
+  scale_fill_viridis_d(name = "Parameter change") +
+  theme_classic(base_size = base_size) + 
+  theme(legend.position = "bottom")
 
-suppoRt::save_ggplot(plot = sa_ggplot_clark_large, 
-                     filename = "sa_ggplot_clark_large.png", path = "Figures/", 
-                     dpi = 300, width = 30, height = 15, units = "cm", 
-                     overwrite = overwrite)
-
-suppoRt::save_ggplot(plot = sa_ggplot_clark_small, 
-                     filename = "sa_ggplot_clark_small.png", path = "Figures/", 
-                     dpi = 300, width = 30, height = 15, units = "cm", 
-                     overwrite = overwrite)
+suppoRt::save_ggplot(plot = ggplot_sa_clark_dec, 
+                     filename = "ggplot_sa_clark_dec.png", 
+                     path = "Figures/", 
+                     width = 29.7, height = 21.0, units = "cm", dpi = 300)

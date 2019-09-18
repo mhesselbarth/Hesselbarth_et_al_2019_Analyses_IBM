@@ -54,10 +54,10 @@ plot_actual <- ggplot() +
 #### Save ggplot ####
 helpeR::save_ggplot(plot = plot_potential, 
                     filename = "plot_potential.png", 
-                    path = "Figures/", 
+                    path = "Figures/Appendix", 
                     dpi = 300, width = 15, height = 7.5, units = "cm")
 
 helpeR::save_ggplot(plot = plot_actual, 
                     filename = "plot_growth.png", 
-                    path = "Figures/", 
+                    path = "Figures/Appendix", 
                     dpi = 300, width = 15, height = 7.5, units = "cm")

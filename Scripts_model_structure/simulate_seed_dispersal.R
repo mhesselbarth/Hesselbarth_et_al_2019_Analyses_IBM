@@ -54,12 +54,12 @@ plot_seed_pattern <- ggplot(data = seedlings) +
 #### Save plots #### 
 helpeR::save_ggplot(plot = plot_dist_density, 
                     filename = "plot_dist_density.png", 
-                    path = "Figures/", 
+                    path = "Figures/Appendix", 
                     dpi = 300, width = 15, height = 7.5, units = "cm")
 
 helpeR::save_ggplot(plot = plot_seed_pattern, 
                     filename = "plot_seed_pattern.png", 
-                    path = "Figures/", 
+                    path = "Figures/Appendix", 
                     dpi = 300, width = 15, height = 15, units = "cm")
 
 

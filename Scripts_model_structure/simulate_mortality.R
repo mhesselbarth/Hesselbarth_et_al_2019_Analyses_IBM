@@ -39,6 +39,6 @@ plot_mort_prob <- ggplot() +
 
 #### Save plots ####
 helpeR::save_ggplot(plot = plot_mort_prob, 
-                    path = "Figures/",
+                    path = "Figures/Appendix",
                     filename = "plot_mort_prob.png", 
                     dpi = 300, width = 15, height = 7.5, units = "cm")

@@ -24,11 +24,13 @@ beech_1999_rec <- readr::read_rds("Data/Input/beech_1999_rec.rds")
 source("Helper_functions/helper_functions_sa.R")
 
 #### Set SA parameters ####
-repetitions <- 10 # 50
+repetitions <- 10 # 10
 
 plot_area <- beech_1999_rec$window
 years <- 50 # 50
 save_each <- 50
+return_seedlings <- FALSE
+return_tibble <- TRUE
 return_nested <- FALSE
 verbose <- FALSE
 
@@ -56,9 +58,10 @@ parameters_beech_default <- list(parameters_beech_default) %>%
 #### Pre-processing of input data ####
 
 data <- tibble::as_tibble(beech_1999_rec) %>%
-  rabmp::prepare_data(x = "x", y = "y", species = "species", type = "type", dbh = "dbh")
+  rabmp::prepare_data(x = "x", y = "y", 
+                      species = "species", type = "type", dbh = "dbh")
 
-rm(pattern_1999_recon)
+rm(beech_1999_rec)
 
 #### Default parameters ####
 # sa_default <- purrr::map(parameters_beech_default, function(x) {
@@ -66,6 +69,7 @@ rm(pattern_1999_recon)
 #                    parameters = x,
 #                    plot_area = plot_area,
 #                    years = years,
+#                    return_seedlings = return_seedlings,
 #                    save_each = save_each,
 #                    return_nested = return_nested,
 #                    verbose = TRUE)})
@@ -76,7 +80,9 @@ sa_default <- suppoRt::submit_to_cluster(rabmp::run_model,
                                                       plot_area = plot_area,
                                                       years = years,
                                                       save_each = save_each,
+                                                      return_seedlings = return_seedlings,
                                                       return_nested = return_nested,
+                                                      return_tibble = return_tibble,
                                                       verbose = verbose),
                                          n_jobs = length(parameters_beech_default),
                                          template = list(job_name = "sa_default",
@@ -99,6 +105,7 @@ rm(sa_default)
 #                    parameters = x,
 #                    plot_area = plot_area,
 #                    years = years,
+#                    return_seedlings = return_seedlings,
 #                    save_each = save_each,
 #                    return_nested = return_nested,
 #                    verbose = TRUE)})
@@ -109,7 +116,9 @@ sa_increased_5 <- suppoRt::submit_to_cluster(rabmp::run_model,
                                                           plot_area = plot_area,
                                                           years = years,
                                                           save_each = save_each,
+                                                          return_seedlings = return_seedlings,
                                                           return_nested = return_nested,
+                                                          return_tibble = return_tibble,
                                                           verbose = verbose),
                                              n_jobs = length(parameters_beech_inc_5),
                                              template = list(job_name = "sa_inc_5",
@@ -131,6 +140,7 @@ rm(sa_increased_5)
 #                    parameters = x,
 #                    plot_area = plot_area,
 #                    years = years,
+#                    return_seedlings = return_seedlings,
 #                    save_each = save_each,
 #                    return_nested = return_nested,
 #                    verbose = TRUE)})
@@ -141,7 +151,9 @@ sa_increased_10 <- suppoRt::submit_to_cluster(rabmp::run_model,
                                                            plot_area = plot_area,
                                                            years = years,
                                                            save_each = save_each,
+                                                           return_seedlings = return_seedlings,
                                                            return_nested = return_nested,
+                                                           return_tibble = return_tibble,
                                                            verbose = verbose),
                                               n_jobs = length(parameters_beech_inc_10),
                                               template = list(job_name = "sa_inc_10",
@@ -164,6 +176,7 @@ rm(sa_increased_10)
 #                    parameters = x,
 #                    plot_area = plot_area,
 #                    years = years,
+#                    return_seedlings = return_seedlings,
 #                    save_each = save_each,
 #                    return_nested = return_nested,
 #                    verbose = TRUE)})
@@ -174,7 +187,9 @@ sa_decreased_5 <- suppoRt::submit_to_cluster(rabmp::run_model,
                                                           plot_area = plot_area,
                                                           years = years,
                                                           save_each = save_each,
+                                                          return_seedlings = return_seedlings,
                                                           return_nested = return_nested,
+                                                          return_tibble = return_tibble,
                                                           verbose = verbose),
                                              n_jobs = length(parameters_beech_dec_5),
                                              template = list(job_name = "sa_dec_5",
@@ -196,6 +211,7 @@ rm(sa_decreased_5)
 #                    parameters = x,
 #                    plot_area = plot_area,
 #                    years = years,
+#                    return_seedlings = return_seedlings,
 #                    save_each = save_each,
 #                    return_nested = return_nested,
 #                    verbose = TRUE)})
@@ -206,7 +222,9 @@ sa_decreased_10 <- suppoRt::submit_to_cluster(rabmp::run_model,
                                                            plot_area = plot_area,
                                                            years = years,
                                                            save_each = save_each,
+                                                           return_seedlings = return_seedlings,
                                                            return_nested = return_nested,
+                                                           return_tibble = return_tibble,
                                                            verbose = verbose),
                                               n_jobs = length(parameters_beech_dec_10),
                                               template = list(job_name = "sa_dec_10",

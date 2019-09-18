@@ -14,19 +14,33 @@ library(suppoRt) # devtools::install_github("mhesselbarth/suppoRt")
 library(spatstat)
 library(tidyverse)
 
-source("Helper_functions/helper_functions_reconstruct_input.R")
+# source("Helper_functions/helper_functions_reconstruct_input.R")
 
 #### import data ####
 pattern_1999 <- readr::read_rds("Data/Raw/pattern_1999_ppp.rds")
 
-# filter for all beech trees
-beech_1999 <- spatstat::subset.ppp(pattern_1999, species == "beech")
+# filter for all beech trees and DBH
+beech_1999 <- spatstat::subset.ppp(pattern_1999, 
+                                   species == "beech", select = dbh_99)
 
 #### reconstruct spatial pattern ####
-beech_1999_rec <- reconstruction_helper(pattern = beech_1999,
-                                        e_threshold = 0.001,
-                                        max_runs = 20000, 
-                                        select = "dbh_99")
+beech_1999_rec <- shar::reconstruct_pattern_cluster(pattern = beech_1999,
+                                                    e_threshold = 0.001,
+                                                    max_runs = 20000, 
+                                                    n_random = 1,
+                                                    simplify =  TRUE,
+                                                    return_input = FALSE)
+
+beech_1999_rec <- shar::reconstruct_pattern_marks(pattern = beech_1999_rec, 
+                                                  marked_pattern = beech_1999,
+                                                  max_runs = 20000,
+                                                  e_threshold = 0.001,
+                                                  n_random = 1) 
+
+# beech_1999_rec <- reconstruction_helper(pattern = beech_1999,
+#                                         e_threshold = 0.001,
+#                                         max_runs = 20000, 
+#                                         select = "dbh_99")
 
 # # get summary of results
 print(beech_1999_rec, digits = 8)
@@ -52,6 +66,6 @@ spatstat::marks(beech_1999_rec) <- data.frame(species = "beech", type = "adult",
 
 
 #### save results ####
-suppoRt::save_rds(object = beech_1999_rec$randomized[[1]], 
+suppoRt::save_rds(object = beech_1999_rec, 
                   filename = "beech_1999_rec.rds", 
                   path = "Data/Input/")

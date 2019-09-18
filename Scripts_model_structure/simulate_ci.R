@@ -67,16 +67,16 @@ plot_pattern_ci <- ggplot(data = data_ci) +
 #### Save plots #### 
 helpeR::save_ggplot(plot = plot_kernel,
                     filename = "plot_kernel.png",
-                    path = "Figures",
+                    path = "Figures/Appendix",
                     dpi = 300, height = 7.5, width = 15, units = "cm")
 
 helpeR::save_ggplot(plot = plot_pattern,
                     filename = "plot_pattern.png",
-                    path = "Figures",
+                    path = "Figures/Appendix",
                     dpi = 300, height = 15, width = 15, units = "cm")
 
 helpeR::save_ggplot(plot = plot_pattern_ci,
                     filename = "plot_pattern_ci.png",
-                    path = "Figures",
+                    path = "Figures/Appendix",
                     dpi = 300, height = 15, width = 15, units = "cm")
 
