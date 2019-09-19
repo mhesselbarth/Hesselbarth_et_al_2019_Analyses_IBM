@@ -135,8 +135,7 @@ calc_growth <- function(default, changed,
                      y = temp_end, 
                      by = "id", suffix = c(".start", ".end")) %>% 
       dplyr::left_join(y = temp_years_living, by = "id") %>% 
-      tidyr::replace_na(temp_join, 
-                        replace = list(dbh.start = 0)) %>% 
+      tidyr::replace_na(replace = list(dbh.start = 0)) %>% 
       dplyr::mutate(dbh_inc = (dbh.end - dbh.start) / years_lived) %>% 
       dplyr::pull(dbh_inc) %>% 
       mean(na.rm = TRUE)
