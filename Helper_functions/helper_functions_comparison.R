@@ -1,2 +1,0 @@
-#### helper function model comparison #### 
-
