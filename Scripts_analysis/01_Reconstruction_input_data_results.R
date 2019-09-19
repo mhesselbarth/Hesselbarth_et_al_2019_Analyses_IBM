@@ -65,17 +65,25 @@ ggplot(data = dbh_dist_full) +
   theme_classic()
 
 #### Compare spatial structure ####
+correction_pcf <- "Ripley"
+divisor <- "d"
+
+correction_nnd <- "km"
+
+correction_mcf <- "Ripley"
 
 # calculate pcf # 
 pcf_beech <- spatstat::pcf(X = beech_1999, 
-                           correction = "best", divisor = "d") %>% 
+                           correction = correction_pcf, 
+                           divisor = divisor) %>% 
   tibble::as_tibble() %>% 
   dplyr::mutate(data_type = "Input data", 
                 sf = "Pair-correlation function") %>% 
   purrr::set_names(c("r", "theo", "fun", "data_type", "sf"))
 
 pcf_beech_rec <- spatstat::pcf(X = beech_1999_rec, 
-                               correction = "best", divisor = "d") %>% 
+                               correction = correction_pcf, 
+                               divisor = divisor) %>% 
   tibble::as_tibble() %>% 
   dplyr::mutate(data_type = "Reconstructed data", 
                 sf = "Pair-correlation function") %>% 
@@ -85,15 +93,15 @@ pcf_full <- dplyr::bind_rows(pcf_beech, pcf_beech_rec)
 
 # calculate NND #
 nnd_beech <- spatstat::Gest(X = beech_1999, 
-                            correction = "km") %>% 
+                            correction = correction_nnd) %>% 
   tibble::as_tibble() %>% 
-  dplyr::select(r, theo, km) %>% 
+  dplyr::select(r, theo, correction_nnd) %>% 
   dplyr::mutate(data_type = "Input data", 
                 sf = "Neareast neighbor distribution function") %>% 
   purrr::set_names(c("r", "theo", "fun", "data_type", "sf"))
 
 nnd_beech_rec <- spatstat::Gest(X = beech_1999_rec, 
-                                correction = "km") %>% 
+                                correction = correction_nnd) %>% 
   tibble::as_tibble() %>% 
   dplyr::select(r, theo, km) %>% 
   dplyr::mutate(data_type = "Reconstructed data", 
@@ -103,16 +111,15 @@ nnd_beech_rec <- spatstat::Gest(X = beech_1999_rec,
 nnd_full <- dplyr::bind_rows(nnd_beech, nnd_beech_rec)
 
 # calculate mark-corrlation function # 
-
 mc_beech <- spatstat::subset.ppp(x = beech_1999, select = dbh_99) %>% 
-  spatstat::markcorr(correction = "Ripley") %>% 
+  spatstat::markcorr(correction = correction_mcf) %>% 
   tibble::as_tibble() %>% 
   dplyr::mutate(data_type = "Input data", 
                 sf = "Mark-correlation function") %>% 
   purrr::set_names(c("r", "theo", "fun", "data_type", "sf"))
 
 mc_beech_rec <- spatstat::subset.ppp(x = beech_1999_rec, select = dbh) %>% 
-  spatstat::markcorr(correction = "Ripley") %>% 
+  spatstat::markcorr(correction = correction_mcf) %>% 
   tibble::as_tibble() %>% 
   dplyr::mutate(data_type = "Reconstructed data", 
                 sf = "Mark-correlation function") %>% 
