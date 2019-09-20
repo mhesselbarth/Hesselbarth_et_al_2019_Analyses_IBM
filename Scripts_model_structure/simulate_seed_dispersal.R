@@ -1,17 +1,17 @@
 #### Import libraries and data ####
 
 # load packages
-library(helpeR) # devtools::install_github("mhesselbarth/helpeR")
+library(suppoRt) # devtools::install_github("mhesselbarth/suppoRt")
 library(rabmp)
 library(spatstat)
 library(tidyverse)
 
 # import parameters
-parameters <- rabmp::read_parameters("Data/parameters.txt")
+parameters <- rabmp::read_parameters("Data/Input/parameters_beech.txt")
 
 # load data
 input_data <- dplyr::filter(rabmp::example_input_data, 
-                            spec == "Beech", Class == "Adult")
+                            spec == "beech", Class == "adult")
 
 # prepare data for rabmp
 input_data <- rabmp::prepare_data(data = input_data, 
@@ -27,8 +27,6 @@ plot_dist_density <- ggplot(data = distance_density) +
   geom_density(aes(prob)) +   
   labs(x = "Distance [m]", y = "Density") + 
   theme_classic(base_size = 15)
-
-
 
 #### Plot point pattern ####
 
@@ -52,13 +50,13 @@ plot_seed_pattern <- ggplot(data = seedlings) +
 
 
 #### Save plots #### 
-helpeR::save_ggplot(plot = plot_dist_density, 
-                    filename = "plot_dist_density.png", 
+suppoRt::save_ggplot(plot = plot_dist_density, 
+                    filename = "ggplot_structure_seed_density.png", 
                     path = "Figures/Appendix", 
                     dpi = 300, width = 15, height = 7.5, units = "cm")
 
-helpeR::save_ggplot(plot = plot_seed_pattern, 
-                    filename = "plot_seed_pattern.png", 
+suppoRt::save_ggplot(plot = plot_seed_pattern, 
+                    filename = "ggplot_structure_seed_pattern.png", 
                     path = "Figures/Appendix", 
                     dpi = 300, width = 15, height = 15, units = "cm")
 

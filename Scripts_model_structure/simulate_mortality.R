@@ -1,17 +1,17 @@
 #### Import libraries and data ####
 
 # load packages
-library(helpeR) # devtools::install_github("mhesselbarth/helpeR")
+library(suppoRt) # devtools::install_github("mhesselbarth/suppoRt")
 library(rabmp)
 library(spatstat)
 library(tidyverse)
 
 # import parameters
-parameters <- rabmp::read_parameters("Data/parameters.txt")
+parameters <- rabmp::read_parameters("Data/Input/parameters_beech.txt")
 
 # load data
 input_data <- dplyr::filter(rabmp::example_input_data, 
-                            spec == "Beech", Class == "Adult")
+                            spec == "beech", Class == "adult")
 
 # prepare data for rabmp
 input_data <- rabmp::prepare_data(data = input_data, 
@@ -38,7 +38,7 @@ plot_mort_prob <- ggplot() +
   theme_classic(base_size = 15) 
 
 #### Save plots ####
-helpeR::save_ggplot(plot = plot_mort_prob, 
+suppoRt::save_ggplot(plot = plot_mort_prob, 
                     path = "Figures/Appendix",
-                    filename = "plot_mort_prob.png", 
+                    filename = "ggplot_structure_mortality.png", 
                     dpi = 300, width = 15, height = 7.5, units = "cm")

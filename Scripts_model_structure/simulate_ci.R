@@ -1,17 +1,17 @@
 #### Import libraries and data ####
 
 # load packages
-library(helpeR) # devtools::install_github("mhesselbarth/helpeR")
+library(suppoRt) # devtools::install_github("mhesselbarth/suppoRt")
 library(rabmp)
 library(spatstat)
 library(tidyverse)
 
 # import parameters
-parameters <- rabmp::read_parameters("Data/parameters.txt")
+parameters <- rabmp::read_parameters("Data/Input/parameters_beech.txt")
 
 # load data
 input_data <- dplyr::filter(rabmp::example_input_data, 
-                            spec == "Beech", Class == "Adult")
+                            spec == "beech", Class == "adult")
 
 # prepare data for rabmp
 input_data <- rabmp::prepare_data(data = input_data, 
@@ -65,18 +65,18 @@ plot_pattern_ci <- ggplot(data = data_ci) +
   theme_void(base_size = 15)
 
 #### Save plots #### 
-helpeR::save_ggplot(plot = plot_kernel,
-                    filename = "plot_kernel.png",
+suppoRt::save_ggplot(plot = plot_kernel,
+                    filename = "ggplot_structure_kernel.png",
                     path = "Figures/Appendix",
                     dpi = 300, height = 7.5, width = 15, units = "cm")
 
-helpeR::save_ggplot(plot = plot_pattern,
-                    filename = "plot_pattern.png",
+suppoRt::save_ggplot(plot = plot_pattern,
+                    filename = "ggplot_structure_pattern.png",
                     path = "Figures/Appendix",
                     dpi = 300, height = 15, width = 15, units = "cm")
 
-helpeR::save_ggplot(plot = plot_pattern_ci,
-                    filename = "plot_pattern_ci.png",
+suppoRt::save_ggplot(plot = plot_pattern_ci,
+                    filename = "ggplot_structure_pattern_ci.png",
                     path = "Figures/Appendix",
                     dpi = 300, height = 15, width = 15, units = "cm")
 

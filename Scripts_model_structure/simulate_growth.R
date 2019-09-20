@@ -1,17 +1,17 @@
 #### Import libraries and data ####
 
 # load packages
-library(helpeR) # devtools::install_github("mhesselbarth/helpeR")
+library(suppoRt) # devtools::install_github("mhesselbarth/suppoRt")
 library(rabmp)
 library(spatstat)
 library(tidyverse)
 
 # import parameters
-parameters <- rabmp::read_parameters("Data/parameters.txt")
+parameters <- rabmp::read_parameters("Data/Input/parameters_beech.txt")
 
 # load data
 input_data <- dplyr::filter(rabmp::example_input_data, 
-                            spec == "Beech", Class == "Adult")
+                            spec == "beech", Class == "adult")
 
 # prepare data for rabmp
 input_data <- rabmp::prepare_data(data = input_data, 
@@ -52,12 +52,12 @@ plot_actual <- ggplot() +
   theme_classic(base_size = 15)
 
 #### Save ggplot ####
-helpeR::save_ggplot(plot = plot_potential, 
-                    filename = "plot_potential.png", 
+suppoRt::save_ggplot(plot = plot_potential, 
+                    filename = "ggplot_structure_potential.png", 
                     path = "Figures/Appendix", 
                     dpi = 300, width = 15, height = 7.5, units = "cm")
 
-helpeR::save_ggplot(plot = plot_actual, 
-                    filename = "plot_growth.png", 
+suppoRt::save_ggplot(plot = plot_actual, 
+                    filename = "ggplot_structure_actual.png", 
                     path = "Figures/Appendix", 
                     dpi = 300, width = 15, height = 7.5, units = "cm")
