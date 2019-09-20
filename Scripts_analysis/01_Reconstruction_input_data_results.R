@@ -77,17 +77,17 @@ pcf_beech <- spatstat::pcf(X = beech_1999,
                            correction = correction_pcf, 
                            divisor = divisor) %>% 
   tibble::as_tibble() %>% 
+  purrr::set_names(c("r", "theo", "fun")) %>% 
   dplyr::mutate(data_type = "Input data", 
-                sf = "Pair-correlation function") %>% 
-  purrr::set_names(c("r", "theo", "fun", "data_type", "sf"))
+                sf = "Pair-correlation function")
 
 pcf_beech_rec <- spatstat::pcf(X = beech_1999_rec, 
                                correction = correction_pcf, 
                                divisor = divisor) %>% 
   tibble::as_tibble() %>% 
+  purrr::set_names(c("r", "theo", "fun")) %>% 
   dplyr::mutate(data_type = "Reconstructed data", 
-                sf = "Pair-correlation function") %>% 
-  purrr::set_names(c("r", "theo", "fun", "data_type", "sf"))
+                sf = "Pair-correlation function")
 
 pcf_full <- dplyr::bind_rows(pcf_beech, pcf_beech_rec)
 
@@ -96,17 +96,17 @@ nnd_beech <- spatstat::Gest(X = beech_1999,
                             correction = correction_nnd) %>% 
   tibble::as_tibble() %>% 
   dplyr::select(r, theo, correction_nnd) %>% 
+  purrr::set_names(c("r", "theo", "fun")) %>% 
   dplyr::mutate(data_type = "Input data", 
-                sf = "Neareast neighbor distribution function") %>% 
-  purrr::set_names(c("r", "theo", "fun", "data_type", "sf"))
+                sf = "Neareast neighbor distribution function")
 
 nnd_beech_rec <- spatstat::Gest(X = beech_1999_rec, 
                                 correction = correction_nnd) %>% 
   tibble::as_tibble() %>% 
   dplyr::select(r, theo, km) %>% 
+  purrr::set_names(c("r", "theo", "fun")) %>% 
   dplyr::mutate(data_type = "Reconstructed data", 
-                sf = "Neareast neighbor distribution function") %>% 
-  purrr::set_names(c("r", "theo", "fun", "data_type", "sf"))
+                sf = "Neareast neighbor distribution function")
 
 nnd_full <- dplyr::bind_rows(nnd_beech, nnd_beech_rec)
 
@@ -114,16 +114,16 @@ nnd_full <- dplyr::bind_rows(nnd_beech, nnd_beech_rec)
 mc_beech <- spatstat::subset.ppp(x = beech_1999, select = dbh_99) %>% 
   spatstat::markcorr(correction = correction_mcf) %>% 
   tibble::as_tibble() %>% 
+  purrr::set_names(c("r", "theo", "fun")) %>% 
   dplyr::mutate(data_type = "Input data", 
-                sf = "Mark-correlation function") %>% 
-  purrr::set_names(c("r", "theo", "fun", "data_type", "sf"))
+                sf = "Mark-correlation function")
 
 mc_beech_rec <- spatstat::subset.ppp(x = beech_1999_rec, select = dbh) %>% 
   spatstat::markcorr(correction = correction_mcf) %>% 
   tibble::as_tibble() %>% 
+  purrr::set_names(c("r", "theo", "fun")) %>% 
   dplyr::mutate(data_type = "Reconstructed data", 
-                sf = "Mark-correlation function") %>% 
-  purrr::set_names(c("r", "theo", "fun", "data_type", "sf"))
+                sf = "Mark-correlation function")
 
 mc_full <- dplyr::bind_rows(mc_beech, mc_beech_rec)
 
