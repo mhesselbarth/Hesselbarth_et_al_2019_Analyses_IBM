@@ -9,8 +9,6 @@
 #### Results reconstruct input pattern ####
 
 #### Import libraries and data ####
-
-# load packages #
 library(onpoint) # devtools::install_github("r-spatialecology/onpoint")
 library(suppoRt) # devtools::install_github("mhesselbarth/suppoRt")
 library(spatstat)

@@ -17,6 +17,7 @@ library(sensitivity)
 library(spatstat)
 library(tidyverse)
 
+# import data #
 parameters_beech_default <- rabmp::read_parameters("Data/Input/parameters_beech.txt", return_list = TRUE)
 
 beech_1999_rec <- readr::read_rds("Data/Input/beech_1999_rec.rds")
