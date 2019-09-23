@@ -57,7 +57,7 @@ model_run_y100_e100_r50 <- suppoRt::submit_to_cluster(rabmp::run_model,
                                                                  verbose = verbose),
                                                     n_jobs = length(years),
                                                     template = list(job_name = "y100_e100_r50",
-                                                                    walltime = "48:00:00",
+                                                                    walltime = "12:00:00",
                                                                     queue = "medium", 
                                                                     mem_cpu = "4096", 
                                                                     log_file = "y100_e100_r50.log"))

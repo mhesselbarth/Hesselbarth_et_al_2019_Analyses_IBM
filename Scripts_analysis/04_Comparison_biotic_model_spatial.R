@@ -23,9 +23,9 @@ pattern_2013 <- readr::read_rds("Data/Raw/pattern_2013_ppp.rds")
 
 window <- readr::read_rds("Data/Raw/plot_area_owin.rds")
 
-model_run_y100_r50_e100 <- readr::read_rds("Data/Output/model_run_y100_r50_e100.rds")
+model_run <- readr::read_rds("Data/Output/model_run_y100_e100_r50.rds")
 
-names(model_run_y100_r50_e100) <- rep("Biotic model", times = length(model_run_y100_r50_e100))
+names(model_run) <- rep("Biotic model", times = length(model_run))
 
 overwrite <- FALSE
 
@@ -35,7 +35,7 @@ r <- seq(from = 0, to = 10, length.out = 525)
 correction <- "km"
 
 # calculate NND #
-nnd_model <- calc_nnd(data = model_run_y100_r50_e100, 
+nnd_model <- calc_nnd(data = model_run, 
                       window = window, r = r, correction = correction) %>% 
   dplyr::bind_rows() %>% 
   dplyr::group_by(r) %>% 
@@ -77,7 +77,7 @@ nnd_overall <- dplyr::bind_rows(nnd_model,
 # create plot #
 ggplot_biotic_nnd <- ggplot(data = nnd_overall) + 
   geom_line(aes(x = r, y = km, col = data_type), size = 0.75) +
-  # geom_line(aes(x = r, y = theo, col = data_type), linetype = 2) + 
+  # geom_line(aes(x = r, y = theo, col = data_type), linetype = 2) +
   scale_color_viridis_d(name = "Data type") +
   labs(x = "r [m]", y = "G(r)") +
   theme_classic(base_size = 15) + 
@@ -90,13 +90,13 @@ suppoRt::save_ggplot(plot = ggplot_biotic_nnd,
 
 #### Pair-correlation function ####
 # set parameters #
-r <- seq(from = 0, to = 10, length.out = 525)
-correction <- "good"
+r <- seq(from = 0, to = 20, length.out = 525)
+correction <- "Ripley"
 fast <- FALSE
 divisor <- "d"
 
 # calculate pcf #
-pcf_model <- calc_pcf(data = model_run_y100_r50_e100, 
+pcf_model <- calc_pcf(data = model_run, 
                       window = window, r = r, fast = fast, 
                       correction = correction, divisor = divisor) %>% 
   dplyr::bind_rows() %>% 
@@ -153,13 +153,13 @@ suppoRt::save_ggplot(plot = ggplot_biotic_pcf,
 
 #### Mark correlation function ####
 # set parameters #
-r <- seq(from = 0, to = 10, length.out = 525)
+r <- seq(from = 0, to = 20, length.out = 525)
 correction <- "Ripley"
 fast <- FALSE
 divisor <- "d"
 
 # calculate kmm #
-kmm_model <- calc_kmm(data = model_run_y100_r50_e100, 
+kmm_model <- calc_kmm(data = model_run, 
                       window = window, r = r, 
                       correction = correction) %>% 
   dplyr::bind_rows() %>% 

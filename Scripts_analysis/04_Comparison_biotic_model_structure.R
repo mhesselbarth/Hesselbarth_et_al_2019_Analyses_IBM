@@ -25,9 +25,9 @@ pattern_2013 <- readr::read_rds("Data/Raw/pattern_2013_ppp.rds")
 
 # pattern_1999_reconstructed <- readr::read_rds("Data/Input/pattern_1999_reconstructed.rds")
 
-model_run_y100_r50_e100 <- readr::read_rds("Data/Output/model_run_y100_r50_e100.rds")
+model_run <- readr::read_rds("Data/Output/model_run_y100_e100_r50.rds")
 
-names(model_run_y100_r50_e100) <- rep("Biotic model", times = length(model_run_y100_r50_e100))
+names(model_run) <- rep("Biotic model", times = length(model_run))
 
 # source("Scripts_analysis/helper_functions.R")
 
@@ -44,7 +44,7 @@ df_2013 <- tibble::as_tibble(pattern_2013)
 # threshold <- 5
 by <- 10
 
-dbh_dist_model <- calc_dbh_dist(data = model_run_y100_r50_e100, 
+dbh_dist_model <- calc_dbh_dist(data = model_run, 
                                 by = by) %>% 
   dplyr::bind_rows() %>% 
   dplyr::group_by(dbh_class) %>% 
@@ -137,7 +137,7 @@ median <- 0.5
 high <- 0.75
 max <- 0.9
 
-dbh_growth_model <- calc_growth(data = model_run_y100_r50_e100, by = by) %>% 
+dbh_growth_model <- calc_growth(data = model_run, by = by) %>% 
   dplyr::bind_rows() %>% 
   dplyr::group_by(dbh_class) %>% 
   dplyr::summarise(inc_min = quantile(dbh_inc, probs = min), 
@@ -205,7 +205,7 @@ median <- 0.5
 high <- 0.75
 max <- 0.9
 
-n_died_model <- calc_died(data = model_run_y100_r50_e100, by = by) %>% 
+n_died_model <- calc_died(data = model_run, by = by) %>% 
   dplyr::bind_rows() %>% 
   dplyr::group_by(dbh_class) %>% 
   dplyr::summarise(n_died_rel = mean(n_died_rel), 
