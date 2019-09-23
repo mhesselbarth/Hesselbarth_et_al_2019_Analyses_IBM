@@ -25,7 +25,7 @@ beech_1999_rec <- readr::read_rds("Data/Input/beech_1999_rec.rds")
 source("Helper_functions/helper_functions_sa.R")
 
 #### Set SA parameters ####
-repetitions <- 10 # 10
+repetitions <- 25 # 25
 
 plot_area <- beech_1999_rec$window
 years <- 50 # 50
@@ -75,30 +75,30 @@ rm(beech_1999_rec)
 #                    return_nested = return_nested,
 #                    verbose = TRUE)})
 
-sa_default <- suppoRt::submit_to_cluster(rabmp::run_model,
-                                         parameters = parameters_beech_default,
-                                         const = list(data = data,
-                                                      plot_area = plot_area,
-                                                      years = years,
-                                                      save_each = save_each,
-                                                      return_seedlings = return_seedlings,
-                                                      return_nested = return_nested,
-                                                      return_tibble = return_tibble,
-                                                      verbose = verbose),
-                                         n_jobs = length(parameters_beech_default),
-                                         template = list(job_name = "sa_default",
-                                                         walltime = "06:00:00",
-                                                         queue = "medium", 
-                                                         mem_cpu = "3072", 
-                                                         log_file = "sa_default.log"))
+sa_default_y50_e50_r25 <- suppoRt::submit_to_cluster(rabmp::run_model,
+                                                     parameters = parameters_beech_default,
+                                                     const = list(data = data,
+                                                                  plot_area = plot_area,
+                                                                  years = years,
+                                                                  save_each = save_each,
+                                                                  return_seedlings = return_seedlings,
+                                                                  return_nested = return_nested,
+                                                                  return_tibble = return_tibble,
+                                                                  verbose = verbose),
+                                                     n_jobs = length(parameters_beech_default),
+                                                     template = list(job_name = "sa_default",
+                                                                     walltime = "06:00:00",
+                                                                     queue = "medium", 
+                                                                     mem_cpu = "3072", 
+                                                                     log_file = "sa_default_y50_e50_r25.log"))
 
-names(sa_default) <- rep("default", times = repetitions)
+names(sa_default_y50_e50_r25) <- rep("default", times = repetitions)
 
-suppoRt::save_rds(object = sa_default,
-                  filename = "sa_default.rds",
+suppoRt::save_rds(object = sa_default_y50_e50_r25,
+                  filename = "sa_default_y50_e50_r25.rds",
                   path = "Data/Output/")
 
-rm(sa_default)
+rm(sa_default_y50_e50_r25)
 
 #### Increased parameters #### 
 # sa_increased_5 <- purrr::map(parameters_beech_inc_5, function(x) {
@@ -111,30 +111,30 @@ rm(sa_default)
 #                    return_nested = return_nested,
 #                    verbose = TRUE)})
 
-sa_increased_5 <- suppoRt::submit_to_cluster(rabmp::run_model,
-                                             parameters = parameters_beech_inc_5,
-                                             const = list(data = data,
-                                                          plot_area = plot_area,
-                                                          years = years,
-                                                          save_each = save_each,
-                                                          return_seedlings = return_seedlings,
-                                                          return_nested = return_nested,
-                                                          return_tibble = return_tibble,
-                                                          verbose = verbose),
-                                             n_jobs = length(parameters_beech_inc_5),
-                                             template = list(job_name = "sa_inc_5",
-                                                             walltime = "06:00:00",
-                                                             queue = "medium", 
-                                                             mem_cpu = "3072", 
-                                                             log_file = "sa_inc_5.log"))
+sa_increased_5_y50_e50_r25 <- suppoRt::submit_to_cluster(rabmp::run_model,
+                                                         parameters = parameters_beech_inc_5,
+                                                         const = list(data = data,
+                                                                      plot_area = plot_area,
+                                                                      years = years,
+                                                                      save_each = save_each,
+                                                                      return_seedlings = return_seedlings,
+                                                                      return_nested = return_nested,
+                                                                      return_tibble = return_tibble,
+                                                                      verbose = verbose),
+                                                         n_jobs = length(parameters_beech_inc_5),
+                                                         template = list(job_name = "sa_inc_5",
+                                                                         walltime = "06:00:00",
+                                                                         queue = "medium", 
+                                                                         mem_cpu = "3072", 
+                                                                         log_file = "sa_inc_5_y50_e50_r25.log"))
 
-names(sa_increased_5) <- names(parameters_beech_inc_5)
+names(sa_increased_5_y50_e50_r25) <- names(parameters_beech_inc_5)
 
-suppoRt::save_rds(object = sa_increased_5,
-                  filename = "sa_increased_5.rds",
+suppoRt::save_rds(object = sa_increased_5_y50_e50_r25,
+                  filename = "sa_increased_5_y50_e50_r25.rds",
                   path = "Data/Output/")
 
-rm(sa_increased_5)
+rm(sa_increased_5_y50_e50_r25)
 
 # sa_increased_10 <- purrr::map(parameters_beech_inc_10, function(x) {
 #   rabmp::run_model(data = data,
@@ -146,30 +146,30 @@ rm(sa_increased_5)
 #                    return_nested = return_nested,
 #                    verbose = TRUE)})
 
-sa_increased_10 <- suppoRt::submit_to_cluster(rabmp::run_model,
-                                              parameters = parameters_beech_inc_10,
-                                              const = list(data = data,
-                                                           plot_area = plot_area,
-                                                           years = years,
-                                                           save_each = save_each,
-                                                           return_seedlings = return_seedlings,
-                                                           return_nested = return_nested,
-                                                           return_tibble = return_tibble,
-                                                           verbose = verbose),
-                                              n_jobs = length(parameters_beech_inc_10),
-                                              template = list(job_name = "sa_inc_10",
-                                                              walltime = "06:00:00",
-                                                              queue = "medium", 
-                                                              mem_cpu = "3072", 
-                                                              log_file = "sa_inc_10.log"))
+sa_increased_10_y50_e50_r25 <- suppoRt::submit_to_cluster(rabmp::run_model,
+                                                          parameters = parameters_beech_inc_10,
+                                                          const = list(data = data,
+                                                                       plot_area = plot_area,
+                                                                       years = years,
+                                                                       save_each = save_each,
+                                                                       return_seedlings = return_seedlings,
+                                                                       return_nested = return_nested,
+                                                                       return_tibble = return_tibble,
+                                                                       verbose = verbose),
+                                                          n_jobs = length(parameters_beech_inc_10),
+                                                          template = list(job_name = "sa_inc_10",
+                                                                          walltime = "06:00:00",
+                                                                          queue = "medium", 
+                                                                          mem_cpu = "3072", 
+                                                                          log_file = "sa_inc_10_y50_e50_r25.log"))
 
-names(sa_increased_10) <- names(parameters_beech_inc_10)
+names(sa_increased_10_y50_e50_r25) <- names(parameters_beech_inc_10)
 
-suppoRt::save_rds(object = sa_increased_10,
-                  filename = "sa_increased_10.rds",
+suppoRt::save_rds(object = sa_increased_10_y50_e50_r25,
+                  filename = "sa_increased_10_y50_e50_r25.rds",
                   path = "Data/Output/")
 
-rm(sa_increased_10)
+rm(sa_increased_10_y50_e50_r25)
 
 #### Decreased parameters ####
 # sa_decreased_5 <- purrr::map(parameters_beech_dec_5, function(x) {
@@ -182,30 +182,30 @@ rm(sa_increased_10)
 #                    return_nested = return_nested,
 #                    verbose = TRUE)})
 
-sa_decreased_5 <- suppoRt::submit_to_cluster(rabmp::run_model,
-                                             parameters = parameters_beech_dec_5,
-                                             const = list(data = data,
-                                                          plot_area = plot_area,
-                                                          years = years,
-                                                          save_each = save_each,
-                                                          return_seedlings = return_seedlings,
-                                                          return_nested = return_nested,
-                                                          return_tibble = return_tibble,
-                                                          verbose = verbose),
-                                             n_jobs = length(parameters_beech_dec_5),
-                                             template = list(job_name = "sa_dec_5",
-                                                             walltime = "06:00:00",
-                                                             queue = "medium", 
-                                                             mem_cpu = "3072", 
-                                                             log_file = "sa_dec_5.log"))
+sa_decreased_5_y50_e50_r25 <- suppoRt::submit_to_cluster(rabmp::run_model,
+                                                         parameters = parameters_beech_dec_5,
+                                                         const = list(data = data,
+                                                                      plot_area = plot_area,
+                                                                      years = years,
+                                                                      save_each = save_each,
+                                                                      return_seedlings = return_seedlings,
+                                                                      return_nested = return_nested,
+                                                                      return_tibble = return_tibble,
+                                                                      verbose = verbose),
+                                                         n_jobs = length(parameters_beech_dec_5),
+                                                         template = list(job_name = "sa_dec_5",
+                                                                         walltime = "06:00:00",
+                                                                         queue = "medium", 
+                                                                         mem_cpu = "3072", 
+                                                                         log_file = "sa_dec_5_y50_e50_r25.log"))
 
-names(sa_decreased_5) <- names(parameters_beech_dec_5)
+names(sa_decreased_5_y50_e50_r25) <- names(parameters_beech_dec_5)
 
-suppoRt::save_rds(object = sa_decreased_5,
-                  filename = "sa_decreased_5.rds",
+suppoRt::save_rds(object = sa_decreased_5_y50_e50_r25,
+                  filename = "sa_decreased_5_y50_e50_r25.rds",
                   path = "Data/Output/")
 
-rm(sa_decreased_5)
+rm(sa_decreased_5_y50_e50_r25)
 
 # sa_decreased_10 <- purrr::map(parameters_beech_dec_10, function(x) {
 #   rabmp::run_model(data = data,
@@ -217,27 +217,27 @@ rm(sa_decreased_5)
 #                    return_nested = return_nested,
 #                    verbose = TRUE)})
 
-sa_decreased_10 <- suppoRt::submit_to_cluster(rabmp::run_model,
-                                              parameters = parameters_beech_dec_10,
-                                              const = list(data = data,
-                                                           plot_area = plot_area,
-                                                           years = years,
-                                                           save_each = save_each,
-                                                           return_seedlings = return_seedlings,
-                                                           return_nested = return_nested,
-                                                           return_tibble = return_tibble,
-                                                           verbose = verbose),
-                                              n_jobs = length(parameters_beech_dec_10),
-                                              template = list(job_name = "sa_dec_10",
-                                                              walltime = "06:00:00",
-                                                              queue = "medium", 
-                                                              mem_cpu = "3072", 
-                                                              log_file = "sa_dec_10.log"))
+sa_decreased_10_y50_e50_r25 <- suppoRt::submit_to_cluster(rabmp::run_model,
+                                                          parameters = parameters_beech_dec_10,
+                                                          const = list(data = data,
+                                                                       plot_area = plot_area,
+                                                                       years = years,
+                                                                       save_each = save_each,
+                                                                       return_seedlings = return_seedlings,
+                                                                       return_nested = return_nested,
+                                                                       return_tibble = return_tibble,
+                                                                       verbose = verbose),
+                                                          n_jobs = length(parameters_beech_dec_10),
+                                                          template = list(job_name = "sa_dec_10",
+                                                                          walltime = "06:00:00",
+                                                                          queue = "medium", 
+                                                                          mem_cpu = "3072", 
+                                                                          log_file = "sa_dec_10_y50_e50_r25.log"))
 
-names(sa_decreased_10) <- names(parameters_beech_dec_10)
+names(sa_decreased_10_y50_e50_r25) <- names(parameters_beech_dec_10)
 
-suppoRt::save_rds(object = sa_decreased_10,
-                  filename = "sa_decreased_10.rds",
+suppoRt::save_rds(object = sa_decreased_10_y50_e50_r25,
+                  filename = "sa_decreased_10_y50_e50_r25.rds",
                   path = "Data/Output/")
 
-rm(sa_decreased_10)
+rm(sa_decreased_10_y50_e50_r25)
