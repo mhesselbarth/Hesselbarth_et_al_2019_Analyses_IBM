@@ -111,7 +111,7 @@ ggplot(beech_2013) +
   geom_point(aes(x = dbh_99, y = growth_full, col = top_n), pch = 1, size = 2) + 
   geom_line(aes(x = dbh_99, y = growth_pot), size = 1) +
   scale_x_continuous(name = "DBH 99 [cm]") +
-  scale_y_continuous(name = "Mean anual growth [cm]") +
+  scale_y_continuous(name = "Mean anual growth [cm]", limits = c(0, 1.5)) +
   scale_color_viridis_d(name = "5% highest growth per class") +
   theme_classic(base_size = 15) + 
   theme(legend.position = "bottom")
@@ -135,9 +135,9 @@ fun_actual <- function(df, par) {
   data_matrix <- as.matrix(df[, c("x", "y", "dbh_99", "growth_pot")])
   
   growth_modelled <- rcpp_calculate_actual(matrix = data_matrix, 
-                                           modifier = par[1],
-                                           alpha = par[2], 
-                                           beta = par[3],
+                                           # modifier = par[1],
+                                           alpha = par[1], 
+                                           beta = par[2],
                                            max_dist = 30)
   
   difference <- sum(abs(df$growth_full - growth_modelled))
@@ -148,10 +148,10 @@ fun_actual <- function(df, par) {
 # set starting functions adapted from Pommerening, A., Maleki, K., 2014. #
 # Differences between competition kernels and traditional size-ratio based #
 # competition indices used in forest ecology. For. Ecol. Manage. 331, 135-143. #
-start_values_actual <- c(parameters_beech_default$growth_mod,
-                         parameters_beech_default$ci_alpha, 
+start_values_actual <- c(parameters_beech_default$ci_alpha, 
                          parameters_beech_default$ci_beta)
 
+# fit fun #
 fitted_fun_actual <- optim(par = start_values_actual,
                            fn = fun_actual, 
                            df = beech_2013, 
@@ -159,22 +159,20 @@ fitted_fun_actual <- optim(par = start_values_actual,
                            control = list(trace = TRUE, 
                                           maxit = 1000))
 
-
 broom::tidy(fitted_fun_actual)
 # A tibble: 3 x 2
 # parameter   value
 # <chr>       <dbl>
-# parameter1  0.692
-# parameter2  1.25 
-# parameter3  0.336
+# parameter1  1.02
+# parameter2  0.418 
 
 fitted_fun_actual$value
 # $value
-# [1] 855.0206
+# [1] 859.4329
 
 ci <- rabmp:::rcpp_calculate_ci(matrix = as.matrix(beech_2013[, c("x", "y", "dbh_99")]),
-                                alpha = fitted_fun_actual$par[[2]],
-                                beta = fitted_fun_actual$par[[3]],
+                                alpha = fitted_fun_actual$par[[1]],
+                                beta = fitted_fun_actual$par[[2]],
                                 max_dist = 30)
 
 beech_2013 <- dplyr::mutate(beech_2013, ci = ci)
@@ -192,12 +190,12 @@ ggplot(beech_2013) +
 #### Update parameters ####
 parameters_beech_fitted <- parameters_beech_default
 
-parameters_beech_fitted$ci_alpha <- fitted_fun_actual$par[[2]]
-parameters_beech_fitted$ci_beta <- fitted_fun_actual$par[[3]]
+parameters_beech_fitted$ci_alpha <- fitted_fun_actual$par[[1]]
+parameters_beech_fitted$ci_beta <- fitted_fun_actual$par[[2]]
 
 parameters_beech_fitted$growth_assymp <- broom::tidy(fitted_fun_potential)[[1, 2]]
 parameters_beech_fitted$growth_infl <- broom::tidy(fitted_fun_potential)[[3, 2]]
-parameters_beech_fitted$growth_mod <- fitted_fun_actual$par[[1]]
+parameters_beech_fitted$growth_mod <- 1
 parameters_beech_fitted$growth_rate <- broom::tidy(fitted_fun_potential)[[2, 2]]
 
 write.table(parameters_beech_fitted, row.names = FALSE)

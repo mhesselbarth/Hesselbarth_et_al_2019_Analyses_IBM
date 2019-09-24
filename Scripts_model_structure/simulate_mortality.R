@@ -7,30 +7,37 @@ library(spatstat)
 library(tidyverse)
 
 # import parameters
-parameters <- rabmp::read_parameters("Data/Input/parameters_beech.txt")
+parameters_beech_fitted <- rabmp::read_parameters("Data/Input/parameters_beech_fitted.txt")
 
-# load data
-input_data <- dplyr::filter(rabmp::example_input_data, 
-                            spec == "beech", Class == "adult")
+pattern_1999_recon <- readr::read_rds("Data/Input/beech_1999_rec.rds")
 
-# prepare data for rabmp
-input_data <- rabmp::prepare_data(data = input_data, 
-                                  x = "x_coord", y = "y_coord",
-                                  species = "spec", type = "Class", dbh = "bhd")
+plot_area <- tibble::as_tibble(pattern_1999_recon$window)
+
+#### Pre-processing of input data ####
+set.seed(42)
+sample_id <- sample(1:pattern_1999_recon$n, size = pattern_1999_recon$n)
+
+input_data <- tibble::as_tibble(pattern_1999_recon) %>% 
+  dplyr::mutate(id = 1:nrow(.)) %>% 
+  dplyr::filter(species == "beech", id %in% sample_id) %>%
+  dplyr::select(-id) %>% 
+  rabmp::prepare_data(x = "x", y = "y", species = "species", type = "type", dbh = "dbh")
+
+rm(pattern_1999_recon)
 
 #### Mortality probs ####
 mort_prob <- purrr::map_dbl(0:120, function(x) 
-  rabmp:::rcpp_calculate_mortality_probs(species = "Beech", 
+  rabmp:::rcpp_calculate_mortality_probs(species = "beech", 
                                          dbh = x, 
-                                         int_beech_early = parameters$mort_int_beech_early,
-                                         dbh_beech_early = parameters$mort_dbh_beech_early,
-                                         int_beech_late = parameters$mort_int_beech_late,
-                                         dbh_beech_late = parameters$mort_dbh_beech_late,
-                                         dinc_beech = parameters$mort_dinc_beech,
-                                         int_ash = parameters$mort_int_ash,
-                                         dbh_ash = parameters$mort_dbh_ash,
-                                         int_others = parameters$mort_int_others,
-                                         dbh_others = parameters$mort_dbh_others))
+                                         int_beech_early = parameters_beech_fitted$mort_int_beech_early,
+                                         dbh_beech_early = parameters_beech_fitted$mort_dbh_beech_early,
+                                         int_beech_late = parameters_beech_fitted$mort_int_beech_late,
+                                         dbh_beech_late = parameters_beech_fitted$mort_dbh_beech_late,
+                                         dinc_beech = parameters_beech_fitted$mort_dinc_beech,
+                                         int_ash = parameters_beech_fitted$mort_int_ash,
+                                         dbh_ash = parameters_beech_fitted$mort_dbh_ash,
+                                         int_others = parameters_beech_fitted$mort_int_others,
+                                         dbh_others = parameters_beech_fitted$mort_dbh_others))
 
 plot_mort_prob <- ggplot() + 
   geom_line(aes(x = 0:120, y = mort_prob)) + 

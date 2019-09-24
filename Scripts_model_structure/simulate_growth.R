@@ -7,38 +7,44 @@ library(spatstat)
 library(tidyverse)
 
 # import parameters
-parameters <- rabmp::read_parameters("Data/Input/parameters_beech_fitted.txt")
+parameters_beech_fitted <- rabmp::read_parameters("Data/Input/parameters_beech_fitted.txt")
 
-# load data
-input_data <- dplyr::filter(rabmp::example_input_data, 
-                            spec == "beech", Class == "adult")
+parameters_beech_fitted$growth_mod <- 1
 
-# prepare data for rabmp
-input_data <- rabmp::prepare_data(data = input_data, 
-                                  x = "x_coord", y = "y_coord",
-                                  species = "spec", type = "Class", dbh = "bhd")
+pattern_1999_recon <- readr::read_rds("Data/Input/beech_1999_rec.rds")
 
+plot_area <- tibble::as_tibble(pattern_1999_recon$window)
+
+#### Pre-processing of input data ####
+set.seed(42)
+sample_id <- sample(1:pattern_1999_recon$n, size = pattern_1999_recon$n)
+
+input_data <- tibble::as_tibble(pattern_1999_recon) %>% 
+  dplyr::mutate(id = 1:nrow(.)) %>% 
+  dplyr::filter(species == "beech", id %in% sample_id) %>%
+  dplyr::select(-id) %>% 
+  rabmp::prepare_data(x = "x", y = "y", species = "species", type = "type", dbh = "dbh")
+
+rm(pattern_1999_recon)
 
 #### Plot potential growth ####
-pot_growth <- purrr::map_dbl(0:80, function(x) {
-  calculate_growth(dbh = x, parameters = parameters)
+pot_growth <- purrr::map_dbl(0:125, function(x) {
+  calculate_growth(dbh = x, parameters = parameters_beech_fitted)
   })
 
 plot_potential <- ggplot() +
-  geom_line(aes(x = 0:80, y = pot_growth, col = "black")) +
-  scale_color_manual(values = c("black" = "black"), name = "CI") + 
-  labs(x = "DBH [cm]", y = "DBH increment [cm]") +
+  geom_line(aes(x = 0:125, y = pot_growth, col = "Potential growth")) +
+  scale_color_manual(values = c("Potential growth" = "black"), name = "") + 
   scale_y_continuous(limits = c(0, 1)) +
-  theme_classic(base_size = 15)
+  scale_x_continuous(limits = c(0, 125)) +
+  labs(x = "DBH [cm]", y = "DBH increment [cm]") +
+  theme_classic(base_size = 15) + 
+  theme(legend.position = "bottom")
 
 #### Simulate acutal growth ####
-# parameters$growth_mod <- 1
-
 model_data <- rabmp::update_i(data = input_data)
-model_data <- rabmp::simulate_ci(data = model_data, parameters = parameters)
-model_data <- rabmp::simulate_growth(data = model_data, parameters = parameters)
-
-# model_data_long <- tidyr::unnest(model_data)
+model_data <- rabmp::simulate_ci(data = model_data, parameters = parameters_beech_fitted)
+model_data <- rabmp::simulate_growth(data = model_data, parameters = parameters_beech_fitted)
 
 model_data <- tibble::tibble(dbh_old = model_data$dbh[model_data$i == 0],
                              dbh_new = model_data$dbh[model_data$i == 1], 
@@ -46,13 +52,16 @@ model_data <- tibble::tibble(dbh_old = model_data$dbh[model_data$i == 0],
   dplyr::mutate(dbh_inc = dbh_new - dbh_old)
 
 plot_actual <- ggplot() + 
-  geom_point(data = model_data_mod, 
-             aes(x = dbh_old, y = dbh_inc, col = ci)) +
-  geom_line(aes(x = 0:80, y = pot_growth)) +
+  geom_point(data = model_data, 
+             aes(x = dbh_old, y = dbh_inc, col = ci), pch = 1, size = 2) +
+  geom_line(aes(x = 0:125, y = pot_growth)) +
   scale_color_viridis_c(name = "CI", option = "A") +
-  lims(x = c(0, 80)) +
+  scale_y_continuous(limits = c(0, 1)) +
+  scale_x_continuous(limits = c(0, 125)) +
   labs(x = "DBH [cm]", y = "DBH increment [cm]") + 
-  theme_classic(base_size = 15)
+  theme_classic(base_size = 15) + 
+  theme(legend.position = "bottom",
+        legend.key.width = unit(2, "cm"))
 
 #### Save ggplot ####
 suppoRt::save_ggplot(plot = plot_potential, 

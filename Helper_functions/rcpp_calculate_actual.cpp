@@ -13,7 +13,7 @@ using namespace Rcpp;
 
 // [[Rcpp::export]]
 NumericVector rcpp_calculate_actual(NumericMatrix matrix,
-                                    double modifier, double alpha, double beta,
+                                    double alpha, double beta,
                                     int max_dist) {
   
   // get number of rows
@@ -60,15 +60,17 @@ NumericVector rcpp_calculate_actual(NumericMatrix matrix,
     ci[i] = ci[i] / (std::pow(dbh_i, alpha) + ci[i]);
     
     // calculate actual growth
-    result[i] = pot_i * modifier * (1 - ci[i]);
+    // result[i] = pot_i * modifier * (1 - ci[i]);
+    result[i] = pot_i * (1 - ci[i]);
   }
   
   // normalize last ci
   ci[nrow - 1] = ci[nrow - 1] / (std::pow(matrix(nrow - 1, 2), alpha) + ci[nrow - 1]);
   
   // calculate actual growth
-  result[nrow - 1] = matrix(nrow - 1, 3) * modifier * (1 - ci[nrow - 1]);
-
+  // result[nrow - 1] = matrix(nrow - 1, 3) * modifier * (1 - ci[nrow - 1]);
+  result[nrow - 1] = matrix(nrow - 1, 3) * (1 - ci[nrow - 1]);
+  
   return result;
 }
 

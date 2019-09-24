@@ -7,24 +7,33 @@ library(spatstat)
 library(tidyverse)
 
 # import parameters
-parameters <- rabmp::read_parameters("Data/Input/parameters_beech_fitted.txt")
+parameters_beech_fitted <- rabmp::read_parameters("Data/Input/parameters_beech_fitted.txt")
 
-# load data
-input_data <- dplyr::filter(rabmp::example_input_data, 
-                            spec == "beech", Class == "adult")
+pattern_1999_recon <- readr::read_rds("Data/Input/beech_1999_rec.rds")
 
-# prepare data for rabmp
-input_data <- rabmp::prepare_data(data = input_data, 
-                                  x = "x_coord", y = "y_coord",
-                                  species = "spec", type = "Class", dbh = "bhd")
+plot_area <- tibble::as_tibble(pattern_1999_recon$window)
+
+#### Pre-processing of input data ####
+set.seed(42)
+sample_id <- sample(1:pattern_1999_recon$n, size = 250)
+
+input_data <- tibble::as_tibble(pattern_1999_recon) %>% 
+  dplyr::mutate(id = 1:nrow(.)) %>% 
+  dplyr::filter(species == "beech", id %in% sample_id) %>%
+  dplyr::select(-id) %>% 
+  rabmp::prepare_data(x = "x", y = "y", species = "species", type = "type", dbh = "dbh")
+
+rm(pattern_1999_recon)
 
 #### Plot kernel ####
 # calculate CI index dbh = 20
-ci_index_20 <- purrr::map_dbl(0:20, function(x) (20 ^ parameters$ci_alpha) * exp(-(x / (20 ^ parameters$ci_beta))))
+ci_index_20 <- purrr::map_dbl(0:20, function(x) 
+  (20 ^ parameters_beech_fitted$ci_alpha) * exp(-(x / (20 ^ parameters_beech_fitted$ci_beta))))
 # ci_index_20 <- ci_index_20 / (5 ^ parameters$ci_alpha + ci_index_20)
 
 # calculate CI index dbh = 10 
-ci_index_10 <- purrr::map_dbl(0:20, function(x) (10 ^ parameters$ci_alpha) * exp(-(x / (10 ^ parameters$ci_beta))))
+ci_index_10 <- purrr::map_dbl(0:20, function(x) 
+  (10 ^ parameters_beech_fitted$ci_alpha) * exp(-(x / (10 ^ parameters_beech_fitted$ci_beta))))
 # ci_index_10 <- ci_index_10 / (5 ^ parameters$ci_alpha + ci_index_10)
 
 # create ggplot
@@ -42,13 +51,13 @@ plot_kernel <- ggplot() +
 
 #### Plot point pattern ####
 # calculat ci
-data_ci <- simulate_ci(input_data, parameters = parameters) %>% 
-  tidyr::unnest()
+data_ci <- rabmp::simulate_ci(input_data, parameters = parameters_beech_fitted) %>% 
+  tibble::as_tibble()
 
 # create ggplot without ci
 plot_pattern <- ggplot(data = data_ci) + 
-  geom_rect(aes(xmin = 0, xmax = 500, ymin = 0, ymax = 500), 
-            fill = NA, col = "black") + 
+  geom_polygon(data = plot_area, aes(x = x, y = y), 
+               col = "black", fill = NA) + 
   geom_point(aes(x = x, y = y, size = dbh), pch = 1) + 
   scale_size_continuous(name = "DBH [cm]") + 
   coord_equal() + 
@@ -56,8 +65,8 @@ plot_pattern <- ggplot(data = data_ci) +
 
 # create ggplot with ci
 plot_pattern_ci <- ggplot(data = data_ci) + 
-  geom_rect(aes(xmin = 0, xmax = 500, ymin = 0, ymax = 500), 
-            fill = NA, col = "black") + 
+  geom_polygon(data = plot_area, aes(x = x, y = y), 
+               col = "black", fill = NA) + 
   geom_point(aes(x = x, y = y, col = ci, size = dbh), pch = 1) + 
   scale_size_continuous(name = "DBH [cm]") + 
   scale_color_viridis_c(name = "Competition index", option = "A") + 

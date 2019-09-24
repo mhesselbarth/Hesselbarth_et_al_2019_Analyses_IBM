@@ -50,7 +50,7 @@ rm(pattern_1999_recon)
 model_run_y50_e10_r50 <- suppoRt::submit_to_cluster(rabmp::run_model,
                                                     years = years,
                                                     const = list(data = data,
-                                                                 parameters = parameters_beech_default,
+                                                                 parameters = parameters_beech_fitted,
                                                                  plot_area = plot_area,
                                                                  save_each = save_each,
                                                                  return_nested = return_nested,

@@ -7,20 +7,33 @@ library(spatstat)
 library(tidyverse)
 
 # import parameters
-parameters <- rabmp::read_parameters("Data/Input/parameters_beech.txt")
+parameters_beech_fitted <- rabmp::read_parameters("Data/Input/parameters_beech_fitted.txt")
 
-# load data
-input_data <- dplyr::filter(rabmp::example_input_data, 
-                            spec == "beech", Class == "adult")
+pattern_1999_recon <- readr::read_rds("Data/Input/beech_1999_rec.rds")
 
-# prepare data for rabmp
-input_data <- rabmp::prepare_data(data = input_data, 
-                                  x = "x_coord", y = "y_coord",
-                                  species = "spec", type = "Class", dbh = "bhd")
+plot_area <- pattern_1999_recon$window
+
+#### Pre-processing of input data ####
+set.seed(42)
+sample_id <- sample(1:pattern_1999_recon$n, size = 50)
+
+input_data <- tibble::as_tibble(pattern_1999_recon) %>% 
+  dplyr::mutate(id = 1:nrow(.)) %>% 
+  dplyr::filter(species == "beech", id %in% sample_id) %>%
+  dplyr::select(-id) %>% 
+  rabmp::prepare_data(x = "x", y = "y", species = "species", type = "type", dbh = "dbh")
+
+rm(pattern_1999_recon)
 
 #### Plot Probability ####
 distance_density <- rabmp:::rcpp_random_distance(number_seeds = 1000000, 
-                                                 species = "Beech", max_dist = 120) %>% 
+                                                 species = "beech", 
+                                                 beta_beech = parameters_beech_fitted$seed_beta_beech,
+                                                 beta_ash = 0,
+                                                 beta_sycamore = 0,
+                                                 beta_hornbeam = 0,
+                                                 beta_others = 0,
+                                                 max_dist = parameters_beech_fitted$seed_max_dist) %>% 
   tibble::tibble(prob = .)
 
 plot_dist_density <- ggplot(data = distance_density) + 
@@ -29,25 +42,21 @@ plot_dist_density <- ggplot(data = distance_density) +
   theme_classic(base_size = 15)
 
 #### Plot point pattern ####
-
-set.seed(42)
-id <- sample(1:nrow(input_data), size = 20)
-
-seedlings <- simulate_seed_dispersal(data = input_data[id, ], parameters = parameters, 
-                                     plot_area = spatstat::owin(xrange = c(0, 500), 
-                                                                yrange = c(0, 500))) %>%
-  tidyr::unnest()
+seedlings <- simulate_seed_dispersal(data = input_data, 
+                                     parameters = parameters_beech_fitted, 
+                                     plot_area = plot_area) %>%
+  tibble::as_tibble() %>% 
+  dplyr::mutate(type = dplyr::case_when(type %in% c("adult", "sapling") ~ "adult", 
+                                        type == "seedling" ~ "seedling"))
 
 plot_seed_pattern <- ggplot(data = seedlings) +  
-  geom_rect(aes(xmin = 0, xmax = 500, ymin = 0, ymax = 500), 
-            fill = NA, col = "black") + 
   geom_point(aes(x = x, y = y, shape = type, size = dbh)) + 
+  geom_polygon(data = tibble::as_tibble(plot_area), aes(x = x, y = y), 
+               col = "black", fill = NA) + 
   scale_size_continuous(name = "DBH [cm]") +
   scale_shape_manual(values = c(19, 1), name = "Life stage") +
-
   coord_equal() + 
   theme_void(base_size = 15)
-
 
 #### Save plots #### 
 suppoRt::save_ggplot(plot = plot_dist_density, 
