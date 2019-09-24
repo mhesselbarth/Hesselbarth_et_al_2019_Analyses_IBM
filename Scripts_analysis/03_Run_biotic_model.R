@@ -16,7 +16,7 @@ library(rabmp)
 library(spatstat)
 library(tidyverse)
 
-parameters_beech_default <- rabmp::read_parameters("Data/Input/parameters_beech.txt", return_list = TRUE)
+parameters_beech_fitted <- rabmp::read_parameters("Data/Input/parameters_beech_fitted.txt", return_list = TRUE)
 
 pattern_1999_recon <- readr::read_rds("Data/Input/beech_1999_rec.rds")
 
@@ -24,8 +24,8 @@ pattern_1999_recon <- readr::read_rds("Data/Input/beech_1999_rec.rds")
 repetitions <- 50 # 50
 
 plot_area <- pattern_1999_recon$window
-years <- rep(x = 100, times = repetitions) # 50
-save_each <- 100
+years <- rep(x = 50, times = repetitions) # 50
+save_each <- 10
 return_nested <- FALSE
 verbose <- FALSE
 
@@ -47,7 +47,7 @@ rm(pattern_1999_recon)
 #                    return_nested = return_nested,
 #                    verbose = TRUE)})
 
-model_run_y100_e100_r50 <- suppoRt::submit_to_cluster(rabmp::run_model,
+model_run_y50_e10_r50 <- suppoRt::submit_to_cluster(rabmp::run_model,
                                                     years = years,
                                                     const = list(data = data,
                                                                  parameters = parameters_beech_default,
@@ -56,14 +56,14 @@ model_run_y100_e100_r50 <- suppoRt::submit_to_cluster(rabmp::run_model,
                                                                  return_nested = return_nested,
                                                                  verbose = verbose),
                                                     n_jobs = length(years),
-                                                    template = list(job_name = "y100_e100_r50",
+                                                    template = list(job_name = "y50_e10_r50",
                                                                     walltime = "12:00:00",
                                                                     queue = "medium", 
                                                                     mem_cpu = "4096", 
-                                                                    log_file = "y100_e100_r50.log"))
+                                                                    log_file = "y50_e10_r50.log"))
 
-suppoRt::save_rds(object = model_run_y100_e100_r50,
-                  filename = "model_run_y100_e100_r50.rds",
+suppoRt::save_rds(object = model_run_y50_e10_r50,
+                  filename = "model_run_y50_e10_r50.rds",
                   path = "Data/Output/")
 
-# rm(model_run_y100_e100_r50)
+# rm(model_run_y50_e10_r50)

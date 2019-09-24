@@ -7,7 +7,7 @@ library(spatstat)
 library(tidyverse)
 
 # import parameters
-parameters <- rabmp::read_parameters("Data/Input/parameters_beech.txt")
+parameters <- rabmp::read_parameters("Data/Input/parameters_beech_fitted.txt")
 
 # load data
 input_data <- dplyr::filter(rabmp::example_input_data, 
@@ -28,15 +28,15 @@ plot_potential <- ggplot() +
   geom_line(aes(x = 0:80, y = pot_growth, col = "black")) +
   scale_color_manual(values = c("black" = "black"), name = "CI") + 
   labs(x = "DBH [cm]", y = "DBH increment [cm]") +
-  scale_y_continuous(limits = c(0, 2.5)) + 
+  scale_y_continuous(limits = c(0, 1)) +
   theme_classic(base_size = 15)
 
 #### Simulate acutal growth ####
 # parameters$growth_mod <- 1
 
-model_data <- update_i(data = input_data)
+model_data <- rabmp::update_i(data = input_data)
 model_data <- rabmp::simulate_ci(data = model_data, parameters = parameters)
-model_data <- rabmp::simulate_growth(data = input_data, parameters = parameters)
+model_data <- rabmp::simulate_growth(data = model_data, parameters = parameters)
 
 # model_data_long <- tidyr::unnest(model_data)
 

@@ -22,7 +22,7 @@ Rcpp::sourceCpp("Helper_functions/rcpp_calculate_actual.cpp",
                 embeddedR = FALSE)
 
 # read paramters #
-parameters_beech_default <- rabmp::read_parameters("Data/Input/parameters_beech.txt", return_list = TRUE)
+parameters_beech_default <- rabmp::read_parameters("Data/Input/parameters_beech_default.txt", return_list = TRUE)
 
 # import data  #
 pattern_2013 <- readr::read_rds("Data/Raw/pattern_2013_df.rds")
@@ -159,6 +159,7 @@ fitted_fun_actual <- optim(par = start_values_actual,
                            control = list(trace = TRUE, 
                                           maxit = 1000))
 
+
 broom::tidy(fitted_fun_actual)
 # A tibble: 3 x 2
 # parameter   value
@@ -170,3 +171,33 @@ broom::tidy(fitted_fun_actual)
 fitted_fun_actual$value
 # $value
 # [1] 855.0206
+
+ci <- rabmp:::rcpp_calculate_ci(matrix = as.matrix(beech_2013[, c("x", "y", "dbh_99")]),
+                                alpha = fitted_fun_actual$par[[2]],
+                                beta = fitted_fun_actual$par[[3]],
+                                max_dist = 30)
+
+beech_2013 <- dplyr::mutate(beech_2013, ci = ci)
+
+ggplot(beech_2013) +
+  geom_point(aes(x = dbh_99, y = growth_full, col = ci), pch = 1,  size = 2) + 
+  geom_line(aes(x = dbh_99, y = growth_pot), size = 1) +
+  scale_x_continuous(name = "DBH 99 [cm]") +
+  scale_y_continuous(name = "Mean anual growth [cm]") +
+  scale_color_viridis_c(name = "CI", option = "A") +
+  theme_classic(base_size = 15) + 
+  theme(legend.position = "bottom", 
+        legend.key.width = unit(2, "cm"))
+
+#### Update parameters ####
+parameters_beech_fitted <- parameters_beech_default
+
+parameters_beech_fitted$ci_alpha <- fitted_fun_actual$par[[2]]
+parameters_beech_fitted$ci_beta <- fitted_fun_actual$par[[3]]
+
+parameters_beech_fitted$growth_assymp <- broom::tidy(fitted_fun_potential)[[1, 2]]
+parameters_beech_fitted$growth_infl <- broom::tidy(fitted_fun_potential)[[3, 2]]
+parameters_beech_fitted$growth_mod <- fitted_fun_actual$par[[1]]
+parameters_beech_fitted$growth_rate <- broom::tidy(fitted_fun_potential)[[2, 2]]
+
+write.table(parameters_beech_fitted, row.names = FALSE)

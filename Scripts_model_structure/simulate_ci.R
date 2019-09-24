@@ -7,7 +7,7 @@ library(spatstat)
 library(tidyverse)
 
 # import parameters
-parameters <- rabmp::read_parameters("Data/Input/parameters_beech.txt")
+parameters <- rabmp::read_parameters("Data/Input/parameters_beech_fitted.txt")
 
 # load data
 input_data <- dplyr::filter(rabmp::example_input_data, 
