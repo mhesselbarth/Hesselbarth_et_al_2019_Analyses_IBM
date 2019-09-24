@@ -12,14 +12,14 @@ using namespace Rcpp;
 //
 
 // [[Rcpp::export]]
-NumericVector rcpp_calculate_ci(NumericMatrix matrix,
-                                int max_dist) {
-  
+NumericMatrix rcpp_calculate_dist_dbh(NumericMatrix matrix,
+                                      int max_dist) {
+
   // get number of rows
   int nrow = matrix.nrow();
   
-  // initialise vector for ci value
-  Rcpp::NumericVector distance(nrow, 0.0);
+  // initialise matrix for ci value and dbh
+  NumericMatrix result(nrow, 2);  
   
   // loop through all rows
   for(int i = 0; i < nrow - 1; i++){
@@ -30,18 +30,23 @@ NumericVector rcpp_calculate_ci(NumericMatrix matrix,
       const float dist_x = matrix(i, 0) - matrix(j, 0);
       const float dist_y = matrix(i, 1) - matrix(j, 1);
       
-      const float distance_temp = std::sqrt(dist_x * dist_x + dist_y * dist_y);
+      const float distance = std::sqrt(dist_x * dist_x + dist_y * dist_y);
       
       // distance above max_dist
-      if(distance_temp > max_dist)
+      if(distance > max_dist)
         continue; // nothing to do...
       
-      // increase ci at point i and j
-      distance[i] += distance_temp;
-      distance[j] += distance_temp;
+      // sum distance
+      result(i, 0) += distance;  
+      result(j, 0) += distance;  
+      
+      // sum dbh
+      result(i, 1) += matrix(j, 2); 
+      result(j, 1) += matrix(i, 2);
     }
   }
-  return distance;
+  
+  return result;
 }
 
 // You can include R code blocks in C++ files processed with sourceCpp
@@ -50,9 +55,6 @@ NumericVector rcpp_calculate_ci(NumericMatrix matrix,
 //
 
 /*** R
-mat <- matrix(runif(n = 200), ncol = 2)
-mat_distance <- as.matrix(dist(mat, diag = TRUE, upper = TRUE))
-mat_distance[mat_distance > 30] <- 0
-as.numeric(apply(X = mat_distance, MARGIN = 1, FUN = sum))
+mat <- matrix(runif(n = 300), ncol = 3)
 rcpp_calculate_dist(mat, max_dist = 30)
 */
