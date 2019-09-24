@@ -154,21 +154,23 @@ start_values_actual <- c(parameters_beech_default$ci_alpha,
 # fit fun #
 fitted_fun_actual <- optim(par = start_values_actual,
                            fn = fun_actual, 
-                           df = beech_2013, 
+                           df = dplyr::filter(beech_2013, 
+                                              !id %in% beech_2013_top), 
                            method = "BFGS",
                            control = list(trace = TRUE, 
-                                          maxit = 1000))
+                                          maxit = 1000,
+                                          REPORT = 1))
 
 broom::tidy(fitted_fun_actual)
 # A tibble: 3 x 2
 # parameter   value
 # <chr>       <dbl>
-# parameter1  1.02
-# parameter2  0.418 
+# parameter1  1.05 
+# parameter2  0.433
 
 fitted_fun_actual$value
 # $value
-# [1] 859.4329
+# [1] 688.5027
 
 ci <- rabmp:::rcpp_calculate_ci(matrix = as.matrix(beech_2013[, c("x", "y", "dbh_99")]),
                                 alpha = fitted_fun_actual$par[[1]],
