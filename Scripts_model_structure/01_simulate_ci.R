@@ -19,13 +19,13 @@ library(tidyverse)
 # import parameters
 parameters_beech_fitted <- rabmp::read_parameters("Data/Input/parameters_beech_fitted.txt")
 
-pattern_1999_recon <- readr::read_rds("Data/Input/beech_1999_rec.rds")
+pattern_1999_recon <- readr::read_rds("Data/Input/beech_1999_rec_ppp.rds")
 
 plot_area <- tibble::as_tibble(pattern_1999_recon$window)
 
 #### Pre-processing of input data ####
 set.seed(42)
-sample_id <- sample(1:pattern_1999_recon$n, size = 250)
+sample_id <- sample(1:pattern_1999_recon$n, size = 500)
 
 input_data <- tibble::as_tibble(pattern_1999_recon) %>% 
   dplyr::mutate(id = 1:nrow(.)) %>% 
@@ -56,8 +56,9 @@ plot_kernel <- ggplot() +
                         values = c("DBH 10" = 2, "DBH 20" = 1)) + 
   scale_x_continuous(breaks = seq(-20, 20, 5),
                      labels = abs(seq(-20, 20, 5))) + 
-  labs(x = "Distance", y = "Exponential competition kernel") + 
-  theme_classic(base_size = 15)
+  labs(x = "Distance", y = "Competition kernel") + 
+  theme_classic(base_size = 15) + 
+  theme(legend.position = "bottom")
 
 #### Plot point pattern ####
 # calculat ci
@@ -71,7 +72,8 @@ plot_pattern <- ggplot(data = data_ci) +
   geom_point(aes(x = x, y = y, size = dbh), pch = 1) + 
   scale_size_continuous(name = "DBH [cm]") + 
   coord_equal() + 
-  theme_void(base_size = 15)
+  theme_void(base_size = 15) + 
+  theme(legend.position = "bottom")
 
 # create ggplot with ci
 plot_pattern_ci <- ggplot(data = data_ci) + 
@@ -79,22 +81,30 @@ plot_pattern_ci <- ggplot(data = data_ci) +
                col = "black", fill = NA) + 
   geom_point(aes(x = x, y = y, col = ci, size = dbh), pch = 1) + 
   scale_size_continuous(name = "DBH [cm]") + 
-  scale_color_viridis_c(name = "Competition index", option = "A") + 
+  scale_color_viridis_c(name = "CI", option = "A") + 
   coord_equal() + 
-  theme_void(base_size = 15)
+  theme_void(base_size = 15) + 
+  guides(size = FALSE) +
+  theme(legend.position = "bottom", 
+        legend.key.width = unit(1.5, units = "cm"))
 
 #### Save plots #### 
+overwrite <- FALSE
+
 suppoRt::save_ggplot(plot = plot_kernel,
                     filename = "ggplot_structure_kernel.png",
                     path = "Figures/Appendix",
-                    dpi = 300, height = 7.5, width = 15, units = "cm")
+                    dpi = 300, height = 10, width = 12.5, units = "cm", 
+                    overwrite = overwrite)
 
 suppoRt::save_ggplot(plot = plot_pattern,
                     filename = "ggplot_structure_pattern.png",
                     path = "Figures/Appendix",
-                    dpi = 300, height = 15, width = 15, units = "cm")
+                    dpi = 300, height = 12.5, width = 12.5, units = "cm", 
+                    overwrite = overwrite)
 
 suppoRt::save_ggplot(plot = plot_pattern_ci,
                     filename = "ggplot_structure_pattern_ci.png",
                     path = "Figures/Appendix",
-                    dpi = 300, height = 15, width = 15, units = "cm")
+                    dpi = 300, height = 12.5, width = 12.5, units = "cm",
+                    overwrite = overwrite)

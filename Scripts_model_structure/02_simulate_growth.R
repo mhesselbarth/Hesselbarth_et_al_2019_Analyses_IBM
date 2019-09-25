@@ -21,7 +21,7 @@ parameters_beech_fitted <- rabmp::read_parameters("Data/Input/parameters_beech_f
 
 parameters_beech_fitted$growth_mod <- 1
 
-pattern_1999_recon <- readr::read_rds("Data/Input/beech_1999_rec.rds")
+pattern_1999_recon <- readr::read_rds("Data/Input/beech_1999_rec_ppp.rds")
 
 plot_area <- tibble::as_tibble(pattern_1999_recon$window)
 
@@ -71,15 +71,19 @@ plot_actual <- ggplot() +
   labs(x = "DBH [cm]", y = "DBH increment [cm]") + 
   theme_classic(base_size = 15) + 
   theme(legend.position = "bottom",
-        legend.key.width = unit(2, "cm"))
+        legend.key.width = unit(1.5, "cm"))
 
 #### Save ggplot ####
+overwrite <- FALSE
+
 suppoRt::save_ggplot(plot = plot_potential, 
                     filename = "ggplot_structure_potential.png", 
                     path = "Figures/Appendix", 
-                    dpi = 300, width = 15, height = 7.5, units = "cm")
+                    dpi = 300, width = 12.5, height = 10, units = "cm", 
+                    overwrite = overwrite)
 
 suppoRt::save_ggplot(plot = plot_actual, 
                     filename = "ggplot_structure_actual.png", 
                     path = "Figures/Appendix", 
-                    dpi = 300, width = 15, height = 7.5, units = "cm")
+                    dpi = 300, width = 12.5, height = 10, units = "cm", 
+                    overwrite = overwrite)

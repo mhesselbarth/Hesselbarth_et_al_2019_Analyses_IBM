@@ -19,7 +19,7 @@ library(tidyverse)
 # import parameters
 parameters_beech_fitted <- rabmp::read_parameters("Data/Input/parameters_beech_fitted.txt")
 
-pattern_1999_recon <- readr::read_rds("Data/Input/beech_1999_rec.rds")
+pattern_1999_recon <- readr::read_rds("Data/Input/beech_1999_rec_ppp.rds")
 
 plot_area <- tibble::as_tibble(pattern_1999_recon$window)
 
@@ -55,7 +55,10 @@ plot_mort_prob <- ggplot() +
   theme_classic(base_size = 15) 
 
 #### Save plots ####
+overwrite <- FALSE
+
 suppoRt::save_ggplot(plot = plot_mort_prob, 
                     path = "Figures/Appendix",
                     filename = "ggplot_structure_mortality.png", 
-                    dpi = 300, width = 15, height = 7.5, units = "cm")
+                    dpi = 300, height = 10, width = 12.5, units = "cm", 
+                    overwrite = overwrite)

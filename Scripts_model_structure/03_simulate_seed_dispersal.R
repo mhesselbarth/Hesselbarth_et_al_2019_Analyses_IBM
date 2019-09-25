@@ -19,19 +19,20 @@ library(tidyverse)
 # import parameters
 parameters_beech_fitted <- rabmp::read_parameters("Data/Input/parameters_beech_fitted.txt")
 
-pattern_1999_recon <- readr::read_rds("Data/Input/beech_1999_rec.rds")
+pattern_1999_recon <- readr::read_rds("Data/Input/beech_1999_rec_ppp.rds")
 
 plot_area <- pattern_1999_recon$window
 
 #### Pre-processing of input data ####
 set.seed(42)
-sample_id <- sample(1:pattern_1999_recon$n, size = 50)
+sample_id <- sample(1:pattern_1999_recon$n, size = 100)
 
 input_data <- tibble::as_tibble(pattern_1999_recon) %>% 
   dplyr::mutate(id = 1:nrow(.)) %>% 
   dplyr::filter(species == "beech", id %in% sample_id) %>%
   dplyr::select(-id) %>% 
-  rabmp::prepare_data(x = "x", y = "y", species = "species", type = "type", dbh = "dbh")
+  rabmp::prepare_data(x = "x", y = "y", species = "species", 
+                      type = "type", dbh = "dbh")
 
 rm(pattern_1999_recon)
 
@@ -64,17 +65,23 @@ plot_seed_pattern <- ggplot(data = seedlings) +
   geom_polygon(data = tibble::as_tibble(plot_area), aes(x = x, y = y), 
                col = "black", fill = NA) + 
   scale_size_continuous(name = "DBH [cm]") +
-  scale_shape_manual(values = c(19, 1), name = "Life stage") +
+  scale_shape_manual(values = c(1, 3), name = "Life stage") +
+  guides(size = FALSE) +
   coord_equal() + 
-  theme_void(base_size = 15)
+  theme_void(base_size = 15) + 
+  theme(legend.position = "bottom")
 
 #### Save plots #### 
+overwrite <- FALSE
+
 suppoRt::save_ggplot(plot = plot_dist_density, 
-                    filename = "ggplot_structure_seed_density.png", 
-                    path = "Figures/Appendix", 
-                    dpi = 300, width = 15, height = 7.5, units = "cm")
+                     filename = "ggplot_structure_seed_density.png", 
+                     path = "Figures/Appendix", 
+                     dpi = 300, height = 10, width = 12.5, units = "cm", 
+                     overwrite = overwrite)
 
 suppoRt::save_ggplot(plot = plot_seed_pattern, 
-                    filename = "ggplot_structure_seed_pattern.png", 
-                    path = "Figures/Appendix", 
-                    dpi = 300, width = 15, height = 15, units = "cm")
+                     filename = "ggplot_structure_seed_pattern.png", 
+                     path = "Figures/Appendix", 
+                     dpi = 300, height = 12.5, width = 12.5, units = "cm", 
+                     overwrite = overwrite)

@@ -20,12 +20,12 @@ library(tidyverse)
 # import data #
 parameters_beech_fitted <- rabmp::read_parameters("Data/Input/parameters_beech_fitted.txt", return_list = TRUE)
 
-beech_1999_rec <- readr::read_rds("Data/Input/beech_1999_rec.rds")
+beech_1999_rec <- readr::read_rds("Data/Input/beech_1999_rec_ppp.rds")
 
 source("Helper_functions/helper_functions_sa.R")
 
 #### Set SA parameters ####
-repetitions <- 25 # 25
+repetitions <- 50 # 25
 
 plot_area <- beech_1999_rec$window
 years <- 50 # 50
@@ -37,23 +37,23 @@ verbose <- FALSE
 
 #### Create parameters ####
 # increase parameters by 5% and 10%
-parameters_beech_inc_5 <- change_parameters(x = parameters_beech_default, 
+parameters_beech_inc_5 <- change_parameters(x = parameters_beech_fitted, 
                                             change = 0.05) %>% 
   rep(each = repetitions)
 
-parameters_beech_inc_10 <- change_parameters(x = parameters_beech_default, 
+parameters_beech_inc_10 <- change_parameters(x = parameters_beech_fitted, 
                                              change = 0.1) %>% 
   rep(each = repetitions)
 # decrease parameters by 5% and 10%
-parameters_beech_dec_5 <- change_parameters(x = parameters_beech_default, 
+parameters_beech_dec_5 <- change_parameters(x = parameters_beech_fitted, 
                                             change = -0.05) %>% 
   rep(each = repetitions)
 
-parameters_beech_dec_10 <- change_parameters(x = parameters_beech_default, 
+parameters_beech_dec_10 <- change_parameters(x = parameters_beech_fitted, 
                                              change = -0.1) %>% 
   rep(each = repetitions)
 
-parameters_beech_default <- list(parameters_beech_default) %>% 
+parameters_beech_default <- list(parameters_beech_fitted) %>% 
   rep(each = repetitions)
 
 #### Pre-processing of input data ####

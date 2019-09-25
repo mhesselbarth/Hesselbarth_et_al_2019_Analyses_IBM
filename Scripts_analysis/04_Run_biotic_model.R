@@ -82,7 +82,7 @@ rm(model_run_y50_e10_r50_reco)
 # real world data #
 model_run_y50_e10_r50_real <- suppoRt::submit_to_cluster(rabmp::run_model,
                                                          years = years,
-                                                         const = list(data = data_reconstruction,
+                                                         const = list(data = data_real,
                                                                       parameters = parameters_beech_fitted,
                                                                       plot_area = plot_area,
                                                                       save_each = save_each,

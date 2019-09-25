@@ -23,7 +23,7 @@ pattern_2013 <- readr::read_rds("Data/Raw/pattern_2013_ppp.rds")
 
 window <- readr::read_rds("Data/Raw/plot_area_owin.rds")
 
-model_run <- readr::read_rds("Data/Output/model_run_y100_e100_r50.rds")
+model_run <- readr::read_rds("Data/Output/model_run_y50_e10_r50_reco.rds")
 
 names(model_run) <- rep("Biotic model", times = length(model_run))
 
