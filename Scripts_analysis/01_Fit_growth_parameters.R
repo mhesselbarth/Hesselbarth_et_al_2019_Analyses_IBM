@@ -69,11 +69,12 @@ beech_2013 <- dplyr::mutate(beech_2013,
                             top_n = factor(top_n, levels = c(0, 1)))
 
 # plot growth vs dbh #
-ggplot(beech_2013) +
+ggplot_fitting_dbh_growth <- ggplot(beech_2013) +
   geom_point(aes(x = dbh_99, y = growth_full, col = top_n), pch = 1, size = 2) + 
   scale_x_continuous(name = "DBH 99 [cm]") +
-  scale_y_continuous(name = "Mean anual growth [cm]") +
-  scale_color_viridis_d(name = "5% highest growth per class") +
+  scale_y_continuous(name = "Mean anual growth [cm]", limits = c(0, 1.25)) +
+  scale_color_manual(name = "5% highest growth per class", 
+                     values = c("#440154FF", "#21908CFF")) +
   theme_classic(base_size = 15) + 
   theme(legend.position = "bottom")
 
@@ -107,12 +108,13 @@ beech_2013 <- dplyr::mutate(beech_2013 ,
                                                  newdata = data.frame(dbh_99 = beech_2013$dbh_99)))
 
 # plot result #
-ggplot(beech_2013) +
+ggplot_fitting_potential <- ggplot(beech_2013) +
   geom_point(aes(x = dbh_99, y = growth_full, col = top_n), pch = 1, size = 2) + 
   geom_line(aes(x = dbh_99, y = growth_pot), size = 1) +
   scale_x_continuous(name = "DBH 99 [cm]") +
-  scale_y_continuous(name = "Mean anual growth [cm]", limits = c(0, 1.5)) +
-  scale_color_viridis_d(name = "5% highest growth per class") +
+  scale_y_continuous(name = "Mean anual growth [cm]", limits = c(0, 1.25)) +
+  scale_color_manual(name = "5% highest growth per class", 
+                     values = c("#440154FF", "#21908CFF")) +
   theme_classic(base_size = 15) + 
   theme(legend.position = "bottom")
 
@@ -179,15 +181,15 @@ ci <- rabmp:::rcpp_calculate_ci(matrix = as.matrix(beech_2013[, c("x", "y", "dbh
 
 beech_2013 <- dplyr::mutate(beech_2013, ci = ci)
 
-ggplot(beech_2013) +
+ggplot_fitting_actual <- ggplot(beech_2013) +
   geom_point(aes(x = dbh_99, y = growth_full, col = ci), pch = 1,  size = 2) + 
   geom_line(aes(x = dbh_99, y = growth_pot), size = 1) +
   scale_x_continuous(name = "DBH 99 [cm]") +
-  scale_y_continuous(name = "Mean anual growth [cm]") +
+  scale_y_continuous(name = "Mean anual growth [cm]", limits = c(0, 1.25)) +
   scale_color_viridis_c(name = "CI", option = "A") +
   theme_classic(base_size = 15) + 
   theme(legend.position = "bottom", 
-        legend.key.width = unit(2, "cm"))
+        legend.key.width = unit(1.5, "cm"))
 
 #### Update parameters ####
 parameters_beech_fitted <- parameters_beech_default
@@ -201,3 +203,26 @@ parameters_beech_fitted$growth_mod <- 1
 parameters_beech_fitted$growth_rate <- broom::tidy(fitted_fun_potential)[[2, 2]]
 
 # write.table(parameters_beech_fitted, row.names = FALSE)
+
+#### Save plots #### 
+overwrite <- FALSE
+
+suppoRt::save_ggplot(plot = ggplot_fitting_dbh_growth, 
+                     path = "Figures/Appendix",
+                     filename = "ggplot_fitting_dbh_growth.png", 
+                     dpi = 300, height = 10, width = 12.5, units = "cm", 
+                     overwrite = overwrite)
+
+suppoRt::save_ggplot(plot = ggplot_fitting_potential, 
+                     path = "Figures/Appendix",
+                     filename = "ggplot_fitting_potential.png", 
+                     dpi = 300, height = 10, width = 12.5, units = "cm", 
+                     overwrite = overwrite)
+
+suppoRt::save_ggplot(plot = ggplot_fitting_actual, 
+                     path = "Figures/Appendix",
+                     filename = "ggplot_fitting_actual.png", 
+                     dpi = 300, height = 10, width = 12.5, units = "cm", 
+                     overwrite = overwrite)
+
+
