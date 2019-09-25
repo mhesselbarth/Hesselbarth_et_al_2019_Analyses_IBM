@@ -67,13 +67,13 @@ calc_growth <- function(data, by, verbose = TRUE) {
       dplyr::select(id, dbh)
     
     # combine data to one df
-    dplyr::full_join(x = temp_start, 
+    dplyr::left_join(x = temp_start, 
                      y = temp_end, 
                      by = "id",
                      suffix = c(".start", ".end")) %>% 
       dplyr::left_join(y = temp_years_living, by = "id") %>% 
       dplyr::filter(years_lived > 0) %>% 
-      tidyr::replace_na(replace = list(dbh.start = 0)) %>% 
+      # tidyr::replace_na(replace = list(dbh.start = 0)) %>% 
       dplyr::mutate(dbh_inc = (dbh.end - dbh.start) / years_lived) %>% 
       dplyr::mutate(dbh_class = cut(dbh.start, breaks = seq(from = 0, 
                                                             to = max(dbh.start) + by, 
