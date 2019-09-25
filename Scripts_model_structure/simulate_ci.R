@@ -1,3 +1,13 @@
+###################################################
+##    Author: Maximilian H.K. Hesselbarth        ##
+##    Department of Ecosystem Modelling          ##
+##    University of Goettingen                   ##
+##    maximilian.hesselbarth@uni-goettingen.de   ##
+##    www.github.com/mhesselbarth                ##
+###################################################
+
+#### Model structure CI ####
+
 #### Import libraries and data ####
 
 # load packages
@@ -88,4 +98,3 @@ suppoRt::save_ggplot(plot = plot_pattern_ci,
                     filename = "ggplot_structure_pattern_ci.png",
                     path = "Figures/Appendix",
                     dpi = 300, height = 15, width = 15, units = "cm")
-

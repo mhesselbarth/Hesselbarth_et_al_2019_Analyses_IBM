@@ -1,3 +1,13 @@
+###################################################
+##    Author: Maximilian H.K. Hesselbarth        ##
+##    Department of Ecosystem Modelling          ##
+##    University of Goettingen                   ##
+##    maximilian.hesselbarth@uni-goettingen.de   ##
+##    www.github.com/mhesselbarth                ##
+###################################################
+
+#### Model structure Growth ####
+
 #### Import libraries and data ####
 
 # load packages

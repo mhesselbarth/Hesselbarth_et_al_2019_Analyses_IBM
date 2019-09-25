@@ -1,3 +1,13 @@
+###################################################
+##    Author: Maximilian H.K. Hesselbarth        ##
+##    Department of Ecosystem Modelling          ##
+##    University of Goettingen                   ##
+##    maximilian.hesselbarth@uni-goettingen.de   ##
+##    www.github.com/mhesselbarth                ##
+###################################################
+
+#### Model structure Seed dispersal ####
+
 #### Import libraries and data ####
 
 # load packages
@@ -68,5 +78,3 @@ suppoRt::save_ggplot(plot = plot_seed_pattern,
                     filename = "ggplot_structure_seed_pattern.png", 
                     path = "Figures/Appendix", 
                     dpi = 300, width = 15, height = 15, units = "cm")
-
-

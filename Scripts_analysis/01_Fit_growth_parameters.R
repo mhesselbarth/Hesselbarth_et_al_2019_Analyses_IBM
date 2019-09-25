@@ -6,7 +6,7 @@
 ##    www.github.com/mhesselbarth                ##
 ###################################################
 
-#### Comparison spatial model structure ####
+#### Fit model parameters ####
 
 #### Import libraries and data ####
 
@@ -200,4 +200,4 @@ parameters_beech_fitted$growth_infl <- broom::tidy(fitted_fun_potential)[[3, 2]]
 parameters_beech_fitted$growth_mod <- 1
 parameters_beech_fitted$growth_rate <- broom::tidy(fitted_fun_potential)[[2, 2]]
 
-write.table(parameters_beech_fitted, row.names = FALSE)
+# write.table(parameters_beech_fitted, row.names = FALSE)
