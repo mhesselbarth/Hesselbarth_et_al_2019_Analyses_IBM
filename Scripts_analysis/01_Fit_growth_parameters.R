@@ -71,8 +71,8 @@ beech_2013 <- dplyr::mutate(beech_2013,
 # plot growth vs dbh #
 ggplot_fitting_dbh_growth <- ggplot(beech_2013) +
   geom_point(aes(x = dbh_99, y = growth_full, col = top_n), pch = 1, size = 2) + 
-  scale_x_continuous(name = "DBH 99 [cm]") +
-  scale_y_continuous(name = "Mean anual growth [cm]", limits = c(0, 1.25)) +
+  scale_x_continuous(name = "DBH [cm]") +
+  scale_y_continuous(name = "Mean annual growth [cm]", limits = c(0, 1.25)) +
   scale_color_manual(name = "5% highest growth per class", 
                      values = c("#440154FF", "#21908CFF")) +
   theme_classic(base_size = 15) + 
@@ -111,8 +111,8 @@ beech_2013 <- dplyr::mutate(beech_2013 ,
 ggplot_fitting_potential <- ggplot(beech_2013) +
   geom_point(aes(x = dbh_99, y = growth_full, col = top_n), pch = 1, size = 2) + 
   geom_line(aes(x = dbh_99, y = growth_pot), size = 1) +
-  scale_x_continuous(name = "DBH 99 [cm]") +
-  scale_y_continuous(name = "Mean anual growth [cm]", limits = c(0, 1.25)) +
+  scale_x_continuous(name = "DBH [cm]") +
+  scale_y_continuous(name = "Mean annual growth [cm]", limits = c(0, 1.25)) +
   scale_color_manual(name = "5% highest growth per class", 
                      values = c("#440154FF", "#21908CFF")) +
   theme_classic(base_size = 15) + 
@@ -184,8 +184,8 @@ beech_2013 <- dplyr::mutate(beech_2013, ci = ci)
 ggplot_fitting_actual <- ggplot(beech_2013) +
   geom_point(aes(x = dbh_99, y = growth_full, col = ci), pch = 1,  size = 2) + 
   geom_line(aes(x = dbh_99, y = growth_pot), size = 1) +
-  scale_x_continuous(name = "DBH 99 [cm]") +
-  scale_y_continuous(name = "Mean anual growth [cm]", limits = c(0, 1.25)) +
+  scale_x_continuous(name = "DBH [cm]") +
+  scale_y_continuous(name = "Mean annual growth [cm]", limits = c(0, 1.25)) +
   scale_color_viridis_c(name = "CI", option = "A") +
   theme_classic(base_size = 15) + 
   theme(legend.position = "bottom", 

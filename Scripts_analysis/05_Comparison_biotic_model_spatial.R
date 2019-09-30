@@ -18,13 +18,13 @@ library(tidyverse)
 source("Helper_functions/helper_functions_comparison_spatial.R")
 
 pattern_1999 <- readr::read_rds("Data/Raw/pattern_1999_ppp.rds") %>% 
-  spatstat::subset.ppp(species == "beech")
+  spatstat::subset.ppp(species == "beech" & dbh_99 > 1)
 
 pattern_2007 <- readr::read_rds("Data/Raw/pattern_2007_ppp.rds") %>% 
-  spatstat::subset.ppp(species == "beech")
+  spatstat::subset.ppp(species == "beech" & dbh_07 > 1)
 
 pattern_2013 <- readr::read_rds("Data/Raw/pattern_2013_ppp.rds") %>% 
-  spatstat::subset.ppp(species == "beech")
+  spatstat::subset.ppp(species == "beech" & dbh_13 > 1)
 
 window <- readr::read_rds("Data/Raw/plot_area_owin.rds")
 
@@ -87,7 +87,7 @@ ggplot_biotic_nnd <- ggplot(data = nnd_overall) +
   geom_line(aes(x = r, y = km, col = data_type), size = 0.75) +
   scale_color_viridis_d(name = "") +
   labs(x = "r [m]", y = "G(r)") +
-  theme_classic(base_size = 12.5) + 
+  theme_classic(base_size = 10) + 
   theme(legend.position = "bottom", 
         legend.key.width = unit(0.5, units = "cm"))
 
@@ -99,12 +99,12 @@ suppoRt::save_ggplot(plot = ggplot_biotic_nnd,
 #### Pair-correlation function ####
 # set parameters #
 r <- seq(from = 0, to = 20, length.out = 525)
-correction <- "good"
+correction <- "Ripley"
 fast <- FALSE
 divisor <- "d"
 
 # calculate pcf #
-pcf_model <- calc_pcf(data = model_run_reco[[1]], 
+pcf_model <- calc_pcf(data = model_run_reco, 
                       window = window, r = r, fast = fast, 
                       correction = correction, divisor = divisor) %>% 
   dplyr::bind_rows() %>% 
@@ -153,7 +153,7 @@ ggplot_biotic_pcf <- ggplot(data = pcf_overall) +
   geom_hline(yintercept = 1, linetype = 2, size = 0.25) +
   scale_color_viridis_d(name = "") +
   labs(x = "r [m]", y = "g(r)") +
-  theme_classic(base_size = 12.5) +
+  theme_classic(base_size = 10) +
   theme(legend.position = "bottom", 
         legend.key.width = unit(0.5, units = "cm"))
 
@@ -221,7 +221,7 @@ ggplot_biotic_kmm <- ggplot(data = kmm_overall) +
   geom_hline(yintercept = 1, linetype = 2, size = 0.25) +
   scale_color_viridis_d(name = "") +
   labs(x = "r [m]", y = "kmm(r)") +
-  theme_classic(base_size = 12.5) + 
+  theme_classic(base_size = 10) + 
   theme(legend.position = "bottom", 
         legend.key.width = unit(0.5, units = "cm"))
 

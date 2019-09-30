@@ -101,7 +101,9 @@ calc_died <- function(data, by, verbose = TRUE) {
     }
     
     # get number of living trees
-    temp_living <- dplyr::filter(data[[x]], i == min(i), type != "dead") %>%
+    temp_living <- dplyr::filter(data[[x]], i == min(i), 
+                                 type != "dead", 
+                                 dbh > 1) %>%
       dplyr::mutate(dbh_class = cut(dbh, breaks = seq(from = 0, 
                                                       to = max(dbh) + by, 
                                                       by = by), 
@@ -110,7 +112,7 @@ calc_died <- function(data, by, verbose = TRUE) {
       dplyr::summarise(n_living = dplyr::n())
     
     # get number of trees that died absolute and relative to starting living trees
-    dplyr::filter(data[[x]], i != min(i), type == "dead") %>% 
+    dplyr::filter(data[[x]], i != min(i), type == "dead", dbh > 1) %>% 
       dplyr::mutate(dbh_class = cut(dbh, breaks = seq(from = 0, 
                                                             to = max(dbh) + by, 
                                                             by = by), 

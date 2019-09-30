@@ -20,7 +20,7 @@ library(tidyverse)
 source("Helper_functions/helper_functions_sa_spatial.R")
 
 #### Import data ####
-beech_1999_rec <- readr::read_rds("Data/Input/beech_1999_rec.rds")
+beech_1999_rec <- readr::read_rds("Data/Input/beech_1999_rec_ppp.rds")
 
 # import model runs default
 sa_default <- readr::read_rds("Data/Output/sa_default.rds")
@@ -41,15 +41,15 @@ window <- readr::read_rds("Data/Raw/plot_area_owin.rds")
 
 # set parameters
 overwrite <- FALSE
-base_size <- 15
+base_size <- 12.5
 
 #### Pair-correlation function ####
 
 # set parameters #
-correction <- "good"
+correction <- "Ripley"
 divisor <- "d" 
 fast <- FALSE
-r <- seq(from = 0, to = 50, length.out = 525)
+r <- seq(from = 0, to = 25, length.out = 525)
 
 # r <- seq(from = 0,
 #          to = spatstat::rmax.rule(W = window,
