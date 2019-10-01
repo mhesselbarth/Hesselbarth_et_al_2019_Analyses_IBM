@@ -22,7 +22,8 @@ Rcpp::sourceCpp("Helper_functions/rcpp_calculate_actual.cpp",
                 embeddedR = FALSE)
 
 # read paramters #
-parameters_beech_default <- rabmp::read_parameters("Data/Input/parameters_beech_default.txt", return_list = TRUE)
+parameters_default <- rabmp::read_parameters("Data/Input/parameters_default.txt", 
+                                             sep = ";")
 
 # import data  #
 pattern_2013 <- readr::read_rds("Data/Raw/pattern_2013_df.rds")
@@ -90,10 +91,15 @@ fun_potential <- function(dbh, assymp, rate, infl) {
 # set starting functions adapted from Pommerening, A., Maleki, K., 2014. #
 # Differences between competition kernels and traditional size-ratio based #
 # competition indices used in forest ecology. For. Ecol. Manage. 331, 135-143. #
+
+# start_values_potential <- list(assymp = parameters_default$growth_assymp, 
+#                                rate = parameters_default$growth_rate, 
+#                                infl = parameters_default$growth_infl)
+
 start_values_potential <- list(assymp = 75, 
                                rate = 0.05, 
                                infl = 3.5)
-          
+
 # fit model #
 fitted_fun_potential <- quantreg::nlrq(growth_full ~ 
                                          fun_potential(dbh_99, assymp, rate, infl), 
@@ -137,7 +143,6 @@ fun_actual <- function(df, par) {
   data_matrix <- as.matrix(df[, c("x", "y", "dbh_99", "growth_pot")])
   
   growth_modelled <- rcpp_calculate_actual(matrix = data_matrix, 
-                                           # modifier = par[1],
                                            alpha = par[1], 
                                            beta = par[2],
                                            max_dist = 30)
@@ -150,8 +155,8 @@ fun_actual <- function(df, par) {
 # set starting functions adapted from Pommerening, A., Maleki, K., 2014. #
 # Differences between competition kernels and traditional size-ratio based #
 # competition indices used in forest ecology. For. Ecol. Manage. 331, 135-143. #
-start_values_actual <- c(parameters_beech_default$ci_alpha, 
-                         parameters_beech_default$ci_beta)
+start_values_actual <- c(parameters_default$ci_alpha, 
+                         parameters_default$ci_beta)
 
 # fit fun #
 fitted_fun_actual <- optim(par = start_values_actual,
@@ -192,17 +197,17 @@ ggplot_fitting_actual <- ggplot(beech_2013) +
         legend.key.width = unit(1.5, "cm"))
 
 #### Update parameters ####
-parameters_beech_fitted <- parameters_beech_default
+parameters_fitted <- parameters_default
 
-parameters_beech_fitted$ci_alpha <- fitted_fun_actual$par[[1]]
-parameters_beech_fitted$ci_beta <- fitted_fun_actual$par[[2]]
+parameters_fitted$ci_alpha <- fitted_fun_actual$par[[1]]
+parameters_fitted$ci_beta <- fitted_fun_actual$par[[2]]
 
-parameters_beech_fitted$growth_assymp <- broom::tidy(fitted_fun_potential)[[1, 2]]
-parameters_beech_fitted$growth_infl <- broom::tidy(fitted_fun_potential)[[3, 2]]
-parameters_beech_fitted$growth_mod <- 1
-parameters_beech_fitted$growth_rate <- broom::tidy(fitted_fun_potential)[[2, 2]]
+parameters_fitted$growth_assymp <- broom::tidy(fitted_fun_potential)[[1, 2]]
+parameters_fitted$growth_infl <- broom::tidy(fitted_fun_potential)[[3, 2]]
+parameters_fitted$growth_mod <- 1
+parameters_fitted$growth_rate <- broom::tidy(fitted_fun_potential)[[2, 2]]
 
-# write.table(parameters_beech_fitted, row.names = FALSE)
+# write.table(parameters_fitted, row.names = FALSE, sep = ";")
 
 #### Save plots #### 
 overwrite <- FALSE

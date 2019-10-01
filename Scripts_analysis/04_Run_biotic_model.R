@@ -16,7 +16,8 @@ library(rabmp)
 library(spatstat)
 library(tidyverse)
 
-parameters_beech_fitted <- rabmp::read_parameters("Data/Input/parameters_beech_fitted.txt", return_list = TRUE)
+parameters_beech_fitted <- rabmp::read_parameters("Data/Input/parameters_fitted.txt", 
+                                                  sep = ";")
 
 pattern_1999_recon <- readr::read_rds("Data/Input/beech_1999_rec_ppp.rds")
 
@@ -35,13 +36,15 @@ verbose <- FALSE
 
 data_reconstruction <- tibble::as_tibble(pattern_1999_recon) %>%
   dplyr::filter(species == "beech") %>%
-  rabmp::prepare_data(x = "x", y = "y", species = "species", type = "type", dbh = "dbh")
+  dplyr::select(-species) %>% 
+  rabmp::prepare_data(x = "x", y = "y", type = "type", dbh = "dbh")
 
 data_real <- tibble::as_tibble(pattern_1999) %>%
   dplyr::select(x, y, species, dbh_99, type) %>% 
   dplyr::filter(species == "beech") %>%
   dplyr::mutate(type = "adult") %>% 
-  rabmp::prepare_data(x = "x", y = "y", species = "species", type = "type", dbh = "dbh_99")
+  dplyr::select(-species) %>% 
+  rabmp::prepare_data(x = "x", y = "y", type = "type", dbh = "dbh_99")
 
 rm(pattern_1999_recon)
 
