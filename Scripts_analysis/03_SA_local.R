@@ -18,7 +18,7 @@ library(spatstat)
 library(tidyverse)
 
 # import data #
-parameters_beech_fitted <- rabmp::read_parameters("Data/Input/parameters_fitted.txt", 
+parameters_beech_fitted <- rabmp::read_parameters("Data/Input/parameters_fitted_biotic.txt", 
                                                   sep = ";")
 
 beech_1999_rec <- readr::read_rds("Data/Input/beech_1999_rec_ppp.rds")
@@ -160,7 +160,7 @@ sa_increased_10_y50_e50_r50 <- suppoRt::submit_to_cluster(rabmp::run_model,
                                                                        verbose = verbose),
                                                           n_jobs = length(parameters_beech_inc_10),
                                                           template = list(job_name = "sa_inc_10",
-                                                                          walltime = "06:00:00",
+                                                                          walltime = "12:00:00",
                                                                           queue = "medium", 
                                                                           mem_cpu = "3072", 
                                                                           log_file = "sa_inc_10_y50_e50_r50.log"))
@@ -231,7 +231,7 @@ sa_decreased_10_y50_e50_r50 <- suppoRt::submit_to_cluster(rabmp::run_model,
                                                                        verbose = verbose),
                                                           n_jobs = length(parameters_beech_dec_10),
                                                           template = list(job_name = "sa_dec_10",
-                                                                          walltime = "06:00:00",
+                                                                          walltime = "12:00:00",
                                                                           queue = "medium", 
                                                                           mem_cpu = "3072", 
                                                                           log_file = "sa_dec_10_y50_e50_r50.log"))

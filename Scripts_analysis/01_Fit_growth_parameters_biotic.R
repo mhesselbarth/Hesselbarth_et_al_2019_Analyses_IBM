@@ -18,7 +18,7 @@ library(suppoRt) # devtools::install_github("mhesselbarth/suppoRt")
 library(spatstat)
 library(tidyverse)
 
-Rcpp::sourceCpp("Helper_functions/rcpp_calculate_actual.cpp", 
+Rcpp::sourceCpp("Helper_functions/rcpp_calculate_actual_biotic.cpp", 
                 embeddedR = FALSE)
 
 # read paramters #
@@ -40,8 +40,6 @@ beech_2013 <- dplyr::filter(pattern_2013,
   dplyr::filter(growth_mean >= 0,
                 growth_full >= 0)
 
-#### Fit growth parameters ####
-
 # compare growth calculated for full time period vs mean of 1999-2007 & 2007-2013 #
 ggplot(beech_2013) +
   geom_point(aes(x = growth_mean, y = growth_full), pch = 1) + 
@@ -52,6 +50,8 @@ ggplot(beech_2013) +
   theme_classic(base_size = 15)
 
 cor(beech_2013$growth_mean, beech_2013$growth_full)
+
+#### Fit growth parameters ####
 
 # classify into dbh classes and get only trees with highest growth #
 breaks <- seq(from = 0, to = max(beech_2013$dbh_13) + 10, by = 10)
@@ -142,10 +142,11 @@ fun_actual <- function(df, par) {
   
   data_matrix <- as.matrix(df[, c("x", "y", "dbh_99", "growth_pot")])
   
-  growth_modelled <- rcpp_calculate_actual(matrix = data_matrix, 
-                                           alpha = par[1], 
-                                           beta = par[2],
-                                           max_dist = 30)
+  growth_modelled <- rcpp_calculate_actual_biotic(matrix = data_matrix, 
+                                                  alpha = par[1], 
+                                                  beta = par[2], 
+                                                  mod = 1,
+                                                  max_dist = 30)
   
   difference <- sum(abs(df$growth_full - growth_modelled))
   
@@ -157,6 +158,10 @@ fun_actual <- function(df, par) {
 # competition indices used in forest ecology. For. Ecol. Manage. 331, 135-143. #
 start_values_actual <- c(parameters_default$ci_alpha, 
                          parameters_default$ci_beta)
+
+# start_values_actual <- c(parameters_default$ci_alpha, 
+#                          parameters_default$ci_beta, 
+#                          parameters_default$growth_mod)
 
 # fit fun #
 fitted_fun_actual <- optim(par = start_values_actual,
@@ -207,7 +212,7 @@ parameters_fitted$growth_infl <- broom::tidy(fitted_fun_potential)[[3, 2]]
 parameters_fitted$growth_mod <- 1
 parameters_fitted$growth_rate <- broom::tidy(fitted_fun_potential)[[2, 2]]
 
-# write.table(parameters_fitted, row.names = FALSE, sep = ";")
+write.table(parameters_fitted, row.names = FALSE, sep = ";")
 
 #### Save plots #### 
 overwrite <- FALSE

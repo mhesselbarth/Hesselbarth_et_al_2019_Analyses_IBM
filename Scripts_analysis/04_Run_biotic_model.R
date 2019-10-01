@@ -16,7 +16,7 @@ library(rabmp)
 library(spatstat)
 library(tidyverse)
 
-parameters_beech_fitted <- rabmp::read_parameters("Data/Input/parameters_fitted.txt", 
+parameters_beech_fitted <- rabmp::read_parameters("Data/Input/parameters_fitted_biotic.txt", 
                                                   sep = ";")
 
 pattern_1999_recon <- readr::read_rds("Data/Input/beech_1999_rec_ppp.rds")

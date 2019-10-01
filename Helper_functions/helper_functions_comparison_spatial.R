@@ -1,4 +1,4 @@
-#### helper function model comparison spatial 3### 
+#### helper function model comparison spatial ### 
 
 calc_nnd <- function(data, window, r, verbose = TRUE, ...) {
   
