@@ -34,7 +34,7 @@ calc_pcf_sa_fun <- function(default, changed, window, r, verbose = TRUE, ...) {
     }
     
     # get only latest time step of data
-    temp_default <- dplyr::filter(default[[x]], i == max(i))
+    temp_default <- dplyr::filter(default[[x]], i == max(i), type != "dead")
     
     # convert to ppp
     temp_ppp <- spatstat::ppp(x = temp_default$x, y = temp_default$y,
@@ -61,7 +61,7 @@ calc_pcf_sa_fun <- function(default, changed, window, r, verbose = TRUE, ...) {
     }
     
     # get only latest time step of data
-    temp_changed <- dplyr::filter(changed[[x]], i == max(i))
+    temp_changed <- dplyr::filter(changed[[x]], i == max(i), type != "dead")
     
     # convert to ppp
     temp_ppp <- spatstat::ppp(x = temp_changed$x, y = temp_changed$y,
@@ -122,7 +122,7 @@ calc_pcf_sa_int <- function(default, changed, window, r, verbose = TRUE, ...) {
     }
     
     # get only latest time step of data
-    temp_default <- dplyr::filter(default[[x]], i == max(i))
+    temp_default <- dplyr::filter(default[[x]], i == max(i), type != "dead")
     
     # convert to ppp
     temp_ppp <- spatstat::ppp(x = temp_default$x, y = temp_default$y,
@@ -151,7 +151,7 @@ calc_pcf_sa_int <- function(default, changed, window, r, verbose = TRUE, ...) {
     }
     
     # get only latest time step of data
-    temp_changed <- dplyr::filter(changed[[x]], i == max(i))
+    temp_changed <- dplyr::filter(changed[[x]], i == max(i), type != "dead")
     
     # convert to ppp
     temp_ppp <- spatstat::ppp(x = temp_changed$x, y = temp_changed$y,
@@ -217,7 +217,7 @@ calc_nnd_sa_fun <- function(default, changed,
       message("\r> Progress (default): ", x, "/", n_default, appendLF = FALSE)
     }
     
-    temp_default <- dplyr::filter(default[[x]], i == max(i))
+    temp_default <- dplyr::filter(default[[x]], i == max(i), type != "dead")
     
     # convert to ppp
     temp_ppp <- spatstat::ppp(x = temp_default$x, y = temp_default$y,
@@ -244,7 +244,7 @@ calc_nnd_sa_fun <- function(default, changed,
       message("\r> Progress (changed): ", x, "/", n_changed, appendLF = FALSE)
     }
     
-    temp_changed <- dplyr::filter(changed[[x]], i == max(i))
+    temp_changed <- dplyr::filter(changed[[x]], i == max(i), type != "dead")
     
     # convert to ppp
     temp_ppp <- spatstat::ppp(x = temp_changed$x, y = temp_changed$y,
@@ -307,7 +307,7 @@ calc_nnd_sa_int <- function(default, changed,
       message("\r> Progress (default): ", x, "/", n_default, appendLF = FALSE)
     }
     
-    temp_default <- dplyr::filter(default[[x]], i == max(i))
+    temp_default <- dplyr::filter(default[[x]], i == max(i), type != "dead")
     
     # convert to ppp
     temp_ppp <- spatstat::ppp(x = temp_default$x, y = temp_default$y,
@@ -335,7 +335,7 @@ calc_nnd_sa_int <- function(default, changed,
       message("\r> Progress (changed): ", x, "/", n_changed, appendLF = FALSE)
     }
     
-    temp_changed <- dplyr::filter(changed[[x]], i == max(i))
+    temp_changed <- dplyr::filter(changed[[x]], i == max(i), type != "dead")
     
     # convert to ppp
     temp_ppp <- spatstat::ppp(x = temp_changed$x, y = temp_changed$y,
@@ -402,7 +402,7 @@ calc_kmm_sa_fun <- function(default, changed,
       message("\r> Progress (default): ", x, "/", n_default, appendLF = FALSE)
     }
     
-    temp_default <- dplyr::filter(default[[x]], i == max(i))
+    temp_default <- dplyr::filter(default[[x]], i == max(i), type != "dead")
     
     # convert to ppp
     temp_ppp <- spatstat::ppp(x = default[[x]]$x, y = default[[x]]$y,
@@ -436,7 +436,7 @@ calc_kmm_sa_fun <- function(default, changed,
       message("\r> Progress (changed): ", x, "/", n_changed, appendLF = FALSE)
     }
     
-    temp_changed <- dplyr::filter(changed[[x]], i == max(i))
+    temp_changed <- dplyr::filter(changed[[x]], i == max(i), type != "dead")
     
     # convert to ppp
     temp_ppp <- spatstat::ppp(x = temp_changed$x, y = temp_changed$y,
@@ -505,7 +505,7 @@ calc_kmm_sa_int <- function(default, changed,
       message("\r> Progress (default): ", x, "/", n_default, appendLF = FALSE)
     }
     
-    temp_default <- dplyr::filter(default[[x]], i == max(i))
+    temp_default <- dplyr::filter(default[[x]], i == max(i), type != "dead")
     
     # convert to ppp
     temp_ppp <- spatstat::ppp(x = default[[x]]$x, y = default[[x]]$y,
@@ -541,7 +541,7 @@ calc_kmm_sa_int <- function(default, changed,
       message("\r> Progress (changed): ", x, "/", n_changed, appendLF = FALSE)
     }
     
-    temp_changed <- dplyr::filter(changed[[x]], i == max(i))
+    temp_changed <- dplyr::filter(changed[[x]], i == max(i), type != "dead")
     
     # convert to ppp
     temp_ppp <- spatstat::ppp(x = temp_changed$x, y = temp_changed$y,
@@ -606,7 +606,7 @@ calc_clark_sa <- function(default, changed,
       message("\r> Progress (default): ", x, "/", n_default, appendLF = FALSE)
     }
     
-    temp_default <- dplyr::filter(default[[x]], i == max(i))
+    temp_default <- dplyr::filter(default[[x]], i == max(i), type != "dead")
     
     # convert to ppp
     temp_ppp <- spatstat::ppp(x = temp_default$x, y = temp_default$y,
@@ -629,7 +629,7 @@ calc_clark_sa <- function(default, changed,
       message("\r> Progress (changed): ", x, "/", n_changed, appendLF = FALSE)
     }
     
-    temp_changed <- dplyr::filter(changed[[x]], i == max(i))
+    temp_changed <- dplyr::filter(changed[[x]], i == max(i), type != "dead")
     
     # convert to ppp
     temp_ppp <- spatstat::ppp(x = temp_changed$x, y = temp_changed$y,
