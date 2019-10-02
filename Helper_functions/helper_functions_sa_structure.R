@@ -1,6 +1,15 @@
-#### SA_local_results_structure.R ####
-calc_dbh_dist <- function(default, changed,
-                          by = 1, verbose = TRUE) {
+###################################################
+##    Author: Maximilian H.K. Hesselbarth        ##
+##    Department of Ecosystem Modelling          ##
+##    University of Goettingen                   ##
+##    maximilian.hesselbarth@uni-goettingen.de   ##
+##    www.github.com/mhesselbarth                ##
+###################################################
+
+#### Helper functions SA structure #### 
+
+calc_dbh_dist_sa <- function(default, changed,
+                             by = 1, verbose = TRUE) {
   
   # get name of changed to get changed parameters
   names_parameters <- names(changed)
@@ -84,8 +93,8 @@ calc_dbh_dist <- function(default, changed,
   return(dbh_dist_changed)
 }
 
-calc_growth <- function(default, changed, 
-                        verbose = TRUE) {
+calc_growth_sa <- function(default, changed, 
+                           verbose = TRUE) {
   
   # get name of changed to get changed parameters
   names_parameters <- names(changed)
@@ -201,8 +210,8 @@ calc_growth <- function(default, changed,
   return(growth_changed)
 }
 
-calc_died <- function(default, changed, 
-                      verbose = TRUE) {
+calc_died_sa <- function(default, changed, 
+                         verbose = TRUE) {
   
   # get name of changed to get changed parameters
   names_parameters <- names(changed)
@@ -270,196 +279,3 @@ calc_died <- function(default, changed,
   
   return(died_changed)
 }
-
-# calc_dbh_dist <- function(data, threshold, smaller = NULL, bigger = NULL, by = 1) {
-#   
-#   # names equals the parameters
-#   names_input <- names(data)
-#   
-#   # get length for progress
-#   length_input <- length(data)
-#   
-#   purrr::map_dfr(seq_along(data), function(x) {
-#     
-#     # filter data depending on dbh
-#     if (is.null(smaller) && is.null(bigger)) {
-#       
-#       # get all trees in last simulation year
-#       data <- dplyr::filter(data[[x]], i == max(i))
-#     }
-#     
-#     else{
-#       
-#       # all trees smaller than threshold in last year
-#       if (!is.null(smaller) && is.null(bigger)) { 
-#         
-#         data <- dplyr::filter(data[[x]], i == max(i), dbh <= smaller)
-#       }
-#       
-#       # get all trees bigger threshold in last year
-#       else if (is.null(smaller) && !is.null(bigger)) {
-#         
-#         data <- dplyr::filter(data[[x]], i == max(i), dbh >= bigger)
-#       }
-#       
-#       # get all trees within threshold in last year
-#       else if (!is.null(smaller) && !is.null(bigger)) {
-#         
-#         if (smaller <= bigger) {
-#           
-#           stop("Not possible to provide 'smaller' and 'bigger'.")
-#         }
-#         
-#         data <- dplyr::filter(data[[x]], i == max(i), 
-#                               dbh >= bigger, dbh <= smaller)
-#       }
-#     }
-#     
-#     # get number of trees
-#     n_points <- nrow(data)
-#     
-#     # print progress
-#     message("\r> Progress: ", x, "/", length_input, " || Using ", nrow(data), " points.\t\t", 
-#             appendLF = FALSE)
-#     
-#     # classify dbh into classes and count n in each class
-#     dplyr::mutate(data, 
-#                   dbh_class = cut(dbh, breaks = seq(from = 0, 
-#                                                     to = max(dbh) + by, 
-#                                                     by = by), 
-#                                   labels = FALSE, include.lowest = TRUE, right = FALSE)) %>%
-#       dplyr::group_by(dbh_class) %>% 
-#       dplyr::summarise(n = dplyr::n(), 
-#                        n_rel = n / n_points) %>% 
-#       dplyr::mutate(dbh_class = dbh_class - 1) %>%
-#       tibble::add_column(parameter = names_input[[x]], .before = 1)
-#   }, .id = "id") %>% 
-#     dplyr::ungroup()
-# }
-# 
-# calc_growth <- function(data, smaller = NULL, bigger = NULL) {
-#   
-#   # get names of input that equal the changed parameter
-#   names_input <- names(data)
-#   
-#   # get length of input
-#   length_input <- length(data)
-#   
-#   # loop through all input data
-#   purrr::map_dfr(seq_along(data), function(x) {
-#     
-#     # filter data using dbh thresholds and get only last year of each tree
-#     # use all trees
-#     if (is.null(smaller) && is.null(bigger)) {
-#       
-#       data <- data[[x]]
-#     }
-#     
-#     else{
-#       
-#       # use only trees smaller threshold
-#       if (!is.null(smaller) && is.null(bigger)) { 
-#         
-#         which_id <- dplyr::group_by(data[[x]], id) %>% 
-#           dplyr::top_n(n = 1, wt = i) %>% 
-#           dplyr::filter(dbh <= smaller) %>% 
-#           dplyr::pull(id)
-#       
-#         data <- dplyr::filter(data[[x]], id %in% which_id)
-#       }
-#       
-#       # use only trees larger threshold
-#       else if (is.null(smaller) && !is.null(bigger)) {
-#         
-#         which_id <- dplyr::group_by(data[[x]], id) %>% 
-#           dplyr::top_n(n = 1, wt = i) %>% 
-#           dplyr::filter(dbh >= bigger) %>% 
-#           dplyr::pull(id)
-#         
-#         data <- dplyr::filter(data[[x]], id %in% which_id)
-#       }
-#       
-#       # use only trees between smaller and bigger
-#       else if (!is.null(smaller) && !is.null(bigger)) {
-#         
-#         # not possible if smaller is smaller than bigger
-#         if (smaller <= bigger) {
-#           
-#           stop("Not possible to provide 'smaller <= bigger'.")
-#         }
-#       
-#         which_id <- dplyr::group_by(data[[x]], id) %>% 
-#           dplyr::top_n(n = 1, wt = i) %>% 
-#           dplyr::filter(dbh >= bigger, dbh <= smaller) %>% 
-#           dplyr::pull(id)
-# 
-#         data <- dplyr::filter(data[[x]], id %in% which_id)
-#       }
-#     }
-#   
-#     # how many years did each tree survive
-#     years_living <- dplyr::summarise(dplyr::group_by(data, id),
-#                                      min_i = min(i),
-#                                      max_i = max(i), 
-#                                      years_lived = max_i - min_i)
-#     
-#     # get only living trees at start of simulation
-#     data_start <- dplyr::filter(data, i == min(i), type != "dead")
-#   
-#     # get only last year of each tree
-#     data_end <- dplyr::top_n(x = dplyr::group_by(data, id), 
-#                              n = 1, wt = i)
-#     
-#     # combine data to one df
-#     data <- dplyr::full_join(x = data_end[, c("id", "dbh")], 
-#                              y = data_start[, c("id", "dbh")], 
-#                              by = "id", suffix = c("_end", "_start"))
-#     
-#     # add number of lived years
-#     data <- dplyr::left_join(x = data, y = years_living, by = "id")
-#     
-#     # remove all trees that didn't live more than one year
-#     data <- dplyr::filter(data, years_lived != 0)
-#     
-#     # print progress
-#     message("\r> Progress: ", x, "/", length_input, " || Using ", nrow(data), " points.\t\t", 
-#             appendLF = FALSE)
-#     
-#     # calculate dhb inc per year
-#     dplyr::mutate(data, 
-#                   dbh_start = dplyr::case_when(is.na(dbh_start) ~ 0, 
-#                                                !is.na(dbh_start) ~ dbh_start),
-#                   dbh_inc = (dbh_end - dbh_start) / years_lived) %>%
-#       tibble::add_column(parameter = names_input[[x]], .before = 1)
-#   }, .id = "id_map") %>% 
-#     dplyr::ungroup()
-# }
-# 
-# calc_died <- function(data) {
-#   
-#   # get names of input that equal the changed parameter
-#   names_input <- names(data)
-#   
-#   # get length of input
-#   length_input <- length(data)
-#   
-#   # loop through all input data
-#   purrr::map_dfr(seq_along(data), function(x) {
-#     
-#     # 
-#     data_dead <- dplyr::filter(data[[x]], i != min(i), type == "dead")
-#     
-#     data_start <- dplyr::filter(data[[x]], i == min(i), type == "dead")
-#     
-#     data_merge <- dplyr::anti_join(x = data_dead[, "id"], 
-#                                    y = data_start[, "id"], 
-#                                    by = "id", suffix = c("_dead", "_start"))
-#     
-#     # print progress
-#     message("\r> Progress: ", x, "/", length_input, " || Using ", nrow(data), " points.\t\t", 
-#             appendLF = FALSE)
-#     
-#     tibble::tibble(n_died = nrow(data_merge)) %>%
-#       tibble::add_column(parameter = names_input[[x]], .before = 1)
-#   }, .id = "id_map")
-# }

@@ -25,9 +25,9 @@ pattern_2013 <- readr::read_rds("Data/Raw/pattern_2013_ppp.rds")
 
 # pattern_1999_reconstructed <- readr::read_rds("Data/Input/pattern_1999_reconstructed.rds")
 
-model_run_reco <- readr::read_rds("Data/Output/model_run_y50_e10_r50_reco.rds")
+model_run_reco_b <- readr::read_rds("Data/Output/model_run_y50_e10_r50_reco_b.rds")
 
-names(model_run_reco) <- rep("Biotic model", times = length(model_run_reco))
+names(model_run_reco_b) <- rep("Biotic model", times = length(model_run_reco_b))
 
 # source("Scripts_analysis/helper_functions.R")
 
@@ -40,20 +40,45 @@ df_1999 <- tibble::as_tibble(pattern_1999) %>%
 
 df_2007 <- tibble::as_tibble(pattern_2007) %>% 
   dplyr::filter(species == "beech", 
-                dbh_07 > 1)
+                dbh_07 > 1, inside_fence == 0)
 
 df_2013 <- tibble::as_tibble(pattern_2013) %>% 
   dplyr::filter(species == "beech", 
-                dbh_13 > 1)
+                dbh_13 > 1, inside_fence == 0)
 
 # df_1999_reconstructed <- tibble::as_tibble(pattern_1999_reconstructed)
+
+#### Number trees alive ####
+n_model <- calc_n_comp(data = model_run_reco_b) %>% 
+  dplyr::bind_rows() %>% 
+  dplyr::group_by(i) %>% 
+  dplyr::summarise(n_mean = mean(n), 
+                   n_min = min(n), 
+                   n_max = max(n), 
+                   n_sd = sd(n))
+
+n_2013 <- tibble::tibble(i = c(0, 8, 14), 
+                         n = c(nrow(df_1999), nrow(df_2007), nrow(df_2013)))
+
+#### Number trees dead #### BUG
+n_dead_model <- calc_n_dead_comp(data = model_run_reco_b) %>% 
+  dplyr::bind_rows() %>% 
+  dplyr::group_by(i) %>% 
+  dplyr::summarise(n_mean = mean(n), 
+                   n_min = min(n), 
+                   n_max = max(n), 
+                   n_sd = sd(n))
+
+n_dead_2013 <- tibble::tibble(i = c(8, 14), 
+                              n = c(length(which(!df_1999$id %in% df_2007$id)), 
+                                    length(which(!df_2007$id %in% df_2013$id))))
 
 #### DBH distribution ####
 # threshold <- 5
 by <- 10
 
-dbh_dist_model <- calc_dbh_dist(data = model_run_reco, 
-                                by = by) %>% 
+dbh_dist_model <- calc_dbh_dist_comp(data = model_run_reco_b, 
+                                     by = by) %>% 
   dplyr::bind_rows() %>% 
   dplyr::group_by(dbh_class) %>% 
   dplyr::summarise(n_mean = mean(n), 
@@ -147,7 +172,7 @@ median <- 0.5
 high <- 0.75
 max <- 0.9
 
-dbh_growth_model <- calc_growth(data = model_run_reco, by = by) %>% 
+dbh_growth_model <- calc_growth_comp(data = model_run_reco_b, by = by) %>% 
   dplyr::bind_rows() %>% 
   dplyr::group_by(dbh_class) %>% 
   dplyr::summarise(inc_min = quantile(dbh_inc, probs = min), 
@@ -215,7 +240,7 @@ median <- 0.5
 high <- 0.75
 max <- 0.9
 
-n_died_model <- calc_died(data = model_run_reco, by = by) %>%
+n_died_model <- calc_died_comp(data = model_run_reco_b, by = by) %>%
   dplyr::bind_rows() %>%
   dplyr::group_by(dbh_class) %>%
   dplyr::summarise(n_died_rel = mean(n_died_rel),

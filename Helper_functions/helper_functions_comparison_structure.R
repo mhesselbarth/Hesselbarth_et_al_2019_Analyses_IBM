@@ -1,5 +1,66 @@
-#### helper function model comparison #### 
-calc_dbh_dist <- function(data, by, verbose = TRUE) {
+###################################################
+##    Author: Maximilian H.K. Hesselbarth        ##
+##    Department of Ecosystem Modelling          ##
+##    University of Goettingen                   ##
+##    maximilian.hesselbarth@uni-goettingen.de   ##
+##    www.github.com/mhesselbarth                ##
+###################################################
+
+#### Helper functions model comparison structure #### 
+
+calc_n_comp <- function(data, verbose = TRUE) {
+  
+  n_data <- length(data)
+  
+  result <- purrr::map(seq_along(data), function(x) {
+    
+    # print progress
+    if (verbose) {
+      message("\r> Progress: ", x, "/", n_data, appendLF = FALSE)
+    }
+    
+    # get living trees of last time step
+    temp_data <- dplyr::filter(data[[x]], type != "dead")
+    
+    dplyr::group_by(temp_data, i) %>% 
+      dplyr::summarise(n = dplyr::n())
+  })
+  
+  if (verbose) { 
+    message("")
+  }
+  
+  return(result)
+}
+
+calc_n_dead_comp <- function(data, by, verbose = TRUE) {
+  
+  n_data <- length(data)
+  
+  # loop through all data
+  result <- purrr::map(seq_along(data), function(x) {
+    
+    # print progress
+    if (verbose) {
+      message("\r> Progress: ", x, "/", n_data, appendLF = FALSE)
+    }
+    
+    # get living trees of last time step
+    temp_data <- dplyr::filter(data[[x]], type == "dead", dbh > 1)
+    
+    dplyr::mutate(temp_data, i = cut(i, breaks = seq(from = 0, to = 50, by = 10))) %>% 
+      dplyr::group_by(i) %>% 
+      dplyr::summarise(n = dplyr::n())
+  })
+  
+  if (verbose) {
+    message("")
+  }
+  
+  return(result)
+}
+
+calc_dbh_dist_comp <- function(data, by, verbose = TRUE) {
   
   n_data <- length(data)
   
@@ -35,7 +96,7 @@ calc_dbh_dist <- function(data, by, verbose = TRUE) {
 }
 
 #### helper function model comparison #### 
-calc_growth <- function(data, by, verbose = TRUE) {
+calc_growth_comp <- function(data, by, verbose = TRUE) {
   
   n_data <- length(data)
   
@@ -79,50 +140,6 @@ calc_growth <- function(data, by, verbose = TRUE) {
                                                             to = max(dbh.start) + by, 
                                                             by = by), 
                                     labels = FALSE))
-  })
-  
-  if (verbose) {
-    message("")
-  }
-  
-  return(result)
-}
-
-calc_died <- function(data, by, verbose = TRUE) {
-  
-  n_data <- length(data)
-  
-  # loop through all data
-  result <- purrr::map(seq_along(data), function(x) {
-    
-    # print progress
-    if (verbose) {
-      message("\r> Progress: ", x, "/", n_data, appendLF = FALSE)
-    }
-    
-    # get number of living trees
-    temp_living <- dplyr::filter(data[[x]], i == min(i), 
-                                 type != "dead", 
-                                 dbh > 1) %>%
-      dplyr::mutate(dbh_class = cut(dbh, breaks = seq(from = 0, 
-                                                      to = max(dbh) + by, 
-                                                      by = by), 
-                                    labels = FALSE)) %>% 
-      dplyr::group_by(dbh_class) %>% 
-      dplyr::summarise(n_living = dplyr::n())
-    
-    # get number of trees that died absolute and relative to starting living trees
-    dplyr::filter(data[[x]], i != min(i), type == "dead", dbh > 1) %>% 
-      dplyr::mutate(dbh_class = cut(dbh, breaks = seq(from = 0, 
-                                                            to = max(dbh) + by, 
-                                                            by = by), 
-                                    labels = FALSE)) %>% 
-      dplyr::group_by(dbh_class) %>% 
-      dplyr::summarise(n_died = n()) %>% 
-      dplyr::left_join(y = temp_living, by = "dbh_class") %>% 
-      tidyr::replace_na(replace = list(n_died = 0, n_living = 0)) %>% 
-      dplyr::mutate(n_died_rel = n_died / n_living, 
-                    n_died_rel_total = n_died / sum(temp_living$n_living))
   })
   
   if (verbose) {
