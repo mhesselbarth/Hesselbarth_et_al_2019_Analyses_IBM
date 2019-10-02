@@ -77,7 +77,7 @@ beech_2013_df$growth_pot <- fun_potential(dbh = beech_2013_df$dbh_99,
 #### Get abiotic conditions ####
 beech_2013_df$abiotic <- rabmp::extract_abiotic(data = data.table::data.table(x = beech_2013_df$x, 
                                                                               y = beech_2013_df$y), 
-                                                abiotic = abiotic_conditions)
+                                                abiotic = abiotic_conditions)[, 2]
 
 #### Fit growth parameters ####
 
@@ -120,13 +120,13 @@ broom::tidy(fitted_fun_actual)
 # A tibble: 3 x 2
 # parameter   value
 # <chr>       <dbl>
-# parameter1  1.20 
-# parameter2  0.359
-# parameter3  4.10
+# parameter1  1.27 
+# parameter2  0.347
+# parameter3  0.423
 
 fitted_fun_actual$value
 # $value
-# [1] 717.8145
+# [1] 689.2204
 
 # ci <- rabmp:::rcpp_calculate_ci(matrix = as.matrix(beech_2013_df[, c("x", "y", 
 #                                                                      "dbh_99")]),

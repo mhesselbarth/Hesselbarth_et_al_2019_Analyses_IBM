@@ -156,11 +156,11 @@ fun_actual <- function(df, par) {
 # set starting functions adapted from Pommerening, A., Maleki, K., 2014. #
 # Differences between competition kernels and traditional size-ratio based #
 # competition indices used in forest ecology. For. Ecol. Manage. 331, 135-143. #
-start_values_actual <- c(parameters_default$ci_alpha, 
+start_values_actual <- c(parameters_default$ci_alpha,
                          parameters_default$ci_beta)
 
-# start_values_actual <- c(parameters_default$ci_alpha, 
-#                          parameters_default$ci_beta, 
+# start_values_actual <- c(parameters_default$ci_alpha,
+#                          parameters_default$ci_beta,
 #                          parameters_default$growth_mod)
 
 # fit fun #
