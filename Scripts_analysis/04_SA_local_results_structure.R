@@ -13,7 +13,6 @@
 # load packages #
 library(suppoRt) # devtools::install_github("mhesselbarth/suppoRt")
 library(rabmp)
-library(sensitivity)
 library(spatstat)
 library(tidyverse)
 
@@ -22,15 +21,15 @@ source("Helper_functions//helper_functions_sa_structure.R")
 #### Import data ####
 
 # import model runs default
-sa_default <- readr::read_rds("Data/Output/sa_default.rds")
+sa_default <- readr::read_rds("Data/Output/sa_default_y50_e50_r50.rds")
 
 # import increased parameters
-sa_increased_5 <- readr::read_rds("Data/Output/sa_increased_5.rds")
-sa_increased_10 <- readr::read_rds("Data/Output/sa_increased_10.rds")
+sa_increased_5 <- readr::read_rds("Data/Output/sa_increased_5_y50_e50_r50.rds")
+sa_increased_10 <- readr::read_rds("Data/Output/sa_increased_10_y50_e50_r50.rds")
 
 # import decreased parameters
-sa_decreased_5 <- readr::read_rds("Data/Output/sa_decreased_5.rds")
-sa_decreased_10 <- readr::read_rds("Data/Output/sa_decreased_10.rds")
+sa_decreased_5 <- readr::read_rds("Data/Output/sa_decreased_5_y50_e50_r50.rds")
+sa_decreased_10 <- readr::read_rds("Data/Output/sa_decreased_10_y50_e50_r50.rds")
 
 overwrite <- TRUE
 
@@ -97,7 +96,8 @@ ggplot_sa_dbh_dist_inc <- ggplot(data = sa_dbh_dist_inc) +
 suppoRt::save_ggplot(plot = ggplot_sa_dbh_dist_inc, 
                      filename = "ggplot_sa_dbh_dist_inc.png", 
                      path = "Figures/", 
-                     width = 29.7, height = 21.0, units = "cm", dpi = 300)
+                     width = 29.7, height = 21.0, units = "cm", dpi = 300, 
+                     overwrite = overwrite)
 
 # Decrease parameters #
 sa_dbh_dist_dec_5 <- calc_dbh_dist(default = sa_default, 
@@ -156,7 +156,8 @@ ggplot_sa_dbh_dist_dec <- ggplot(data = sa_dbh_dist_dec) +
 suppoRt::save_ggplot(plot = ggplot_sa_dbh_dist_dec, 
                      filename = "ggplot_sa_dbh_dist_dec.png", 
                      path = "Figures/", 
-                     width = 29.7, height = 21.0, units = "cm", dpi = 300)
+                     width = 29.7, height = 21.0, units = "cm", dpi = 300, 
+                     overwrite = overwrite)
 
 #### DBH growth ####
 # Increased parameters #
@@ -207,7 +208,8 @@ ggplot_sa_growth_inc <- ggplot(data = sa_growth_inc) +
 suppoRt::save_ggplot(plot = ggplot_sa_growth_inc, 
                      filename = "ggplot_sa_growth_inc.png", 
                      path = "Figures/", 
-                     width = 29.7, height = 21.0, units = "cm", dpi = 300)
+                     width = 29.7, height = 21.0, units = "cm", dpi = 300, 
+                     overwrite = overwrite)
 
 # Decreased parameters #
 sa_growth_dec_5 <- calc_growth(default = sa_default, 
@@ -257,7 +259,8 @@ ggplot_sa_growth_dec <- ggplot(data = sa_growth_dec) +
 suppoRt::save_ggplot(plot = ggplot_sa_growth_dec, 
                      filename = "ggplot_sa_growth_dec.png", 
                      path = "Figures/", 
-                     width = 29.7, height = 21.0, units = "cm", dpi = 300)
+                     width = 29.7, height = 21.0, units = "cm", dpi = 300, 
+                     overwrite = overwrite)
 
 #### n died ####
 # Increased parameters #
@@ -312,7 +315,8 @@ ggplot_sa_died_inc <- ggplot(data = sa_died_inc) +
 suppoRt::save_ggplot(plot = ggplot_sa_died_inc, 
                      filename = "ggplot_sa_died_inc.png", 
                      path = "Figures/", 
-                     width = 29.7, height = 21.0, units = "cm", dpi = 300)
+                     width = 29.7, height = 21.0, units = "cm", dpi = 300, 
+                     overwrite = overwrite)
 
 # Decreased parameters #
 sa_died_dec_5 <- calc_died(default = sa_default,
@@ -366,4 +370,5 @@ ggplot_sa_died_dec <- ggplot(data = sa_died_dec) +
 suppoRt::save_ggplot(plot = ggplot_sa_died_dec, 
                      filename = "ggplot_sa_died_dec.png", 
                      path = "Figures/", 
-                     width = 29.7, height = 21.0, units = "cm", dpi = 300)
+                     width = 29.7, height = 21.0, units = "cm", dpi = 300, 
+                     overwrite = overwrite)

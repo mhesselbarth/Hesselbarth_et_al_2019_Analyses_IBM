@@ -11,6 +11,8 @@
 #### Import libraries and data ####
 
 # load packages #
+library(magrittr)
+library(landscapemetrics)
 library(rabmp)
 library(raster)
 library(suppoRt) # devtools::install_github("mhesselbarth/suppoRt")
@@ -20,41 +22,21 @@ library(tidyverse)
 source("Helper_functions/helper_functions_abiotic_conditions.R")
 
 # import data  #
-pattern_2013_df <- readr::read_rds("Data/Raw/pattern_2013_df.rds")
-
 pattern_1999_ppp <- readr::read_rds("Data/Raw/pattern_1999_ppp.rds")
 
 plot_area <- readr::read_rds("Data/Raw/plot_area_owin.rds")
 
 plot_area_df <- as.data.frame(plot_area)
 
-# filter data and calculate mean dbh growth #
-beech_2013_df <- dplyr::filter(pattern_2013_df, 
-                               species == "beech", 
-                               !is.na(dbh_99), 
-                               !is.na(dbh_13),
-                               type == "living", 
-                               inside_fence == 0) %>% 
-  dplyr::mutate(growth_mean = (growth_07 + growth_13) / 2,
-                growth_full = (dbh_13 - dbh_99) / 14) %>% 
-  dplyr::filter(growth_mean >= 0,
-                growth_full >= 0)
-
-beech_2013_dt <- dplyr::select(beech_2013_df, x, y, dbh_99, type) %>% 
-  dplyr::mutate(type = "adult") %>% 
-  rabmp::prepare_data(x = "x", y = "y", type = "type", dbh = "dbh_99")
-
-
 # filter data #
 beech_1999_ppp <- spatstat::subset.ppp(pattern_1999_ppp, 
-                                       species == "beech")
+                                       species == "beech" &  type != "dead")
 
-# dbh threshold for habitat characterisation#
+# dbh threshold for habitat characterisation #
 dbh_threshold <- quantile(beech_1999_ppp$marks$dbh_99, probs = 0.95)
 
 # filter data #
-beech_1999_ppp <- spatstat::subset.ppp(beech_1999_ppp, type != "dead" & 
-                                         dbh_99 > dbh_threshold)
+beech_1999_ppp <- spatstat::subset.ppp(beech_1999_ppp, dbh_99 > dbh_threshold)
 
 # get intensity
 habitat_im <- spatstat::density.ppp(beech_1999_ppp, at = "pixel", 
@@ -62,20 +44,47 @@ habitat_im <- spatstat::density.ppp(beech_1999_ppp, at = "pixel",
                                     dimyx = c(645, 609),
                                     kernel = "epanechnikov", sigma = 75)
 
-# scale around median and convert to raster
-# habitat_ras <- tibble::as_tibble(habitat_im) %>% 
-#   dplyr::mutate(median = median(value), 
-#                 diff = value - median, 
-#                 scaled = dplyr::case_when(diff < 0 ~ diff / min(diff) * -1,
-#                                           diff > 0 ~ diff / max(diff), 
-#                                           diff == 0 ~ 0)) %>% 
-#   dplyr::select(x, y, value, scaled) %>% 
-#   raster::rasterFromXYZ()
+# number of rows added at edges #
+n_rows <- 3
 
+# convert to raster and add padding #
 habitat_ras <- tibble::as_tibble(habitat_im) %>% 
-  dplyr::mutate(scaled = value / max(value)) %>% 
-  dplyr::select(x, y, value, scaled) %>% 
-  raster::rasterFromXYZ()
+  raster::rasterFromXYZ() %>% 
+  landscapemetrics::pad_raster(pad_raster_value = NA, pad_raster_cells = n_rows) %>%
+  magrittr::extract2(1)
+
+# add subsequently number of rows at edge #
+for (i in 1:n_rows) {
+  
+  message("\r> Progress: ", i, "/", n_rows, appendLF = "FALSE")
+
+  # get all NA cells #
+  cells_na <- raster::Which(is.na(habitat_ras),
+                            cells = TRUE)
+  
+  # get neigbors of NA cells #
+  neighbours <- raster::adjacent(x = habitat_ras,
+                                 cells = cells_na,
+                                 directions = 8)
+  
+  # get mean of all neighboring cells
+  neighbours_value <- tibble::tibble(from = neighbours[, 1],
+                                     to = neighbours[, 2],
+                                     x_from = habitat_ras[neighbours[, 1]], 
+                                     x_to = habitat_ras[neighbours[, 2]]) %>%
+    dplyr::group_by(from) %>%
+    dplyr::summarise(x = mean(x_to, na.rm = TRUE)) %>% 
+    dplyr::filter(!is.na(x))
+  
+  # add values
+  habitat_ras[neighbours_value$from] <- neighbours_value$x
+}
+
+# scale value to 0 - 1 #
+habitat_ras$scaled <- habitat_ras[] / max(habitat_ras[], na.rm = TRUE)
+
+# set names #
+names(habitat_ras) <- c("absolute", "scaled")
 
 ggplot(data = raster::as.data.frame(habitat_ras)) +
   geom_density(aes(scaled), fill = "#440154FF", alpha = 0.3) + 
