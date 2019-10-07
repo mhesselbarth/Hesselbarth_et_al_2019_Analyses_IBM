@@ -40,7 +40,7 @@ window <- readr::read_rds("Data/Raw/plot_area_owin.rds")
 
 # set parameters
 overwrite <- FALSE
-base_size <- 12.5
+base_size <- 10
 
 ########################
 ####                ####
@@ -51,16 +51,9 @@ base_size <- 12.5
 #### Pair-correlation function ####
 
 # set parameters #
-correction <- "Ripley"
+correction <- "good"
 divisor <- "d" 
 r <- seq(from = 0, to = 25, length.out = 525)
-
-# r <- seq(from = 0,
-#          to = spatstat::rmax.rule(W = window,
-#                                   lambda = nrow(dplyr::filter(sa_default[[1]], 
-#                                                               i == max(i))) / 
-#                                     spatstat::area(window)),
-#          length.out = 525)
 
 # increased parameters #
 sa_pcf_increased_5 <- calc_pcf_sa_int(default = sa_default,
@@ -158,16 +151,16 @@ r <- seq(from = 0, to = 10, length.out = 525)
 
 # increased parameters #
 sa_nnd_increased_5 <- calc_nnd_sa_int(default = sa_default,
-                                  changed = sa_increased_5,
-                                  correction = correction,
-                                  window = window, r = r) %>% 
+                                      changed = sa_increased_5,
+                                      correction = correction,
+                                      window = window, r = r) %>% 
   dplyr::mutate(parameter = factor(parameter), 
                 direction = "Increased 5%")
 
 sa_nnd_increased_10 <- calc_nnd_sa_int(default = sa_default,
-                                   changed = sa_increased_10,
-                                   correction = correction,
-                                   window = window, r = r) %>% 
+                                       changed = sa_increased_10,
+                                       correction = correction,
+                                       window = window, r = r) %>% 
   dplyr::mutate(parameter = factor(parameter), 
                 direction = "Increased 10%")
 

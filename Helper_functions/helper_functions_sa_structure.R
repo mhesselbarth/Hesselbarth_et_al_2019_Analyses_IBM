@@ -90,6 +90,14 @@ calc_dbh_dist_sa <- function(default, changed,
     message("")
   }
   
+  dbh_dist_changed <- dplyr::bind_rows(dbh_dist_changed, .id = "parameter") %>%
+    dplyr::group_by(parameter, dbh_class) %>% 
+    dplyr::summarise(diff_n = mean(suppoRt::replace_infinite(diff_n), 
+                                   na.rm = TRUE), 
+                     diff_n_rel = mean(suppoRt::replace_infinite(diff_n_rel), 
+                                       na.rm = TRUE)) %>%
+    dplyr::ungroup()
+  
   return(dbh_dist_changed)
 }
 
@@ -207,6 +215,12 @@ calc_growth_sa <- function(default, changed,
     message("")
   }
   
+  growth_changed <- dplyr::bind_rows(growth_changed, .id = "parameter") %>% 
+    dplyr::group_by(parameter) %>% 
+    dplyr::summarise(diff_inc = mean(suppoRt::replace_infinite(diff_inc), 
+                                     na.rm = TRUE)) %>%
+    dplyr::ungroup() 
+  
   return(growth_changed)
 }
 
@@ -276,6 +290,15 @@ calc_died_sa <- function(default, changed,
   if (verbose) {
     message("")
   }
+  
+  
+  died_changed <- dplyr::bind_rows(died_changed, .id = "parameter") %>% 
+    dplyr::group_by(parameter) %>% 
+    dplyr::summarise(diff_n = mean(suppoRt::replace_infinite(diff_n), 
+                                   na.rm = TRUE),
+                     diff_n_rel = mean(suppoRt::replace_infinite(diff_n_rel), 
+                                       na.rm = TRUE)) %>%
+    dplyr::ungroup()
   
   return(died_changed)
 }
