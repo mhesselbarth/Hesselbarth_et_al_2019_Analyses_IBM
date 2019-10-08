@@ -41,7 +41,7 @@ calc_pcf_sa_fun <- function(default, changed, window, r, verbose = TRUE, ...) {
                               window = window)
 
     # calculate pcf 
-   temp_sf <- spatstat::pcf(temp_ppp, r = r, ...)
+    temp_sf <- spatstat::pcf(temp_ppp, r = r, ...)
 
     # convert to data frame
     tibble::as_tibble(temp_sf) %>% 
@@ -129,13 +129,17 @@ calc_pcf_sa_int <- function(default, changed, window, r, verbose = TRUE, ...) {
                               window = window)
     
     # calculate pcf
-    temp_sf <- spatstat::pcf(temp_ppp, r = r, ...)
+    # temp_sf <- spatstat::pcf(temp_ppp, r = r, ...)
+    temp_sf <- spatstat::pcf(temp_ppp, r = r, ...) %>% 
+      tibble::as_tibble() %>%
+      purrr::set_names(c("r", "theo", "pcf"))
     
-    # get function of pcf
-    temp_fun <- spatstat::as.function.fv(temp_sf)
-    
-    # get integral
-    integrate(f = temp_fun, lower = min(r), upper = max(r))[[1]]
+    # # get function of pcf
+    # temp_fun <- spatstat::as.function.fv(temp_sf)
+    # 
+    # # get integral
+    # integrate(f = temp_fun, lower = min(r), upper = max(r))[[1]]
+    MESS::auc(temp_sf$r, temp_sf$pcf, from = min(r), to = max(r))
   })
   
   if (verbose) {
@@ -158,13 +162,17 @@ calc_pcf_sa_int <- function(default, changed, window, r, verbose = TRUE, ...) {
                               window = window)
     
     # calculate pcf
-    temp_sf <- spatstat::pcf(temp_ppp, r = r, ...)
-
-    # get function of pcf
-    temp_fun <- spatstat::as.function.fv(temp_sf)
+    # temp_sf <- spatstat::pcf(temp_ppp, r = r, ...)
+    temp_sf <- spatstat::pcf(temp_ppp, r = r, ...) %>% 
+      tibble::as_tibble() %>% 
+      purrr::set_names(c("r", "theo", "pcf"))
     
-    # calculate integral
-    temp_pcf <- integrate(f = temp_fun, lower = min(r), upper = max(r))[[1]]
+    # # get function of pcf
+    # temp_fun <- spatstat::as.function.fv(temp_sf)
+    # 
+    # # get integral
+    # integrate(f = temp_fun, lower = min(r), upper = max(r))[[1]]
+    temp_pcf <- MESS::auc(temp_sf$r, temp_sf$pcf, from = min(r), to = max(r))
     
     # get default pcf values
     temp_pcf_default <- pcf_default[[counter_default[x]]]
@@ -313,14 +321,20 @@ calc_nnd_sa_int <- function(default, changed,
     temp_ppp <- spatstat::ppp(x = temp_default$x, y = temp_default$y,
                               window = window)
     
-    # calculate nnd 
-    temp_sf <- spatstat::Gest(temp_ppp, r = r, ...)
+    # # calculate nnd 
+    # temp_sf <- spatstat::Gest(temp_ppp, r = r, ...)
+    temp_sf <- spatstat::Gest(temp_ppp, r = r, ...) %>% 
+      tibble::as_tibble() %>%
+      dplyr::select(r, theo, correction) %>% 
+      purrr::set_names(c("r", "theo", "nnd")) 
     
-    # get function of nnd
-    temp_fun <- spatstat::as.function.fv(temp_sf)
-    
-    # get integral
-    integrate(f = temp_fun, lower = min(r), upper = max(r))[[1]]
+    # # get function of nnd
+    # temp_fun <- spatstat::as.function.fv(temp_sf)
+  
+    # # get integral
+    # integrate(f = temp_fun, lower = min(r), upper = max(r))[[1]]
+    MESS::auc(temp_sf[, 1, drop = TRUE], temp_sf[, 3, drop = TRUE], 
+              from = min(r), to = max(r))
   })
   
   if (verbose) {
@@ -341,14 +355,20 @@ calc_nnd_sa_int <- function(default, changed,
     temp_ppp <- spatstat::ppp(x = temp_changed$x, y = temp_changed$y,
                               window = window)
     
-    # calculate nnd 
-    temp_sf <- spatstat::Gest(temp_ppp, r = r, ...)
+    # # calculate nnd 
+    # temp_sf <- spatstat::Gest(temp_ppp, r = r, ...)
+    temp_sf <- spatstat::Gest(temp_ppp, r = r, ...) %>% 
+      tibble::as_tibble() %>%
+      dplyr::select(r, theo, correction) %>% 
+      purrr::set_names(c("r", "theo", "nnd")) 
     
-    # convert to nnd function
-    temp_fun <- spatstat::as.function.fv(temp_sf)
+    # # get function of nnd
+    # temp_fun <- spatstat::as.function.fv(temp_sf)
     
-    # calculate integral
-    temp_nnd <- integrate(f = temp_fun, lower = min(r), upper = max(r))[[1]]
+    # # get integral
+    # integrate(f = temp_fun, lower = min(r), upper = max(r))[[1]]
+    temp_nnd <- MESS::auc(temp_sf[, 1, drop = TRUE], temp_sf[, 3, drop = TRUE], 
+                          from = min(r), to = max(r))
     
     # get default nnd values
     temp_nnd_default <- nnd_default[[counter_default[x]]]
@@ -519,13 +539,17 @@ calc_kmm_sa_int <- function(default, changed,
     
     spatstat::marks(temp_ppp) <- temp_default$dbh
     
-    temp_sf <- spatstat::markcorr(temp_ppp, r = r, ...)
+    # temp_sf <- spatstat::markcorr(temp_ppp, r = r, ...)
+    temp_sf <- spatstat::markcorr(temp_ppp, r = r, ...) %>% 
+      tibble::as_tibble() %>% 
+      purrr::set_names(c("r", "theo", "kmm"))
     
-    # get function of kmmr
-    temp_fun <- spatstat::as.function.fv(temp_sf)
+    # # get function of kmmr
+    # temp_fun <- spatstat::as.function.fv(temp_sf)
     
-    # get integral
-    integrate(f = temp_fun, lower = min(r), upper = max(r))[[1]]
+    # # get integral
+    # integrate(f = temp_fun, lower = min(r), upper = max(r))[[1]]
+    MESS::auc(temp_sf$r, temp_sf$kmm, from = min(r), to = max(r))
   })
   
   if (verbose) {
@@ -555,10 +579,14 @@ calc_kmm_sa_int <- function(default, changed,
     
     spatstat::marks(temp_ppp) <- temp_default$dbh
     
-    temp_sf <- spatstat::markcorr(temp_ppp, r = r, ...)
+    # temp_sf <- spatstat::markcorr(temp_ppp, r = r, ...)
+    temp_sf <- spatstat::markcorr(temp_ppp, r = r, ...) %>% 
+      tibble::as_tibble() %>% 
+      purrr::set_names(c("r", "theo", "kmm"))
     
-    # calculate integral
-    temp_kmm <- integrate(f = temp_fun, lower = min(r), upper = max(r))[[1]]
+    # # calculate integral
+    # temp_kmm <- integrate(f = temp_fun, lower = min(r), upper = max(r))[[1]]
+    temp_kmm <- MESS::auc(temp_sf$r, temp_sf$kmm, from = min(r), to = max(r))
     
     # get default kmm values
     temp_kmm_default <- kmm_default[[counter_default[x]]]

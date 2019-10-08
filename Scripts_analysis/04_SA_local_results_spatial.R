@@ -13,7 +13,6 @@
 # load packages #
 library(suppoRt) # devtools::install_github("mhesselbarth/suppoRt")
 library(rabmp)
-library(sensitivity)
 library(spatstat)
 library(tidyverse)
 
@@ -343,8 +342,8 @@ sa_clark_increased <- dplyr::bind_rows(sa_clark_increased_5, sa_clark_increased_
                                    levels = c("Increased 5%", 
                                               "Increased 10%")))
 
-ggplot_sa_clark_inc <-  ggplot(data = sa_clark_increased) + 
-  geom_bar(aes(x = parameter, y = diff_ce * 100, 
+ggplot_sa_clark_inc <- ggplot(data = sa_clark_increased) + 
+  geom_bar(aes(x = parameter, y = ce_mean * 100, 
                fill = direction), col = "black",
            stat = "identity", position = "dodge") + 
   geom_hline(yintercept = -10, linetype = 2, col = "#FDE725FF") + 
@@ -384,8 +383,8 @@ sa_clark_decreased <- dplyr::bind_rows(sa_clark_decreased_5, sa_clark_decreased_
                                    levels = c("Decreased 5%", 
                                               "Decreased 10%")))
 
-ggplot_sa_clark_dec <-  ggplot(data = sa_clark_decreased) + 
-  geom_bar(aes(x = parameter, y = diff_ce * 100, 
+ggplot_sa_clark_dec <- ggplot(data = sa_clark_decreased) + 
+  geom_bar(aes(x = parameter, y = ce_mean * 100, 
                fill = direction), col = "black",
            stat = "identity", position = "dodge") + 
   geom_hline(yintercept = -10, linetype = 2, col = "#FDE725FF") + 
