@@ -24,7 +24,9 @@ pattern_1999_recon <- readr::read_rds("Data/Input/beech_1999_rec_ppp.rds")
 
 pattern_1999 <- readr::read_rds("Data/Raw/pattern_1999_ppp.rds")
 
-abiotic_habitats <- readr::read_rds("Data/Input/abiotic_cond.rds")
+abiotic_habitats_real <- readr::read_rds("Data/Input/abiotic_cond_real.rds")
+
+abiotic_habitats_reco <- readr::read_rds("Data/Input/abiotic_cond_reco.rds")
 
 #### Set SA parameters ####
 repetitions <- 50 # 50
@@ -60,7 +62,7 @@ model_run_y50_e10_r50_reco_a <- suppoRt::submit_to_cluster(rabmp::run_model_abio
                                                            years = years,
                                                            const = list(data = data_reconstruction,
                                                                         parameters = parameters_fitted_abiotic,
-                                                                        abiotic = abiotic_habitats$scaled,
+                                                                        abiotic = abiotic_habitats_reco$scaled,
                                                                         plot_area = plot_area,
                                                                         save_each = save_each,
                                                                         return_nested = return_nested,
@@ -83,7 +85,7 @@ model_run_y50_e10_r50_real_a <- suppoRt::submit_to_cluster(rabmp::run_model_abio
                                                            years = years,
                                                            const = list(data = data_real,
                                                                         parameters = parameters_fitted_abiotic,
-                                                                        abiotic = abiotic_habitats$scaled,
+                                                                        abiotic = abiotic_habitats_real$scaled,
                                                                         plot_area = plot_area,
                                                                         save_each = save_each,
                                                                         return_nested = return_nested,
