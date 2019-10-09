@@ -63,9 +63,10 @@ model_run_y50_e10_r50_reco_b <- suppoRt::submit_to_cluster(rabmp::run_model_biot
                                                                         verbose = verbose),
                                                            n_jobs = length(years),
                                                            template = list(job_name = "y50_e10_r50_reco",
-                                                                           walltime = "12:00:00",
+                                                                           walltime = "01:00:00",
                                                                            queue = "medium", 
-                                                                           mem_cpu = "4096", 
+                                                                           service = "short",
+                                                                           mem_cpu = "1024", 
                                                                            log_file = "y50_e10_r50_reco.log"))
 
 suppoRt::save_rds(object = model_run_y50_e10_r50_reco_b,
@@ -75,7 +76,7 @@ suppoRt::save_rds(object = model_run_y50_e10_r50_reco_b,
 rm(model_run_y50_e10_r50_reco_b)
 
 # real world data #
-model_run_y50_e10_r50_real_a <- suppoRt::submit_to_cluster(rabmp::run_model_biotic,
+model_run_y50_e10_r50_real_b <- suppoRt::submit_to_cluster(rabmp::run_model_biotic,
                                                            years = years,
                                                            const = list(data = data_real,
                                                                         parameters = parameters_fitted_biotic,
@@ -85,13 +86,14 @@ model_run_y50_e10_r50_real_a <- suppoRt::submit_to_cluster(rabmp::run_model_biot
                                                                         verbose = verbose),
                                                            n_jobs = length(years),
                                                            template = list(job_name = "y50_e10_r50_real",
-                                                                           walltime = "12:00:00",
+                                                                           walltime = "01:00:00",
                                                                            queue = "medium", 
-                                                                           mem_cpu = "4096", 
+                                                                           service = "short",
+                                                                           mem_cpu = "1024", 
                                                                            log_file = "y50_e10_r50_real.log"))
 
-suppoRt::save_rds(object = model_run_y50_e10_r50_real_a,
-                  filename = "model_run_y50_e10_r50_real_a.rds",
+suppoRt::save_rds(object = model_run_y50_e10_r50_real_b,
+                  filename = "model_run_y50_e10_r50_real_b.rds",
                   path = "Data/Output/")
 
-rm(model_run_y50_e10_r50_real_a)
+rm(model_run_y50_e10_r50_real_b)

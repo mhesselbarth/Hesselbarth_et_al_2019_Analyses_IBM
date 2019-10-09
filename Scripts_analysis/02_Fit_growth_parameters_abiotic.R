@@ -30,7 +30,7 @@ parameters_default_abiotic <- rabmp::read_parameters("Data/Input/parameters_fitt
 parameters_default_abiotic$growth_abiotic <- 1
 
 # import data  #
-abiotic_conditions <- readr::read_rds("Data/Input/abiotic_cond.rds")
+abiotic_conditions <- readr::read_rds("Data/Input/abiotic_cond_real.rds")
 
 pattern_2013_df <- readr::read_rds("Data/Raw/pattern_2013_df.rds")
 
@@ -120,13 +120,13 @@ broom::tidy(fitted_fun_actual)
 # A tibble: 3 x 2
 # parameter   value
 # <chr>       <dbl>
-# parameter1  1.27 
-# parameter2  0.347
-# parameter3  0.423
+# parameter1  1.29 
+# parameter2  0.346
+# parameter3  0.418
 
 fitted_fun_actual$value
 # $value
-# [1] 689.2204
+# [1] 689.3969
 
 # ci <- rabmp:::rcpp_calculate_ci(matrix = as.matrix(beech_2013_df[, c("x", "y", 
 #                                                                      "dbh_99")]),

@@ -69,9 +69,10 @@ model_run_y50_e10_r50_reco_a <- suppoRt::submit_to_cluster(rabmp::run_model_abio
                                                                         verbose = verbose),
                                                            n_jobs = length(years),
                                                            template = list(job_name = "y50_e10_r50_reco",
-                                                                           walltime = "12:00:00",
+                                                                           walltime = "01:00:00",
                                                                            queue = "medium", 
-                                                                           mem_cpu = "4096", 
+                                                                           service = "short",
+                                                                           mem_cpu = "1024", 
                                                                            log_file = "y50_e10_r50_reco.log"))
 
 suppoRt::save_rds(object = model_run_y50_e10_r50_reco_a,
@@ -92,9 +93,10 @@ model_run_y50_e10_r50_real_a <- suppoRt::submit_to_cluster(rabmp::run_model_abio
                                                                         verbose = verbose),
                                                            n_jobs = length(years),
                                                            template = list(job_name = "y50_e10_r50_real",
-                                                                           walltime = "12:00:00",
+                                                                           walltime = "01:00:00",
                                                                            queue = "medium", 
-                                                                           mem_cpu = "4096", 
+                                                                           service = "short",
+                                                                           mem_cpu = "1024", 
                                                                            log_file = "y50_e10_r50_real.log"))
 
 suppoRt::save_rds(object = model_run_y50_e10_r50_real_a,

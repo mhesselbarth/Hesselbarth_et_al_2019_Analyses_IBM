@@ -96,9 +96,9 @@ fun_potential <- function(dbh, assymp, rate, infl) {
 #                                rate = parameters_default$growth_rate, 
 #                                infl = parameters_default$growth_infl)
 
-start_values_potential <- list(assymp = 75, 
-                               rate = 0.05, 
-                               infl = 3.5)
+start_values_potential <- list(assymp = 120, # max(beech_2013$dbh_99) 
+                               rate = 0.005, # median(beech_2013$growth_full) / 14
+                               infl = 1.5) # Try and error
 
 # fit model #
 fitted_fun_potential <- quantreg::nlrq(growth_full ~ 
@@ -177,12 +177,12 @@ broom::tidy(fitted_fun_actual)
 # A tibble: 3 x 2
 # parameter   value
 # <chr>       <dbl>
-# parameter1  1.05 
-# parameter2  0.433
+# parameter1  1.06 
+# parameter2  0.435
 
 fitted_fun_actual$value
 # $value
-# [1] 688.5027
+# [1] 689.1816
 
 ci <- rabmp:::rcpp_calculate_ci(matrix = as.matrix(beech_2013[, c("x", "y", "dbh_99")]),
                                 alpha = fitted_fun_actual$par[[1]],
@@ -234,5 +234,3 @@ suppoRt::save_ggplot(plot = ggplot_fitting_actual,
                      filename = "ggplot_fitting_actual.png", 
                      dpi = 300, height = 10, width = 12.5, units = "cm", 
                      overwrite = overwrite)
-
-
