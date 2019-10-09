@@ -58,7 +58,7 @@ rm(pattern_1999)
 #### Run model ####
 
 # reconstructed data #
-model_run_y50_e10_r50_reco_a <- suppoRt::submit_to_cluster(rabmp::run_model_abiotic,
+model_run_y50_e5_r50_reco_a <- suppoRt::submit_to_cluster(rabmp::run_model_abiotic,
                                                            years = years,
                                                            const = list(data = data_reconstruction,
                                                                         parameters = parameters_fitted_abiotic,
@@ -68,21 +68,21 @@ model_run_y50_e10_r50_reco_a <- suppoRt::submit_to_cluster(rabmp::run_model_abio
                                                                         return_nested = return_nested,
                                                                         verbose = verbose),
                                                            n_jobs = length(years),
-                                                           template = list(job_name = "y50_e10_r50_reco",
+                                                           template = list(job_name = "y50_e5_r50_reco",
                                                                            walltime = "01:00:00",
                                                                            queue = "medium", 
                                                                            service = "short",
-                                                                           mem_cpu = "1024", 
-                                                                           log_file = "y50_e10_r50_reco.log"))
+                                                                           mem_cpu = "2048", 
+                                                                           log_file = "y50_e5_r50_reco.log"))
 
-suppoRt::save_rds(object = model_run_y50_e10_r50_reco_a,
-                  filename = "model_run_y50_e10_r50_reco_a.rds",
+suppoRt::save_rds(object = model_run_y50_e5_r50_reco_a,
+                  filename = "model_run_y50_e5_r50_reco_a.rds",
                   path = "Data/Output/")
 
-rm(model_run_y50_e10_r50_reco_a)
+rm(model_run_y50_e5_r50_reco_a)
 
 # real world data #
-model_run_y50_e10_r50_real_a <- suppoRt::submit_to_cluster(rabmp::run_model_abiotic,
+model_run_y50_e5_r50_real_a <- suppoRt::submit_to_cluster(rabmp::run_model_abiotic,
                                                            years = years,
                                                            const = list(data = data_real,
                                                                         parameters = parameters_fitted_abiotic,
@@ -92,15 +92,15 @@ model_run_y50_e10_r50_real_a <- suppoRt::submit_to_cluster(rabmp::run_model_abio
                                                                         return_nested = return_nested,
                                                                         verbose = verbose),
                                                            n_jobs = length(years),
-                                                           template = list(job_name = "y50_e10_r50_real",
+                                                           template = list(job_name = "y50_e5_r50_real",
                                                                            walltime = "01:00:00",
                                                                            queue = "medium", 
                                                                            service = "short",
-                                                                           mem_cpu = "1024", 
-                                                                           log_file = "y50_e10_r50_real.log"))
+                                                                           mem_cpu = "2048", 
+                                                                           log_file = "y50_e5_r50_real.log"))
 
-suppoRt::save_rds(object = model_run_y50_e10_r50_real_a,
-                  filename = "model_run_y50_e10_r50_real_a.rds",
+suppoRt::save_rds(object = model_run_y50_e5_r50_real_a,
+                  filename = "model_run_y50_e5_r50_real_a.rds",
                   path = "Data/Output/")
 
-rm(model_run_y50_e10_r50_real_a)
+rm(model_run_y50_e5_r50_real_a)
