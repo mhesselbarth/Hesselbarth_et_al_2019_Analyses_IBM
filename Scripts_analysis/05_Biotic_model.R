@@ -63,17 +63,17 @@ model_run_y50_e5_r50_reco_b <- suppoRt::submit_to_cluster(rabmp::run_model_bioti
                                                                         verbose = verbose),
                                                            n_jobs = length(years),
                                                            template = list(job_name = "y50_e5_r50_reco",
-                                                                           walltime = "01:00:00",
+                                                                           walltime = "02:00:00",
                                                                            queue = "medium", 
                                                                            service = "short",
-                                                                           mem_cpu = "2048", 
+                                                                           mem_cpu = "1024", 
                                                                            log_file = "y50_e5_r50_reco.log"))
 
 suppoRt::save_rds(object = model_run_y50_e5_r50_reco_b,
                   filename = "model_run_y50_e5_r50_reco_b.rds",
                   path = "Data/Output/")
 
-rm(model_run_y50_e5_r50_reco_b)
+# rm(model_run_y50_e5_r50_reco_b)
 
 # real world data #
 model_run_y50_e5_r50_real_b <- suppoRt::submit_to_cluster(rabmp::run_model_biotic,
@@ -86,14 +86,14 @@ model_run_y50_e5_r50_real_b <- suppoRt::submit_to_cluster(rabmp::run_model_bioti
                                                                         verbose = verbose),
                                                            n_jobs = length(years),
                                                            template = list(job_name = "y50_e5_r50_real",
-                                                                           walltime = "01:00:00",
+                                                                           walltime = "02:00:00",
                                                                            queue = "medium", 
                                                                            service = "short",
-                                                                           mem_cpu = "2048", 
+                                                                           mem_cpu = "1024", 
                                                                            log_file = "y50_e5_r50_real.log"))
 
 suppoRt::save_rds(object = model_run_y50_e5_r50_real_b,
                   filename = "model_run_y50_e5_r50_real_b.rds",
                   path = "Data/Output/")
 
-rm(model_run_y50_e5_r50_real_b)
+# rm(model_run_y50_e5_r50_real_b)

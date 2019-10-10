@@ -201,6 +201,16 @@ ggplot_fitting_actual <- ggplot(beech_2013) +
   theme(legend.position = "bottom", 
         legend.key.width = unit(1.5, "cm"))
 
+#### Fit biotic seed dispersal ####
+# Olesen, C.R., Madsen, P., 2008. The impact of roe deer (Capreolus capreolus),
+# seedbed, light and seed fall on natural beech (Fagus sylvatica) regeneration.
+# For. Ecol. Manag. 255, 3962–3972.
+
+stand_1 <- 2.6 / 1167
+stand_2 <- 3.7 / 652
+stand_3 <- 2.6 / 307
+default <- mean(c(stand_1, stand_2, stand_3))
+
 #### Update parameters ####
 parameters_fitted <- parameters_default
 
@@ -211,6 +221,8 @@ parameters_fitted$growth_assymp <- broom::tidy(fitted_fun_potential)[[1, 2]]
 parameters_fitted$growth_infl <- broom::tidy(fitted_fun_potential)[[3, 2]]
 parameters_fitted$growth_mod <- 1
 parameters_fitted$growth_rate <- broom::tidy(fitted_fun_potential)[[2, 2]]
+
+parameters_fitted$seed_success <- default
 
 write.table(parameters_fitted, row.names = FALSE, sep = ";")
 

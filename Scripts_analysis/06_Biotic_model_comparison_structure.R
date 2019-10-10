@@ -21,17 +21,13 @@ pattern_1999 <- readr::read_rds("Data/Raw/pattern_1999_ppp.rds")
 pattern_2007 <- readr::read_rds("Data/Raw/pattern_2007_ppp.rds")
 pattern_2013 <- readr::read_rds("Data/Raw/pattern_2013_ppp.rds")
 
-# GET RID OF NAs in 2013
+model_run_y50_e5_r50 <- readr::read_rds("Data/Output/model_run_y50_e5_r50_real_b.rds")
 
-# pattern_1999_reconstructed <- readr::read_rds("Data/Input/pattern_1999_reconstructed.rds")
-
-model_run_reco_b <- readr::read_rds("Data/Output/model_run_y50_e10_r50_reco_b.rds")
-
-names(model_run_reco_b) <- rep("Biotic model", times = length(model_run_reco_b))
-
-# source("Scripts_analysis/helper_functions.R")
+names(model_run_y50_e5_r50) <- rep("Biotic model", 
+                                   times = length(model_run_y50_e5_r50))
 
 overwrite <- FALSE
+base_size <- 10
 
 #### Pre-processing data ####
 df_1999 <- tibble::as_tibble(pattern_1999) %>% 
@@ -46,22 +42,25 @@ df_2013 <- tibble::as_tibble(pattern_2013) %>%
   dplyr::filter(species == "beech", 
                 dbh_13 > 1, inside_fence == 0)
 
-# df_1999_reconstructed <- tibble::as_tibble(pattern_1999_reconstructed)
-
 #### Number trees alive ####
-n_model <- calc_n_comp(data = model_run_reco_b) %>% 
-  dplyr::bind_rows() %>% 
-  dplyr::group_by(i) %>% 
-  dplyr::summarise(n_mean = mean(n), 
-                   n_min = min(n), 
-                   n_max = max(n), 
-                   n_sd = sd(n))
+n_model <- calc_n_comp(data = model_run_y50_e5_r50)
 
 n_2013 <- tibble::tibble(i = c(0, 8, 14), 
                          n = c(nrow(df_1999), nrow(df_2007), nrow(df_2013)))
 
+#### Number ingrowth ####
+n_ingrowth_model <- calc_n_ingrowth_comp(data = model_run_y50_e5_r50)
+
+n_2013 <- tibble::tibble(i = c(8, 14), 
+                         n = c(nrow(dplyr::filter(df_2007, is.na(dbh_99), 
+                                                  !is.na(dbh_07), inside_fence == 0)),
+                               nrow(dplyr::filter(df_2013, is.na(dbh_99), 
+                                                  is.na(dbh_07), !is.na(dbh_13),
+                                                  inside_fence == 0))))
+
+
 #### Number trees dead #### BUG
-n_dead_model <- calc_n_dead_comp(data = model_run_reco_b) %>% 
+n_dead_model <- calc_n_dead_comp(data = model_run_y50_e5_r50) %>% 
   dplyr::bind_rows() %>% 
   dplyr::group_by(i) %>% 
   dplyr::summarise(n_mean = mean(n), 
@@ -77,7 +76,7 @@ n_dead_2013 <- tibble::tibble(i = c(8, 14),
 # threshold <- 5
 by <- 10
 
-dbh_dist_model <- calc_dbh_dist_comp(data = model_run_reco_b, 
+dbh_dist_model <- calc_dbh_dist_comp(data = model_run_y50_e5_r50, 
                                      by = by) %>% 
   dplyr::bind_rows() %>% 
   dplyr::group_by(dbh_class) %>% 
@@ -154,12 +153,13 @@ ggplot_biotic_dbh_dist <- ggplot(data = dbh_dist_overall) +
   scale_y_continuous(name = "Relative frequency [%]",
                      breaks = seq(from = 0, to = 80, by = 10)) +
   
-  theme_classic(base_size = 10) + 
+  theme_classic(base_size = base_size) + 
   theme(legend.position = "bottom", 
         legend.key.width = unit(0.5, units = "cm"))
 
 suppoRt::save_ggplot(plot = ggplot_biotic_dbh_dist, 
-                     filename = "ggplot_biotic_dbh_dist.png", path = "Figures/", 
+                     filename = "ggplot_biotic_dbh_dist.png",
+                     path = "Figures/Biotic_model/", 
                      dpi = 300, width = 15, height = 10, units = "cm", 
                      overwrite = overwrite)
 
@@ -172,7 +172,7 @@ median <- 0.5
 high <- 0.75
 max <- 0.9
 
-dbh_growth_model <- calc_growth_comp(data = model_run_reco_b, by = by) %>% 
+dbh_growth_model <- calc_growth_comp(data = model_run_y50_e5_r50, by = by) %>% 
   dplyr::bind_rows() %>% 
   dplyr::group_by(dbh_class) %>% 
   dplyr::summarise(inc_min = quantile(dbh_inc, probs = min), 
@@ -223,80 +223,11 @@ ggplot_biotic_growth <- ggplot(data = dbh_growth_overall) +
   scale_y_continuous(name = "Annual growth [cm]", 
                      breaks = seq(from = 0, to = max(dbh_growth_overall$inc_max),
                                    by = 0.2)) + 
-  theme_classic(base_size = 10) +
+  theme_classic(base_size = base_size) +
   theme(legend.position = "bottom")
   
 suppoRt::save_ggplot(plot = ggplot_biotic_growth, 
-                     filename = "ggplot_biotic_growth.png", path = "Figures/", 
+                     filename = "ggplot_biotic_growth.png", 
+                     path = "Figures/Biotic_model/", 
                      dpi = 300, width = 15, height = 12.5, units = "cm", 
-                     overwrite = overwrite)
-
-# #### n died ####
-by <- 20
-
-min <- 0.1
-low <- 0.25
-median <- 0.5
-high <- 0.75
-max <- 0.9
-
-n_died_model <- calc_died_comp(data = model_run_reco_b, by = by) %>%
-  dplyr::bind_rows() %>%
-  dplyr::group_by(dbh_class) %>%
-  dplyr::summarise(n_died_rel = mean(n_died_rel),
-                   n_died_rel_total = mean(n_died_rel_total)) %>%
-  dplyr::mutate(data_type = "Biotic model")
-
-# get number of living trees
-living_1999 <- dplyr::filter(df_1999, type != "dead") %>%
-  dplyr::mutate(dbh_class = cut(dbh_99, breaks = seq(from = 0,
-                                                  to = max(df_1999$dbh_99) + by,
-                                                  by = by),
-                                labels = FALSE)) %>%
-  dplyr::group_by(dbh_class) %>%
-  dplyr::summarise(n_living = dplyr::n())
-
-n_died_2013 <- dplyr::filter(df_2013, type == "dead") %>%
-  dplyr::mutate(dbh_start = dplyr::case_when(!is.na(dbh_99) ~ dbh_99,
-                                             is.na(dbh_99) ~ dbh_07),
-                dbh_class = cut(dbh_start, breaks = seq(from = 0,
-                                                     to = max(dbh_start) + by,
-                                                     by = by),
-                                labels = FALSE)) %>%
-  dplyr::group_by(dbh_class) %>%
-  dplyr::summarise(n_died = dplyr::n()) %>%
-  dplyr::full_join(y = living_1999, by = "dbh_class") %>%
-  tidyr::replace_na(replace = list(n_died = 0)) %>%
-  dplyr::mutate(n_died_rel = n_died / n_living,
-                n_died_rel_total = n_died / sum(living_1999$n_living),
-                data_type = "Observed data 2013") %>%
-  dplyr::select(dbh_class, n_died_rel, n_died_rel_total, data_type)
-
-n_died_overall <- dplyr::bind_rows(n_died_model,
-                                   n_died_2013) %>%
-  dplyr::mutate(data_type = factor(data_type,
-                                   levels = c("Biotic model",
-                                              "Observed data 2013")),
-                dbh_class = factor(dbh_class, ordered = TRUE))
-
-
-ggplot_biotic_died <- ggplot(data = n_died_overall) +
-  geom_bar(aes(x = dbh_class, y = n_died_rel_total * 100, fill = data_type),
-           position = position_dodge(), stat = "identity") +
-  scale_fill_viridis_d(name = "Data type", option = "D") +
-  scale_x_discrete(name = "DBH class [cm]",
-                   breaks = seq(from = 1,
-                                to = as.numeric(max(n_died_overall$dbh_class)),
-                                by = 1),
-                   labels = paste0("<", seq(from = 1,
-                                            to = as.numeric(max(n_died_overall$dbh_class)),
-                                            by = 1) * by)) +
-  scale_y_continuous(name = "Relative frequency [%]",
-                     breaks = seq(from = 0, to = 100, by = 10)) +
-  theme_classic(base_size = 15) +
-  theme(legend.position = "bottom")
-
-suppoRt::save_ggplot(plot = ggplot_biotic_died,
-                     filename = "ggplot_biotic_died.png", path = "Figures/",
-                     dpi = 300, width = 30, height = 15, units = "cm",
                      overwrite = overwrite)

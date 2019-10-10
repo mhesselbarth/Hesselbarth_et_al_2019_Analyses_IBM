@@ -122,7 +122,7 @@ ggplot_sa_pcf_inc <- ggplot(data = sa_pcf_increased) +
 
 suppoRt::save_ggplot(plot = ggplot_sa_pcf_inc, 
                      filename = "ggplot_sa_pcf_inc.png", 
-                     path = "Figures/", 
+                     path = "Figures/SA", 
                      width = 17.5, height = 12.5, units = "cm", dpi = 300)
 
 # decreased parameters #
@@ -168,7 +168,7 @@ ggplot_sa_pcf_dec <- ggplot(data = sa_pcf_decreased) +
 
 suppoRt::save_ggplot(plot = ggplot_sa_pcf_dec, 
                      filename = "ggplot_sa_pcf_dec.png", 
-                     path = "Figures/", 
+                     path = "Figures/SA", 
                      width = 17.5, height = 12.5, units = "cm", dpi = 300)
 
 #### Nearest neighbor distribution function ####
@@ -218,7 +218,7 @@ ggplot_sa_nnd_inc <- ggplot(data = sa_nnd_increased) +
 
 suppoRt::save_ggplot(plot = ggplot_sa_nnd_inc, 
                      filename = "ggplot_sa_nnd_inc.png", 
-                     path = "Figures/", 
+                     path = "Figures/SA", 
                      width = 17.5, height = 12.5, units = "cm", dpi = 300)
 
 # decreased values #
@@ -262,7 +262,7 @@ ggplot_sa_nnd_dec <- ggplot(data = sa_nnd_decreased) +
 
 suppoRt::save_ggplot(plot = ggplot_sa_nnd_dec, 
                      filename = "ggplot_sa_nnd_dec.png", 
-                     path = "Figures/", 
+                     path = "Figures/SA", 
                      width = 17.5, height = 12.5, units = "cm", dpi = 300)
 
 ### Mark-correlation function ####
@@ -312,7 +312,7 @@ ggplot_sa_kmm_inc <- ggplot(data = sa_kmm_increased) +
 
 suppoRt::save_ggplot(plot = ggplot_sa_kmm_inc, 
                      filename = "ggplot_sa_kmm_inc.png", 
-                     path = "Figures/", 
+                     path = "Figures/SA", 
                      width = 17.5, height = 12.5, units = "cm", dpi = 300)
 
 # decreased values #
@@ -356,7 +356,7 @@ ggplot_sa_kmm_dec <- ggplot(data = sa_kmm_decreased) +
 
 suppoRt::save_ggplot(plot = ggplot_sa_kmm_dec, 
                      filename = "ggplot_sa_kmm_dec.png", 
-                     path = "Figures/", 
+                     path = "Figures/SA", 
                      width = 17.5, height = 12.5, units = "cm", dpi = 300)
 
 #### Clark and Evans Index ####
@@ -401,7 +401,7 @@ ggplot_sa_clark_inc <- ggplot(data = sa_clark_increased) +
 
 suppoRt::save_ggplot(plot = ggplot_sa_clark_inc, 
                      filename = "ggplot_sa_clark_inc.png", 
-                     path = "Figures/", 
+                     path = "Figures/SA", 
                      width = 17.5, height = 12.5, units = "cm", dpi = 300)
 
 # decreased values #
@@ -444,7 +444,7 @@ ggplot_sa_clark_dec <- ggplot(data = sa_clark_decreased) +
 
 suppoRt::save_ggplot(plot = ggplot_sa_clark_dec, 
                      filename = "ggplot_sa_clark_dec.png", 
-                     path = "Figures/", 
+                     path = "Figures/SA", 
                      width = 17.5, height = 12.5, units = "cm", dpi = 300)
 
 ########################

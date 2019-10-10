@@ -21,17 +21,13 @@ pattern_1999 <- readr::read_rds("Data/Raw/pattern_1999_ppp.rds")
 pattern_2007 <- readr::read_rds("Data/Raw/pattern_2007_ppp.rds")
 pattern_2013 <- readr::read_rds("Data/Raw/pattern_2013_ppp.rds")
 
-# GET RID OF NAs in 2013
+model_run_y50_e5_r50 <- readr::read_rds("Data/Output/model_run_y50_e5_r50_real_a.rds")
 
-# pattern_1999_reconstructed <- readr::read_rds("Data/Input/pattern_1999_reconstructed.rds")
-
-model_run_reco_a <- readr::read_rds("Data/Output/model_run_y50_e10_r50_reco_a.rds")
-
-names(model_run_reco_a) <- rep("Abiotic model", times = length(model_run_reco_a))
-
-# source("Scripts_analysis/helper_functions.R")
+names(model_run_y50_e5_r50) <- rep("Abiotic model", 
+                                   times = length(model_run_y50_e5_r50))
 
 overwrite <- FALSE
+base_size <- 10
 
 #### Pre-processing data ####
 df_1999 <- tibble::as_tibble(pattern_1999) %>% 
@@ -46,22 +42,25 @@ df_2013 <- tibble::as_tibble(pattern_2013) %>%
   dplyr::filter(species == "beech", 
                 dbh_13 > 1, inside_fence == 0)
 
-# df_1999_reconstructed <- tibble::as_tibble(pattern_1999_reconstructed)
-
 #### Number trees alive ####
-n_model <- calc_n_comp(data = model_run_reco_a) %>% 
-  dplyr::bind_rows() %>% 
-  dplyr::group_by(i) %>% 
-  dplyr::summarise(n_mean = mean(n), 
-                   n_min = min(n), 
-                   n_max = max(n), 
-                   n_sd = sd(n))
+n_model <- calc_n_comp(data = model_run_y50_e5_r50)
 
 n_2013 <- tibble::tibble(i = c(0, 8, 14), 
                          n = c(nrow(df_1999), nrow(df_2007), nrow(df_2013)))
 
+#### Number ingrowth ####
+n_ingrowth_model <- calc_n_ingrowth_comp(data = model_run_y50_e5_r50)
+
+n_2013 <- tibble::tibble(i = c(8, 14), 
+                         n = c(nrow(dplyr::filter(df_2007, is.na(dbh_99), 
+                                                  !is.na(dbh_07), inside_fence == 0)),
+                               nrow(dplyr::filter(df_2013, is.na(dbh_99), 
+                                                  is.na(dbh_07), !is.na(dbh_13),
+                                                  inside_fence == 0))))
+
+
 #### Number trees dead #### BUG
-n_dead_model <- calc_n_dead_comp(data = model_run_reco_a) %>% 
+n_dead_model <- calc_n_dead_comp(data = model_run_y50_e5_r50) %>% 
   dplyr::bind_rows() %>% 
   dplyr::group_by(i) %>% 
   dplyr::summarise(n_mean = mean(n), 
@@ -77,7 +76,7 @@ n_dead_2013 <- tibble::tibble(i = c(8, 14),
 # threshold <- 5
 by <- 10
 
-dbh_dist_model <- calc_dbh_dist_comp(data = model_run_reco_a, 
+dbh_dist_model <- calc_dbh_dist_comp(data = model_run_y50_e5_r50, 
                                      by = by) %>% 
   dplyr::bind_rows() %>% 
   dplyr::group_by(dbh_class) %>% 
@@ -154,12 +153,13 @@ ggplot_abiotic_dbh_dist <- ggplot(data = dbh_dist_overall) +
   scale_y_continuous(name = "Relative frequency [%]",
                      breaks = seq(from = 0, to = 80, by = 10)) +
   
-  theme_classic(base_size = 10) + 
+  theme_classic(base_size = base_size) + 
   theme(legend.position = "bottom", 
         legend.key.width = unit(0.5, units = "cm"))
 
 suppoRt::save_ggplot(plot = ggplot_abiotic_dbh_dist, 
-                     filename = "ggplot_abiotic_dbh_dist.png", path = "Figures/", 
+                     filename = "ggplot_abiotic_dbh_dist.png",
+                     path = "Figures/Abiotic_model/", 
                      dpi = 300, width = 15, height = 10, units = "cm", 
                      overwrite = overwrite)
 
@@ -172,7 +172,7 @@ median <- 0.5
 high <- 0.75
 max <- 0.9
 
-dbh_growth_model <- calc_growth_comp(data = model_run_reco_a, by = by) %>% 
+dbh_growth_model <- calc_growth_comp(data = model_run_y50_e5_r50, by = by) %>% 
   dplyr::bind_rows() %>% 
   dplyr::group_by(dbh_class) %>% 
   dplyr::summarise(inc_min = quantile(dbh_inc, probs = min), 
@@ -186,8 +186,8 @@ dbh_growth_2013 <- dplyr::filter(df_2013,
                                  type != "dead", !is.na(dbh_13),!is.na(dbh_99),
                                  inside_fence == 0) %>% 
   dplyr::mutate(dbh_class = cut(dbh_99, breaks = seq(from = 0, 
-                                                        to = max(dbh_99) + by, 
-                                                        by = by), 
+                                                     to = max(dbh_99) + by, 
+                                                     by = by), 
                                 labels = FALSE)) %>% 
   dplyr::group_by(dbh_class) %>% 
   dplyr::summarise(inc_min = quantile(growth_13, probs = min), 
@@ -222,11 +222,12 @@ ggplot_abiotic_growth <- ggplot(data = dbh_growth_overall) +
                                             by = 1) * by)) +
   scale_y_continuous(name = "Annual growth [cm]", 
                      breaks = seq(from = 0, to = max(dbh_growth_overall$inc_max),
-                                   by = 0.2)) + 
-  theme_classic(base_size = 10) +
+                                  by = 0.2)) + 
+  theme_classic(base_size = base_size) +
   theme(legend.position = "bottom")
-  
+
 suppoRt::save_ggplot(plot = ggplot_abiotic_growth, 
-                     filename = "ggplot_abiotic_growth.png", path = "Figures/", 
+                     filename = "ggplot_abiotic_growth.png", 
+                     path = "Figures/Abiotic_model/", 
                      dpi = 300, width = 15, height = 12.5, units = "cm", 
                      overwrite = overwrite)

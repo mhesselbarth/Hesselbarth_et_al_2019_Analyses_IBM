@@ -113,7 +113,7 @@ ggplot_sa_dbh_dist_inc <- ggplot(data = sa_dbh_dist_inc) +
 
 suppoRt::save_ggplot(plot = ggplot_sa_dbh_dist_inc, 
                      filename = "ggplot_sa_dbh_dist_inc.png", 
-                     path = "Figures/", 
+                     path = "Figures/SA", 
                      width = 21.0, height = 29.7, units = "cm", dpi = 300, 
                      overwrite = overwrite)
 
@@ -166,7 +166,7 @@ ggplot_sa_dbh_dist_dec <- ggplot(data = sa_dbh_dist_dec) +
 
 suppoRt::save_ggplot(plot = ggplot_sa_dbh_dist_dec, 
                      filename = "ggplot_sa_dbh_dist_dec.png", 
-                     path = "Figures/", 
+                     path = "Figures/SA", 
                      width = 21.0, height = 29.7, units = "cm", dpi = 300, 
                      overwrite = overwrite)
 
@@ -211,7 +211,7 @@ ggplot_sa_growth_inc <- ggplot(data = sa_growth_inc) +
 
 suppoRt::save_ggplot(plot = ggplot_sa_growth_inc, 
                      filename = "ggplot_sa_growth_inc.png", 
-                     path = "Figures/", 
+                     path = "Figures/SA", 
                      width = 17.5, height = 12.5, units = "cm", dpi = 300, 
                      overwrite = overwrite)
 
@@ -255,7 +255,7 @@ ggplot_sa_growth_dec <- ggplot(data = sa_growth_dec) +
 
 suppoRt::save_ggplot(plot = ggplot_sa_growth_dec, 
                      filename = "ggplot_sa_growth_dec.png", 
-                     path = "Figures/", 
+                     path = "Figures/SA", 
                      width = 17.5, height = 12.5 , units = "cm", dpi = 300, 
                      overwrite = overwrite)
 
@@ -300,7 +300,7 @@ ggplot_sa_died_inc <- ggplot(data = sa_died_inc) +
 
 suppoRt::save_ggplot(plot = ggplot_sa_died_inc, 
                      filename = "ggplot_sa_died_inc.png", 
-                     path = "Figures/", 
+                     path = "Figures/SA", 
                      width = 17.5, height = 12.5, units = "cm", dpi = 300, 
                      overwrite = overwrite)
 
@@ -344,6 +344,6 @@ ggplot_sa_died_dec <- ggplot(data = sa_died_dec) +
 
 suppoRt::save_ggplot(plot = ggplot_sa_died_dec, 
                      filename = "ggplot_sa_died_dec.png", 
-                     path = "Figures/", 
+                     path = "Figures/SA", 
                      width = 17.5, height = 12.5, units = "cm", dpi = 300, 
                      overwrite = overwrite)

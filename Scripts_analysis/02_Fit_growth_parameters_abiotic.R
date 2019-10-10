@@ -24,7 +24,7 @@ Rcpp::sourceCpp("Helper_functions/rcpp_calculate_actual_abiotic.cpp",
 
 # read paramters #
 parameters_default_abiotic <- rabmp::read_parameters("Data/Input/parameters_fitted_biotic.txt", 
-                                                    sep = ";")
+                                                     sep = ";")
 
 # set growth biotic parameter to 1
 parameters_default_abiotic$growth_abiotic <- 1
@@ -146,12 +146,30 @@ fitted_fun_actual$value
 #   theme(legend.position = "bottom", 
 #         legend.key.width = unit(1.5, "cm"))
 
+#### Fit abiotic seed dispersal ####
+# Olesen, C.R., Madsen, P., 2008. The impact of roe deer (Capreolus capreolus),
+# seedbed, light and seed fall on natural beech (Fagus sylvatica) regeneration.
+# For. Ecol. Manag. 255, 3962–3972.
+
+stand_1 <- 2.6 / 1167
+stand_2 <- 3.7 / 652
+stand_3 <- 2.6 / 307
+default <- mean(c(stand_1, stand_2, stand_3))
+
+# use SD from paper for abiotic
+stand_1_hi <- 2.6 / 973
+stand_2_hi <- 3.7 / 359
+stand_3_hi <- 2.6 / 157
+high <- mean(c(stand_1_hi, stand_2_hi, stand_3_hi))
+
 #### Update parameters ####
 parameters_fitted_abiotic <- parameters_default_abiotic
 
 parameters_fitted_abiotic$ci_alpha <- fitted_fun_actual$par[[1]]
 parameters_fitted_abiotic$ci_beta <- fitted_fun_actual$par[[2]]
 parameters_fitted_abiotic$growth_abiotic <- fitted_fun_actual$par[[3]]
+
+parameters_fitted_abiotic$seed_success_high <- high
 
 write.table(parameters_fitted_abiotic, row.names = FALSE, sep = ";")
 
