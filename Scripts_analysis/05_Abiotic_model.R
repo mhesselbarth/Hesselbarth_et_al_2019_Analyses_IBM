@@ -77,7 +77,7 @@ model_run_y50_e5_r50_reco_a <- suppoRt::submit_to_cluster(rabmp::run_model_abiot
 
 suppoRt::save_rds(object = model_run_y50_e5_r50_reco_a,
                   filename = "model_run_y50_e5_r50_reco_a.rds",
-                  path = "Data/Output/")
+                  path = "Data/Output/model_runs")
 
 # rm(model_run_y50_e5_r50_reco_a)
 
@@ -101,6 +101,6 @@ model_run_y50_e5_r50_real_a <- suppoRt::submit_to_cluster(rabmp::run_model_abiot
 
 suppoRt::save_rds(object = model_run_y50_e5_r50_real_a,
                   filename = "model_run_y50_e5_r50_real_a.rds",
-                  path = "Data/Output/")
+                  path = "Data/Output/model_runs")
 
 # rm(model_run_y50_e5_r50_real_a)

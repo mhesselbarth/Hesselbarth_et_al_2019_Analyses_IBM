@@ -121,7 +121,7 @@ names(sa_default_y50_e5_r50) <- rep("default", times = repetitions)
 
 suppoRt::save_rds(object = sa_default_y50_e5_r50,
                   filename = "sa_default_y50_e5_r50.rds",
-                  path = "Data/Output/")
+                  path = "Data/Output/SA/")
 
 # rm(sa_default_y50_e5_r50)
 
@@ -158,7 +158,7 @@ names(sa_increased_5_y50_e5_r50) <- names(parameters_beech_inc_5)
 
 suppoRt::save_rds(object = sa_increased_5_y50_e5_r50,
                   filename = "sa_increased_5_y50_e5_r50.rds",
-                  path = "Data/Output/")
+                  path = "Data/Output/SA/")
 
 # rm(sa_increased_5_y50_e5_r50)
 
@@ -194,7 +194,7 @@ names(sa_increased_10_y50_e5_r50) <- names(parameters_beech_inc_10)
 
 suppoRt::save_rds(object = sa_increased_10_y50_e5_r50,
                   filename = "sa_increased_10_y50_e5_r50.rds",
-                  path = "Data/Output/")
+                  path = "Data/Output/SA/")
 
 # rm(sa_increased_10_y50_e5_r50)
 
@@ -231,7 +231,7 @@ names(sa_decreased_5_y50_e5_r50) <- names(parameters_beech_dec_5)
 
 suppoRt::save_rds(object = sa_decreased_5_y50_e5_r50,
                   filename = "sa_decreased_5_y50_e5_r50.rds",
-                  path = "Data/Output/")
+                  path = "Data/Output/SA/")
 
 # rm(sa_decreased_5_y50_e5_r50)
 
@@ -267,6 +267,6 @@ names(sa_decreased_10_y50_e5_r50) <- names(parameters_beech_dec_10)
 
 suppoRt::save_rds(object = sa_decreased_10_y50_e5_r50,
                   filename = "sa_decreased_10_y50_e5_r50.rds",
-                  path = "Data/Output/")
+                  path = "Data/Output/SA/")
 
 # rm(sa_decreased_10_y50_e5_r50)

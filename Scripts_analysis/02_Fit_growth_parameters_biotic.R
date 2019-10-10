@@ -11,12 +11,15 @@
 #### Import libraries and data ####
 
 # load packages #
+library(patchwork)
 library(quantreg)
 library(rabmp)
 library(Rcpp)
 library(suppoRt) # devtools::install_github("mhesselbarth/suppoRt")
 library(spatstat)
 library(tidyverse)
+
+base_size <- 10
 
 Rcpp::sourceCpp("Helper_functions/rcpp_calculate_actual_biotic.cpp", 
                 embeddedR = FALSE)
@@ -47,7 +50,7 @@ ggplot(beech_2013) +
   scale_x_continuous(name = "Growth mean 2007/2013", limits = c(-0.5, 1.5)) +
   scale_y_continuous(name = "Growth mean full time period", limits = c(-0.5, 1.5)) +
   coord_equal() + 
-  theme_classic(base_size = 15)
+  theme_classic(base_size = base_size)
 
 cor(beech_2013$growth_mean, beech_2013$growth_full)
 
@@ -76,7 +79,7 @@ ggplot_fitting_dbh_growth <- ggplot(beech_2013) +
   scale_y_continuous(name = "Mean annual growth [cm]", limits = c(0, 1.25)) +
   scale_color_manual(name = "5% highest growth per class", 
                      values = c("#440154FF", "#21908CFF")) +
-  theme_classic(base_size = 15) + 
+  theme_classic(base_size = base_size) + 
   theme(legend.position = "bottom")
 
 # initialse function #
@@ -121,7 +124,7 @@ ggplot_fitting_potential <- ggplot(beech_2013) +
   scale_y_continuous(name = "Mean annual growth [cm]", limits = c(0, 1.25)) +
   scale_color_manual(name = "5% highest growth per class", 
                      values = c("#440154FF", "#21908CFF")) +
-  theme_classic(base_size = 15) + 
+  theme_classic(base_size = base_size) + 
   theme(legend.position = "bottom")
 
 # get summary of model fit #
@@ -129,11 +132,11 @@ ggplot_fitting_potential <- ggplot(beech_2013) +
 broom::tidy(fitted_fun_potential)
 
 # A tibble: 3 x 5
-# term      estimate  std.error   statistic   p.value
-# <chr>     <dbl>     <dbl>       <dbl>       <dbl>
-# assymp    186.      28.8        6.45        1.17e-10
-# rate      0.00732   0.00138     5.31        1.13e- 7
-# infl      1.39      0.0512      27.2        0.     
+#   term      estimate  std.error   statistic   p.value
+#   <chr>     <dbl>     <dbl>       <dbl>       <dbl>
+#   assymp    205.      31.2        6.57        5.10e-11
+#   rate      0.00649   0.00124     5.22        1.82e- 7
+#   infl      1.35      0.0502      26.9        0.      
 
 #### Fit ci parameters ####
 
@@ -195,9 +198,9 @@ ggplot_fitting_actual <- ggplot(beech_2013) +
   geom_point(aes(x = dbh_99, y = growth_full, col = ci), pch = 1,  size = 2) + 
   geom_line(aes(x = dbh_99, y = growth_pot), size = 1) +
   scale_x_continuous(name = "DBH [cm]") +
-  scale_y_continuous(name = "Mean annual growth [cm]", limits = c(0, 1.25)) +
-  scale_color_viridis_c(name = "CI", option = "A") +
-  theme_classic(base_size = 15) + 
+  scale_y_continuous(name = "", limits = c(0, 1.25)) +
+  scale_color_viridis_c(name = expression(c[i]^{trans}), option = "A") +
+  theme_classic(base_size = base_size) + 
   theme(legend.position = "bottom", 
         legend.key.width = unit(1.5, "cm"))
 
@@ -229,20 +232,23 @@ write.table(parameters_fitted, row.names = FALSE, sep = ";")
 #### Save plots #### 
 overwrite <- FALSE
 
-suppoRt::save_ggplot(plot = ggplot_fitting_dbh_growth, 
-                     path = "Figures/Appendix",
-                     filename = "ggplot_fitting_dbh_growth.png", 
-                     dpi = 300, height = 10, width = 12.5, units = "cm", 
+ggplot_fitting_growth <- ggplot_fitting_potential + ggplot_fitting_actual + 
+  patchwork::plot_annotation(tag_levels = "a", tag_suffix = ")")
+
+suppoRt::save_ggplot(plot = ggplot_fitting_growth, 
+                     path = "Figures/",
+                     filename = "ggplot_fitting_growth.png", 
+                     dpi = 300, height = 10, width = 21.0, units = "cm", 
                      overwrite = overwrite)
 
-suppoRt::save_ggplot(plot = ggplot_fitting_potential, 
-                     path = "Figures/Appendix",
-                     filename = "ggplot_fitting_potential.png", 
-                     dpi = 300, height = 10, width = 12.5, units = "cm", 
-                     overwrite = overwrite)
-
-suppoRt::save_ggplot(plot = ggplot_fitting_actual, 
-                     path = "Figures/Appendix",
-                     filename = "ggplot_fitting_actual.png", 
-                     dpi = 300, height = 10, width = 12.5, units = "cm", 
-                     overwrite = overwrite)
+# suppoRt::save_ggplot(plot = ggplot_fitting_dbh_growth, 
+#                      path = "Figures/Appendix",
+#                      filename = "ggplot_fitting_dbh_growth.png", 
+#                      dpi = 300, height = 10, width = 12.5, units = "cm", 
+#                      overwrite = overwrite)
+# 
+# suppoRt::save_ggplot(plot = ggplot_fitting_actual, 
+#                      path = "Figures/",
+#                      filename = "ggplot_fitting_actual.png", 
+#                      dpi = 300, height = 10, width = 12.5, units = "cm", 
+#                      overwrite = overwrite)
