@@ -88,8 +88,9 @@ for (i in 1:n_rows) {
   habitat_ras[neighbours_value$from] <- neighbours_value$x
 }
 
-# scale value to 0 - 1 #
-habitat_ras$scaled <- habitat_ras[] / max(habitat_ras[], na.rm = TRUE)
+# scale value to -1 to 1 #
+habitat_ras$scaled <- scales::rescale(raster::values(habitat_ras), 
+                                      to = c(-1, 1), na.rm = TRUE)
 
 # set names #
 names(habitat_ras) <- c("absolute", "scaled")
@@ -98,7 +99,7 @@ ggplot(data = raster::as.data.frame(habitat_ras)) +
   geom_density(aes(scaled), fill = "#440154FF", alpha = 0.3) + 
   geom_vline(aes(xintercept = mean(scaled, na.rm = TRUE)),
              linetype = "dashed") +
-  scale_x_continuous(limits = c(0, 1)) + 
+  scale_x_continuous(limits = c(-1, 1)) +
   labs(x = "Scaled intensity value", y = "Density") +
   theme_classic()
 
@@ -110,7 +111,7 @@ ggplot_abiotic_cond <- ggplot(data = raster::as.data.frame(habitat_ras, xy = TRU
   scale_fill_viridis_c(name = "Intensity", na.value = "white") + 
   coord_equal() + 
   guides(size = FALSE) + 
-  theme_void(base_size = 15) + 
+  theme_void(base_size = 10) + 
   theme(legend.position = "bottom", 
         legend.key.width = unit(2, "cm"))
 
@@ -185,8 +186,9 @@ for (i in 1:n_rows) {
   habitat_ras[neighbours_value$from] <- neighbours_value$x
 }
 
-# scale value to 0 - 1 #
-habitat_ras$scaled <- habitat_ras[] / max(habitat_ras[], na.rm = TRUE)
+# scale value to -1 to 1 #
+habitat_ras$scaled <- scales::rescale(raster::values(habitat_ras), 
+                                      to = c(-1, 1), na.rm = TRUE)
 
 # set names #
 names(habitat_ras) <- c("absolute", "scaled")
@@ -195,7 +197,7 @@ ggplot(data = raster::as.data.frame(habitat_ras)) +
   geom_density(aes(scaled), fill = "#440154FF", alpha = 0.3) + 
   geom_vline(aes(xintercept = mean(scaled, na.rm = TRUE)),
              linetype = "dashed") +
-  scale_x_continuous(limits = c(0, 1)) + 
+  scale_x_continuous(limits = c(-1, 1)) + 
   labs(x = "Scaled intensity value", y = "Density") +
   theme_classic()
 
