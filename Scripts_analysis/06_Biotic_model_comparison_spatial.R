@@ -27,7 +27,7 @@ pattern_2007 <- readr::read_rds("Data/Raw/pattern_2007_ppp.rds") %>%
 pattern_2013 <- readr::read_rds("Data/Raw/pattern_2013_ppp.rds") %>% 
   spatstat::subset.ppp(species == "beech" & dbh_13 > 1)
 
-model_run_y50_e5_r50 <- readr::read_rds("Data/Output/model_run_y50_e5_r50_real_b.rds")
+model_run_y50_e5_r50 <- readr::read_rds("Data/Output/model_runs/model_run_y50_e5_r50_real_b.rds")
 
 names(model_run_y50_e5_r50) <- rep("Biotic model", 
                                     times = length(model_run_y50_e5_r50))

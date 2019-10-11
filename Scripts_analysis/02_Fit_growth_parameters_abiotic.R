@@ -162,6 +162,11 @@ stand_2_hi <- 3.7 / 359
 stand_3_hi <- 2.6 / 157
 high <- mean(c(stand_1_hi, stand_2_hi, stand_3_hi))
 
+stand_1_lo <- 2.6 / 1361
+stand_2_lo <- 3.7 / 945
+stand_3_lo <- 2.6 / 457
+low <- mean(c(stand_1_lo, stand_2_lo, stand_3_lo))
+
 #### Update parameters ####
 parameters_fitted_abiotic <- parameters_default_abiotic
 
@@ -170,6 +175,7 @@ parameters_fitted_abiotic$ci_beta <- fitted_fun_actual$par[[2]]
 parameters_fitted_abiotic$growth_abiotic <- fitted_fun_actual$par[[3]]
 
 parameters_fitted_abiotic$seed_success_high <- high
+parameters_fitted_abiotic$seed_success_low <- low
 
 write.table(parameters_fitted_abiotic, row.names = FALSE, sep = ";")
 

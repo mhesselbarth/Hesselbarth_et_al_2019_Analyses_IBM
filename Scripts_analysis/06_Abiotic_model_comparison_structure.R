@@ -21,7 +21,7 @@ pattern_1999 <- readr::read_rds("Data/Raw/pattern_1999_ppp.rds")
 pattern_2007 <- readr::read_rds("Data/Raw/pattern_2007_ppp.rds")
 pattern_2013 <- readr::read_rds("Data/Raw/pattern_2013_ppp.rds")
 
-model_run_y50_e5_r50 <- readr::read_rds("Data/Output/model_run_y50_e5_r50_real_a.rds")
+model_run_y50_e5_r50 <- readr::read_rds("Data/Output/model_runs/model_run_y50_e5_r50_real_a.rds")
 
 names(model_run_y50_e5_r50) <- rep("Abiotic model", 
                                    times = length(model_run_y50_e5_r50))
