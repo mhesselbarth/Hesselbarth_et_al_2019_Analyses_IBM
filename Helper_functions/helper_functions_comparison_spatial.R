@@ -1,6 +1,6 @@
 #### helper function model comparison spatial ### 
 
-calc_nnd_comp <- function(data, window, r, correction, verbose = TRUE) {
+calc_nnd_comp <- function(data, window, r, correction, verbose = TRUE, ...) {
   
   # get length of input for printig
   n_data <- length(data)
@@ -18,7 +18,7 @@ calc_nnd_comp <- function(data, window, r, correction, verbose = TRUE) {
                               window = window)
     
     # calculate nnd 
-    temp_sf <- spatstat::Gest(temp_ppp, r = r, correction = correction)
+    temp_sf <- spatstat::Gest(temp_ppp, r = r, correction = correction, ...)
     
     # convert to data frame
     tibble::as_tibble(temp_sf)
@@ -38,7 +38,7 @@ calc_nnd_comp <- function(data, window, r, correction, verbose = TRUE) {
   return(nnd_result)
 }
 
-calc_pcf_comp <- function(data,  window, r, verbose = TRUE, ...) {
+calc_pcf_comp <- function(data, window, verbose = TRUE, ...) {
   
   # get length of input for printig
   n_data <- length(data)
@@ -56,8 +56,7 @@ calc_pcf_comp <- function(data,  window, r, verbose = TRUE, ...) {
     temp_ppp <- spatstat::ppp(x = temp_data$x, y = temp_data$y,
                               window = window)
     
-    temp_sf <- spatstat::pcf(temp_ppp, r = r, correction = correction, 
-                             divisor = "d")
+    temp_sf <- spatstat::pcf(temp_ppp, ...)
     
     # convert to data frame
     tibble::as_tibble(temp_sf) %>% 

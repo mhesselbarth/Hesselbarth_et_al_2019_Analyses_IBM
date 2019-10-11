@@ -100,7 +100,7 @@ suppoRt::save_ggplot(plot = ggplot_biotic_nnd,
 
 #### Pair-correlation function ####
 # set parameters #
-r <- seq(from = 0, to = 20, length.out = 525)
+r <- seq(from = 0, to = 50, length.out = 525)
 correction <- "Ripley"
 
 # calculate pcf #
@@ -159,7 +159,7 @@ suppoRt::save_ggplot(plot = ggplot_biotic_pcf,
 
 #### Mark correlation function ####
 # set parameters #
-r <- seq(from = 0, to = 20, length.out = 525)
+r <- seq(from = 0, to = 50, length.out = 525)
 correction <- "Ripley"
 
 # calculate kmm #
