@@ -120,13 +120,13 @@ broom::tidy(fitted_fun_actual)
 # A tibble: 3 x 2
 # parameter   value
 # <chr>       <dbl>
-# parameter1  1.29 
-# parameter2  0.346
-# parameter3  0.418
+# parameter1  1.03 
+# parameter2  0.431
+# parameter3  0.0155
 
 fitted_fun_actual$value
 # $value
-# [1] 689.3969
+# [1] 688.0785
 
 # ci <- rabmp:::rcpp_calculate_ci(matrix = as.matrix(beech_2013_df[, c("x", "y", 
 #                                                                      "dbh_99")]),
@@ -176,6 +176,25 @@ parameters_fitted_abiotic$growth_abiotic <- fitted_fun_actual$par[[3]]
 
 parameters_fitted_abiotic$seed_success_high <- high
 parameters_fitted_abiotic$seed_success_low <- low
+
+# Holzwarth, F., Kahl, A., Bauhus, J., Wirth, C., 2013. Many ways to die - 
+# partitioning tree mortality dynamics in a near-natural mixed deciduous 
+# forest. J. Ecol. 101, 220–230.
+
+parameters_fitted_abiotic$mort_int_early_low <- 1.2
+parameters_fitted_abiotic$mort_int_early_high <- 2.5
+
+parameters_fitted_abiotic$mort_dbh_early_low <- -2.4
+parameters_fitted_abiotic$mort_dbh_early_high <- -1.9
+
+parameters_fitted_abiotic$mort_dinc_low <- -2.4
+parameters_fitted_abiotic$mort_dinc_high <- -0.45
+
+parameters_fitted_abiotic$mort_int_late_low <- -10.0
+parameters_fitted_abiotic$mort_int_late_high <- -7.8
+
+parameters_fitted_abiotic$mort_dbh_late_low <- 0.033
+parameters_fitted_abiotic$mort_dbh_late_high <- 0.070
 
 write.table(parameters_fitted_abiotic, row.names = FALSE, sep = ";")
 
