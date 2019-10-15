@@ -93,7 +93,7 @@ dbh_dist_1999 <- dplyr::filter(df_1999, type != "dead", !is.na(dbh_99)) %>%
   dplyr::group_by(dbh_class) %>% 
   dplyr::summarise(n_mean = dplyr::n(), 
                    n_rel_mean = n_mean / nrow(.)) %>% 
-  dplyr::mutate(data_type = "Observed data 1999")
+  dplyr::mutate(data_type = "Field data 1999")
 
 dbh_dist_2007 <- dplyr::filter(df_2007, 
                                type != "dead", !is.na(dbh_07), inside_fence == 0) %>% 
@@ -103,7 +103,7 @@ dbh_dist_2007 <- dplyr::filter(df_2007,
   dplyr::group_by(dbh_class) %>% 
   dplyr::summarise(n_mean = dplyr::n(), 
                    n_rel_mean = n_mean / nrow(.)) %>% 
-  dplyr::mutate(data_type = "Observed data 2007")
+  dplyr::mutate(data_type = "Field data 2007")
 
 dbh_dist_2013 <- dplyr::filter(df_2013, 
                                type != "dead", !is.na(dbh_13), inside_fence == 0) %>% 
@@ -113,7 +113,7 @@ dbh_dist_2013 <- dplyr::filter(df_2013,
   dplyr::group_by(dbh_class) %>% 
   dplyr::summarise(n_mean = dplyr::n(), 
                    n_rel_mean = n_mean / nrow(.)) %>% 
-  dplyr::mutate(data_type = "Observed data 2013")
+  dplyr::mutate(data_type = "Field data 2013")
 
 # dbh_dist_recon <- dplyr::filter(df_1999_reconstructed,
 #                                 dbh > threshold, type != "dead") %>% 
@@ -127,16 +127,16 @@ dbh_dist_2013 <- dplyr::filter(df_2013,
 #   tibble::add_column(parameter = "Reconstructed data", .before = 1)
 
 dbh_dist_overall <- dplyr::bind_rows(dbh_dist_model, 
-                                     dbh_dist_1999,
+                                     # dbh_dist_1999,
                                      dbh_dist_2007,
                                      dbh_dist_2013) %>% 
   dplyr::ungroup() %>% 
   tidyr::replace_na(replace = list(n_sd = 0, n_rel_sd = 0)) %>% 
   dplyr::mutate(data_type = factor(data_type, 
                                    levels = c("Biotic model", 
-                                              "Observed data 1999", 
-                                              "Observed data 2007",
-                                              "Observed data 2013")), 
+                                              "Field data 1999", 
+                                              "Field data 2007",
+                                              "Field data 2013")), 
                 dbh_class = factor(dbh_class, ordered = TRUE))
 
 ggplot_biotic_dbh_dist <- ggplot(data = dbh_dist_overall) + 
@@ -151,8 +151,8 @@ ggplot_biotic_dbh_dist <- ggplot(data = dbh_dist_overall) +
                                             to = as.numeric(max(dbh_dist_overall$dbh_class)), 
                                             by = 1) * by)) +
   scale_y_continuous(name = "Relative frequency [%]",
-                     breaks = seq(from = 0, to = 80, by = 10)) +
-  
+                     breaks = seq(from = 0, to = 60, by = 10), 
+                     limits = c(0, 60)) +
   theme_classic(base_size = base_size) + 
   theme(legend.position = "bottom", 
         legend.key.width = unit(0.5, units = "cm"))
@@ -195,14 +195,14 @@ dbh_growth_2013 <- dplyr::filter(df_2013,
                    inc_median = quantile(growth_13, probs = median),
                    inc_high = quantile(growth_13, probs = high),
                    inc_max = quantile(growth_13, probs = max)) %>% 
-  dplyr::mutate(data_type = "Observed data 2013")
+  dplyr::mutate(data_type = "Field data 2013")
 
 dbh_growth_overall <- dplyr::bind_rows(dbh_growth_model, 
                                        dbh_growth_2013) %>% 
   dplyr::ungroup() %>% 
   dplyr::mutate(data_type = factor(data_type, 
                                    levels = c("Biotic model", 
-                                              "Observed data 2013")), 
+                                              "Field data 2013")), 
                 dbh_class = factor(dbh_class, ordered = TRUE))
 
 ggplot_biotic_growth <- ggplot(data = dbh_growth_overall) +
