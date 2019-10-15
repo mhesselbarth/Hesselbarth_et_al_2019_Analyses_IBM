@@ -132,35 +132,40 @@ suppoRt::save_ggplot(plot = ggplot_nnd,
 r_pcf <- seq(from = 0, to = 50, length.out = 525)
 correction_pcf <- "Ripley"
 stoyan_pcf <- 0.25
+divisor_pcf <- "d"
 
 # calculate pcf #
 pcf_model_biotic_sapling <- calc_pcf_comp(data = model_run_y50_e5_r50_biotic_sapling,
                                           r = r_pcf, correction = correction_pcf,
-                                          window = window, stoyan = stoyan_pcf) %>% 
+                                          window = window, stoyan = stoyan_pcf, 
+                                          divisor = divisor_pcf) %>% 
   dplyr::mutate(data_type_model = "Biotic model", 
                 size_model = "Sapling")
 
 pcf_model_biotic_adult <- calc_pcf_comp(data = model_run_y50_e5_r50_biotic_adult,
                                         r = r_pcf, correction = correction_pcf,
-                                        window = window, stoyan = stoyan_pcf) %>% 
+                                        window = window, stoyan = stoyan_pcf, 
+                                        divisor = divisor_pcf) %>% 
   dplyr::mutate(data_type_model = "Biotic model", 
                 size_model = "Adult")
 
 pcf_model_abiotic_sapling <- calc_pcf_comp(data = model_run_y50_e5_r50_abiotic_sapling,
                                            r = r_pcf, correction = correction_pcf,
-                                           window = window, stoyan = stoyan_pcf) %>% 
+                                           window = window, stoyan = stoyan_pcf, 
+                                           divisor = divisor_pcf) %>% 
   dplyr::mutate(data_type_model = "Abiotic model", 
                 size_model = "Sapling")
 
 pcf_model_abiotic_adult <- calc_pcf_comp(data = model_run_y50_e5_r50_abiotic_adult,
                                          r = r_pcf, correction = correction_pcf,
-                                         window = window, stoyan = stoyan_pcf) %>% 
+                                         window = window, stoyan = stoyan_pcf, 
+                                         divisor = divisor_pcf) %>% 
   dplyr::mutate(data_type_model = "Abiotic model", 
                 size_model = "Adult")
 
 pcf_2007_sapling <- spatstat::pcf(pattern_2007_sapling, 
                                   r = r_pcf, correction = correction_pcf, 
-                                  divisor = "d", stoyan = stoyan_pcf) %>% 
+                                  divisor = divisor_pcf, stoyan = stoyan_pcf) %>% 
   tibble::as_tibble() %>% 
   purrr::set_names(c("r", "theo", "pcf")) %>% 
   dplyr::mutate(data_type_field = "Field data 2007", 
@@ -168,7 +173,7 @@ pcf_2007_sapling <- spatstat::pcf(pattern_2007_sapling,
 
 pcf_2007_adult <- spatstat::pcf(pattern_2007_adult, 
                                 r = r_pcf, correction = correction_pcf, 
-                                divisor = "d", stoyan = stoyan_pcf) %>% 
+                                divisor = divisor_pcf, stoyan = stoyan_pcf) %>% 
   tibble::as_tibble() %>% 
   purrr::set_names(c("r", "theo", "pcf")) %>% 
   dplyr::mutate(data_type_field = "Field data 2007", 
@@ -176,7 +181,7 @@ pcf_2007_adult <- spatstat::pcf(pattern_2007_adult,
 
 pcf_2013_sapling <- spatstat::pcf(pattern_2013_sapling, 
                                   r = r_pcf, correction = correction_pcf, 
-                                  divisor = "d", stoyan = stoyan_pcf) %>% 
+                                  divisor = divisor_pcf, stoyan = stoyan_pcf) %>% 
   tibble::as_tibble() %>% 
   purrr::set_names(c("r", "theo", "pcf")) %>% 
   dplyr::mutate(data_type_field = "Field data 2013", 
@@ -184,7 +189,7 @@ pcf_2013_sapling <- spatstat::pcf(pattern_2013_sapling,
 
 pcf_2013_adult <- spatstat::pcf(pattern_2013_adult, 
                                 r = r_pcf, correction = correction_pcf, 
-                                divisor = "d", stoyan = stoyan_pcf) %>% 
+                                divisor = divisor_pcf, stoyan = stoyan_pcf) %>% 
   tibble::as_tibble() %>% 
   purrr::set_names(c("r", "theo", "pcf")) %>% 
   dplyr::mutate(data_type_field = "Field data 2013", 
@@ -219,7 +224,6 @@ ggplot_pcf <- ggplot(data = pcf_overall_model) +
   scale_color_viridis_d(name = "") +
   scale_fill_viridis_d(name = "") +
   scale_linetype_manual(name = "", values = c(1, 2)) +
-  coord_cartesian(ylim = c(0, 7.0)) +
   labs(x = "r [m]", y = "g(r)") +
   theme_classic(base_size = base_size) + 
   theme(legend.position = "bottom", 
