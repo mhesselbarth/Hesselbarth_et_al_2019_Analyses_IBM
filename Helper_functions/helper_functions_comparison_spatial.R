@@ -86,7 +86,7 @@ calc_kmm_comp <- function(data, window, r, verbose = TRUE, ...) {
     
     if (verbose) {
       
-      message("\r> Progress (default): ", x, "/", n_data, appendLF = FALSE)
+      message("\r> Progress: ", x, "/", n_data, appendLF = FALSE)
     }
     
     # get data of last timestep

@@ -6,7 +6,7 @@
 ##    www.github.com/mhesselbarth                ##
 ###################################################
 
-#### Comparison spatial model structure ####
+#### Comparison model structure ####
 
 #### Import libraries and data ####
 source("Helper_functions/helper_functions_setup.R")
