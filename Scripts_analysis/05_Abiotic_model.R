@@ -11,11 +11,7 @@
 #### Import libraries and data ####
 
 # load packages #
-library(suppoRt) # devtools::install_github("mhesselbarth/suppoRt")
-library(rabmp)
-library(raster)
-library(spatstat)
-library(tidyverse)
+source("Helper_functions/helper_functions_setup.R")
 
 parameters_fitted_abiotic <- rabmp::read_parameters("Data/Input/parameters_fitted_abiotic.txt", 
                                                     sep = ";")
@@ -60,22 +56,22 @@ rm(pattern_1999)
 
 # reconstructed data #
 model_run_y50_e5_r50_reco_a <- suppoRt::submit_to_cluster(rabmp::run_model_abiotic,
-                                                           years = years,
-                                                           const = list(data = data_reconstruction,
-                                                                        parameters = parameters_fitted_abiotic,
-                                                                        abiotic = abiotic_habitats_reco$scaled,
-                                                                        probs = probs,
-                                                                        plot_area = plot_area,
-                                                                        save_each = save_each,
-                                                                        return_nested = return_nested,
-                                                                        verbose = verbose),
-                                                           n_jobs = length(years),
-                                                           template = list(job_name = "y50_e5_r50_reco",
-                                                                           walltime = "02:00:00",
-                                                                           queue = "medium", 
-                                                                           service = "short",
-                                                                           mem_cpu = "2048", 
-                                                                           log_file = "y50_e5_r50_reco.log"))
+                                                          years = years,
+                                                          const = list(data = data_reconstruction,
+                                                                       parameters = parameters_fitted_abiotic,
+                                                                       abiotic = abiotic_habitats_reco$scaled,
+                                                                       probs = probs,
+                                                                       plot_area = plot_area,
+                                                                       save_each = save_each,
+                                                                       return_nested = return_nested,
+                                                                       verbose = verbose),
+                                                          n_jobs = length(years),
+                                                          template = list(job_name = "y50_e5_r50_reco",
+                                                                          walltime = "02:00:00",
+                                                                          queue = "medium", 
+                                                                          service = "short",
+                                                                          mem_cpu = "2048", 
+                                                                          log_file = "y50_e5_r50_reco.log"))
 
 suppoRt::save_rds(object = model_run_y50_e5_r50_reco_a,
                   filename = "model_run_y50_e5_r50_reco_a.rds",
@@ -85,22 +81,22 @@ suppoRt::save_rds(object = model_run_y50_e5_r50_reco_a,
 
 # real world data #
 model_run_y50_e5_r50_real_a <- suppoRt::submit_to_cluster(rabmp::run_model_abiotic,
-                                                           years = years,
-                                                           const = list(data = data_real,
-                                                                        parameters = parameters_fitted_abiotic,
-                                                                        abiotic = abiotic_habitats_real$scaled,
-                                                                        probs = probs,
-                                                                        plot_area = plot_area,
-                                                                        save_each = save_each,
-                                                                        return_nested = return_nested,
-                                                                        verbose = verbose),
-                                                           n_jobs = length(years),
-                                                           template = list(job_name = "y50_e5_r50_real",
-                                                                           walltime = "2:00:00",
-                                                                           queue = "medium", 
-                                                                           service = "short",
-                                                                           mem_cpu = "2048", 
-                                                                           log_file = "y50_e5_r50_real.log"))
+                                                          years = years,
+                                                          const = list(data = data_real,
+                                                                       parameters = parameters_fitted_abiotic,
+                                                                       abiotic = abiotic_habitats_real$scaled,
+                                                                       probs = probs,
+                                                                       plot_area = plot_area,
+                                                                       save_each = save_each,
+                                                                       return_nested = return_nested,
+                                                                       verbose = verbose),
+                                                          n_jobs = length(years),
+                                                          template = list(job_name = "y50_e5_r50_real",
+                                                                          walltime = "2:00:00",
+                                                                          queue = "medium", 
+                                                                          service = "short",
+                                                                          mem_cpu = "2048", 
+                                                                          log_file = "y50_e5_r50_real.log"))
 
 suppoRt::save_rds(object = model_run_y50_e5_r50_real_a,
                   filename = "model_run_y50_e5_r50_real_a.rds",

@@ -7,8 +7,12 @@
 ###################################################
 
 # load packages #
+library(data.table)
+library(magrittr)
+library(landscapemetrics)
 library(rabmp)
 library(raster)
+library(Rcpp)
 library(suppoRt) # devtools::install_github("mhesselbarth/suppoRt")
 library(spatstat)
 library(tidyverse)

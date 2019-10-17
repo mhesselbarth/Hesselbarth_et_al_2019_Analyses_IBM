@@ -10,13 +10,7 @@
 
 #### Import libraries and data ####
 
-# load packages #
-library(data.table)
-library(rabmp)
-library(Rcpp)
-library(suppoRt) # devtools::install_github("mhesselbarth/suppoRt")
-library(spatstat)
-library(tidyverse)
+source("Helper_functions/helper_functions_setup.R")
 
 # import helper function for fitting
 Rcpp::sourceCpp("Helper_functions/rcpp_calculate_actual_abiotic.cpp", 
@@ -120,13 +114,13 @@ broom::tidy(fitted_fun_actual)
 # A tibble: 3 x 2
 # parameter   value
 # <chr>       <dbl>
-# parameter1  1.03 
-# parameter2  0.431
-# parameter3  0.0155
+# parameter1  1.07
+# parameter2  0.435
+# parameter3  -0.00647
 
 fitted_fun_actual$value
 # $value
-# [1] 688.0785
+# [1] 689.1404
 
 # ci <- rabmp:::rcpp_calculate_ci(matrix = as.matrix(beech_2013_df[, c("x", "y", 
 #                                                                      "dbh_99")]),

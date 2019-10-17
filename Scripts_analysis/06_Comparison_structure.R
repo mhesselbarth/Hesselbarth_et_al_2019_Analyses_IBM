@@ -44,7 +44,7 @@ dbh_dist_model_biotic <- calc_dbh_dist_comp(data = model_run_y50_e5_r50_biotic,
   dplyr::summarise(n_mean = mean(n), 
                    n_sd = sd(n),
                    n_rel_mean = mean(n_rel), 
-                   n_rel_sd = sd(n_rel),) %>% 
+                   n_rel_sd = sd(n_rel)) %>% 
   dplyr::mutate(data_type = "Biotic model")
 
 dbh_dist_model_abiotic <- calc_dbh_dist_comp(data = model_run_y50_e5_r50_abiotic, 
@@ -54,7 +54,7 @@ dbh_dist_model_abiotic <- calc_dbh_dist_comp(data = model_run_y50_e5_r50_abiotic
   dplyr::summarise(n_mean = mean(n), 
                    n_sd = sd(n),
                    n_rel_mean = mean(n_rel), 
-                   n_rel_sd = sd(n_rel),) %>% 
+                   n_rel_sd = sd(n_rel)) %>% 
   dplyr::mutate(data_type = "Abiotic model")
 
 dbh_dist_2007 <- dplyr::filter(df_2007, 
