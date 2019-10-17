@@ -41,7 +41,7 @@ beech_1999_ppp <- spatstat::subset.ppp(pattern_1999_ppp,
                                        species == "beech" &  type != "dead")
 
 # dbh threshold for habitat characterisation #
-dbh_threshold <- quantile(beech_1999_ppp$marks$dbh_99, probs = 0.95)
+dbh_threshold <- quantile(beech_1999_ppp$marks$dbh_99, probs = 0.65)
 
 # filter data #
 beech_1999_ppp <- spatstat::subset.ppp(beech_1999_ppp, dbh_99 > dbh_threshold)
@@ -97,7 +97,11 @@ names(habitat_ras) <- c("absolute", "scaled")
 
 ggplot(data = raster::as.data.frame(habitat_ras)) +
   geom_density(aes(scaled), fill = "#440154FF", alpha = 0.3) + 
-  geom_vline(aes(xintercept = mean(scaled, na.rm = TRUE)),
+  geom_vline(aes(xintercept = median(scaled, na.rm = TRUE)),
+             linetype = "dashed") +
+  geom_vline(aes(xintercept = quantile(scaled, probs = 0.1, na.rm = TRUE)),
+             linetype = "dashed") +
+  geom_vline(aes(xintercept = quantile(scaled, probs = 0.9, na.rm = TRUE)),
              linetype = "dashed") +
   scale_x_continuous(limits = c(-1, 1)) +
   labs(x = "Scaled intensity value", y = "Density") +
@@ -106,14 +110,16 @@ ggplot(data = raster::as.data.frame(habitat_ras)) +
 ggplot_abiotic_cond <- ggplot(data = raster::as.data.frame(habitat_ras, xy = TRUE)) + 
   geom_raster(aes(x = x, y = y, fill = scaled)) + 
   geom_polygon(data = plot_area_df, aes(x = x, y = y), fill = NA, col = "black") + 
-  geom_point(data = tibble::as_tibble(beech_1999_ppp),
-             aes(x = x, y = y, size = dbh_99), pch = 1) +
+  # geom_point(data = tibble::as_tibble(beech_1999_ppp),
+  #            aes(x = x, y = y, size = dbh_99), pch = 1) +
   scale_fill_viridis_c(name = "Intensity", na.value = "white") + 
   coord_equal() + 
   guides(size = FALSE) + 
   theme_void(base_size = 10) + 
   theme(legend.position = "bottom", 
         legend.key.width = unit(2, "cm"))
+
+
 
 #### Save data ####
 overwrite <- FALSE
@@ -139,7 +145,7 @@ beech_1999_rec_ppp <- spatstat::subset.ppp(beech_1999_rec_ppp,
                                            species == "beech" &  type != "dead")
 
 # dbh threshold for habitat characterisation #
-dbh_threshold <- quantile(beech_1999_rec_ppp$marks$dbh, probs = 0.95)
+dbh_threshold <- quantile(beech_1999_rec_ppp$marks$dbh, probs = 0.65)
 
 # filter data #
 beech_1999_rec_ppp <- spatstat::subset.ppp(beech_1999_rec_ppp, dbh > dbh_threshold)
@@ -195,7 +201,11 @@ names(habitat_ras) <- c("absolute", "scaled")
 
 ggplot(data = raster::as.data.frame(habitat_ras)) +
   geom_density(aes(scaled), fill = "#440154FF", alpha = 0.3) + 
-  geom_vline(aes(xintercept = mean(scaled, na.rm = TRUE)),
+  geom_vline(aes(xintercept = median(scaled, na.rm = TRUE)),
+             linetype = "dashed") +
+  geom_vline(aes(xintercept = quantile(scaled, probs = 0.1, na.rm = TRUE)),
+             linetype = "dashed") +
+  geom_vline(aes(xintercept = quantile(scaled, probs = 0.9, na.rm = TRUE)),
              linetype = "dashed") +
   scale_x_continuous(limits = c(-1, 1)) + 
   labs(x = "Scaled intensity value", y = "Density") +
@@ -204,8 +214,8 @@ ggplot(data = raster::as.data.frame(habitat_ras)) +
 ggplot_abiotic_cond <- ggplot(data = raster::as.data.frame(habitat_ras, xy = TRUE)) + 
   geom_raster(aes(x = x, y = y, fill = scaled)) + 
   geom_polygon(data = plot_area_df, aes(x = x, y = y), fill = NA, col = "black") + 
-  geom_point(data = tibble::as_tibble(beech_1999_rec_ppp),
-             aes(x = x, y = y, size = dbh), pch = 1) +
+  # geom_point(data = tibble::as_tibble(beech_1999_rec_ppp),
+  #            aes(x = x, y = y, size = dbh), pch = 1) +
   scale_fill_viridis_c(name = "Intensity", na.value = "white") + 
   coord_equal() + 
   guides(size = FALSE) + 
@@ -220,7 +230,7 @@ suppoRt::save_rds(object = habitat_ras,
                   filename = "abiotic_cond_reco.rds", 
                   path = "Data/Input/", overwrite = overwrite)
 
-suppoRt::save_ggplot(plot = ggplot_abiotic_cond, 
-                     filename = "ggplot_abiotic_cond_reco.png", 
-                     path = "Figures/", overwrite = overwrite,
-                     dpi = 300, width = 15, height = 15, units = "cm")
+# suppoRt::save_ggplot(plot = ggplot_abiotic_cond, 
+#                      filename = "ggplot_abiotic_cond_reco.png", 
+#                      path = "Figures/", overwrite = overwrite,
+#                      dpi = 300, width = 15, height = 15, units = "cm")

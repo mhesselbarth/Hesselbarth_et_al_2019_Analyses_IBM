@@ -13,6 +13,7 @@ library(suppoRt) # devtools::install_github("mhesselbarth/suppoRt")
 library(spatstat)
 library(tidyverse)
 
+# set parapemters plotting #
 overwrite <- FALSE
 
 base_size <- 12.5

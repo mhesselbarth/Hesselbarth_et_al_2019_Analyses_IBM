@@ -72,50 +72,91 @@ r_nnd <- seq(from = 0, to = 10, length.out = 525)
 correction_nnd <- "km"
 
 # calculate NND #
-nnd_model_biotic <- calc_nnd_comp(data = model_run_y50_e5_r50_biotic, 
-                                  r = r_nnd, correction = correction_nnd, 
-                                  window = window) %>% 
-  dplyr::mutate(data_type_model = "Biotic model")
+nnd_model_biotic_sapling <- calc_nnd_comp(data = model_run_y50_e5_r50_biotic_sapling, 
+                                          r = r_nnd, correction = correction_nnd, 
+                                          window = window) %>% 
+  dplyr::mutate(data_type_model = "Biotic model", 
+                size_model = "Sapling")
 
-nnd_model_abiotic <- calc_nnd_comp(data = model_run_y50_e5_r50_abiotic, 
-                                   r = r_nnd, correction = correction_nnd, 
-                                   window = window) %>% 
-  dplyr::mutate(data_type_model = "Abiotic model")
+nnd_model_biotic_adult <- calc_nnd_comp(data = model_run_y50_e5_r50_biotic_adult, 
+                                        r = r_nnd, correction = correction_nnd, 
+                                        window = window) %>% 
+  dplyr::mutate(data_type_model = "Biotic model", 
+                size_model = "Adult")
 
-nnd_2007 <- spatstat::subset.ppp(pattern_2007, 
-                                 inside_fence == 0 & type != "dead") %>% 
+nnd_model_abiotic_sapling <- calc_nnd_comp(data = model_run_y50_e5_r50_abiotic_sapling, 
+                                           r = r_nnd, correction = correction_nnd, 
+                                           window = window) %>% 
+  dplyr::mutate(data_type_model = "Abiotic model", 
+                size_model = "Sapling")
+
+nnd_model_abiotic_adult <- calc_nnd_comp(data = model_run_y50_e5_r50_abiotic_adult, 
+                                         r = r_nnd, correction = correction_nnd, 
+                                         window = window) %>% 
+  dplyr::mutate(data_type_model = "Abiotic model", 
+                size_model = "Adult")
+
+nnd_2007_sapling <- spatstat::subset.ppp(pattern_2007_sapling, 
+                                         inside_fence == 0 & type != "dead") %>% 
   spatstat::Gest(r = r_nnd, correction = correction_nnd) %>% 
   tibble::as_tibble() %>% 
   dplyr::select(r, theo, correction_nnd) %>% 
-  dplyr::mutate(data_type_field = "Field data 2007")
+  dplyr::mutate(data_type_field = "Field data 2007", 
+                size_field = "Sapling")
 
-nnd_2013 <- spatstat::subset.ppp(pattern_2013, 
-                                 inside_fence == 0 & type != "dead") %>% 
+nnd_2007_adult <- spatstat::subset.ppp(pattern_2007_adult, 
+                                       inside_fence == 0 & type != "dead") %>% 
   spatstat::Gest(r = r_nnd, correction = correction_nnd) %>% 
   tibble::as_tibble() %>% 
   dplyr::select(r, theo, correction_nnd) %>% 
-  dplyr::mutate(data_type_field = "Field data 2013")
+  dplyr::mutate(data_type_field = "Field data 2007", 
+                size_field = "Adult")
+
+nnd_2013_sapling <- spatstat::subset.ppp(pattern_2013_sapling, 
+                                         inside_fence == 0 & type != "dead") %>% 
+  spatstat::Gest(r = r_nnd, correction = correction_nnd) %>% 
+  tibble::as_tibble() %>% 
+  dplyr::select(r, theo, correction_nnd) %>% 
+  dplyr::mutate(data_type_field = "Field data 2013", 
+                size_field = "Sapling")
+
+nnd_2013_adult <- spatstat::subset.ppp(pattern_2013_adult, 
+                                       inside_fence == 0 & type != "dead") %>% 
+  spatstat::Gest(r = r_nnd, correction = correction_nnd) %>% 
+  tibble::as_tibble() %>% 
+  dplyr::select(r, theo, correction_nnd) %>% 
+  dplyr::mutate(data_type_field = "Field data 2013", 
+                size_field = "Adult")
 
 # combine to one df #
-nnd_overall_model <- dplyr::bind_rows(nnd_model_biotic,
-                                      nnd_model_abiotic) %>% 
+nnd_overall_model <- dplyr::bind_rows(nnd_model_biotic_sapling,
+                                      nnd_model_biotic_adult,
+                                      nnd_model_abiotic_sapling,
+                                      nnd_model_abiotic_adult) %>% 
   dplyr::mutate(data_type_model = factor(data_type_model, 
                                          levels = c("Biotic model",
-                                                    "Abiotic model")))
+                                                    "Abiotic model")), 
+                size_model = factor(size_model, levels = c("Sapling", "Adult")))
 
-nnd_overall_field <- dplyr::bind_rows(nnd_2007, 
-                                      nnd_2013) %>% 
+nnd_overall_field <- dplyr::bind_rows(nnd_2007_sapling,
+                                      nnd_2007_adult,
+                                      nnd_2013_sapling, 
+                                      nnd_2013_adult) %>% 
   dplyr::mutate(data_type_field = factor(data_type_field, 
                                          levels = c("Field data 2007",
-                                                    "Field data 2013")))
+                                                    "Field data 2013")), 
+                size_field = factor(size_field, levels = c("Sapling", "Adult")))
 
 # create plot #
 ggplot_nnd <- ggplot(data = nnd_overall_model) + 
-  geom_ribbon(aes(x = r, ymin = fun_lo, ymax = fun_hi, fill = "Model")) +
-  geom_line(data = nnd_overall_field, aes(x = r, y = km, col = data_type_field)) + 
+  geom_ribbon(aes(x = r, ymin = fun_lo, ymax = fun_hi, fill = size_model), 
+              alpha = 0.5) +
+  geom_line(data = nnd_overall_field, 
+            aes(x = r, y = km, col = size_field, linetype = data_type_field)) +
   facet_wrap(~ data_type_model) + 
   scale_color_viridis_d(name = "") +
-  scale_fill_manual(name = "", values = c("Model" = "grey")) +
+  scale_fill_viridis_d(name = "") +
+  scale_linetype_manual(name = "", values = c(1, 2)) +
   labs(x = "r [m]", y = "G(r)") +
   theme_classic(base_size = base_size) + 
   theme(legend.position = "bottom", 

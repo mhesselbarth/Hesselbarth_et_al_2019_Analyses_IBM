@@ -33,6 +33,7 @@ repetitions <- 50 # 50
 
 plot_area <- pattern_1999_recon$window
 years <- rep(x = 50, times = repetitions) # 50
+probs <- c(0.2, 0.8)
 save_each <- 5
 return_nested <- FALSE
 verbose <- FALSE
@@ -63,6 +64,7 @@ model_run_y50_e5_r50_reco_a <- suppoRt::submit_to_cluster(rabmp::run_model_abiot
                                                            const = list(data = data_reconstruction,
                                                                         parameters = parameters_fitted_abiotic,
                                                                         abiotic = abiotic_habitats_reco$scaled,
+                                                                        probs = probs,
                                                                         plot_area = plot_area,
                                                                         save_each = save_each,
                                                                         return_nested = return_nested,
@@ -87,6 +89,7 @@ model_run_y50_e5_r50_real_a <- suppoRt::submit_to_cluster(rabmp::run_model_abiot
                                                            const = list(data = data_real,
                                                                         parameters = parameters_fitted_abiotic,
                                                                         abiotic = abiotic_habitats_real$scaled,
+                                                                        probs = probs,
                                                                         plot_area = plot_area,
                                                                         save_each = save_each,
                                                                         return_nested = return_nested,
