@@ -355,10 +355,10 @@ sa_kmm_increased_5_sapling <- calc_kmm_sa_int(default = sa_default_sapling,
                 direction = "Increased +5%")
 
 sa_kmm_increased_5_adult <- calc_kmm_sa_int(default = sa_default_adult,
-                                              changed = sa_increased_5_adult,
-                                              r = r_kmm, 
-                                              correction = correction_kmm, 
-                                              window = window) %>% 
+                                            changed = sa_increased_5_adult,
+                                            r = r_kmm, 
+                                            correction = correction_kmm, 
+                                            window = window) %>% 
   dplyr::mutate(size = "adult", 
                 direction = "Increased +5%")
 

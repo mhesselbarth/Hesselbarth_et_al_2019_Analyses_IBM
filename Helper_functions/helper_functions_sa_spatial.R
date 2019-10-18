@@ -269,15 +269,15 @@ calc_kmm_sa_int <- function(default, changed,
     
     temp_default <- dplyr::filter(default[[x]], i == max(i), type != "dead")
     
-    # convert to ppp
-    temp_ppp <- spatstat::ppp(x = default[[x]]$x, y = default[[x]]$y,
-                              window = window)
-    
     # check which points are inside
     temp_inside <- spatstat::inside.owin(x = temp_default$x, y = temp_default$y,
                                          w = window)
     
     temp_default <- default[[x]][temp_inside, ]
+    
+    # convert to ppp
+    temp_ppp <- spatstat::ppp(x = default[[x]]$x, y = default[[x]]$y,
+                              window = window)
     
     spatstat::marks(temp_ppp) <- temp_default$dbh
     
@@ -310,17 +310,17 @@ calc_kmm_sa_int <- function(default, changed,
     
     temp_changed <- dplyr::filter(changed[[x]], i == max(i), type != "dead")
     
-    # convert to ppp
-    temp_ppp <- spatstat::ppp(x = temp_changed$x, y = temp_changed$y,
-                              window = window)
-    
     # check which points are inside
     temp_inside <- spatstat::inside.owin(x = changed[[x]]$x, y = changed[[x]]$y,
                                          w = window)
     
-    temp_default <- changed[[x]][temp_inside, ]
+    temp_changed <- changed[[x]][temp_inside, ]
     
-    spatstat::marks(temp_ppp) <- temp_default$dbh
+    # convert to ppp
+    temp_ppp <- spatstat::ppp(x = temp_changed$x, y = temp_changed$y,
+                              window = window)
+    
+    spatstat::marks(temp_ppp) <- temp_changed$dbh
     
     # temp_sf <- spatstat::markcorr(temp_ppp, r = r, ...)
     temp_sf <- spatstat::markcorr(temp_ppp, ...) %>% 
