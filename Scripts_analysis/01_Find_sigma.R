@@ -120,7 +120,7 @@ beech_2013_adult_ppp <- readr::read_rds("Data/Input/beech_2013_adult_ppp.rds")
 parameters_fitted_abiotic <- rabmp::read_parameters("Data/Input/parameters_fitted_abiotic.txt",
                                                     sep = ";")
 
-model_runs_mort <- readr::read_rds("Data/Output/model_runs/model_runs_sigma.rds.rds")
+model_runs_mort <- readr::read_rds("Data/Output/model_runs/model_runs_sigma.rds")
 
 #### Pre-process data ####
 beech_2007_df <- tibble::as_tibble(beech_2007_ppp)
@@ -142,7 +142,6 @@ years <- 50
 save_each <- 50
 
 #### Run systematic sigma exploratation ####
-
 model_runs_mort <- suppoRt::submit_to_cluster(foo,
                                               sigma = sigma,
                                               probs_id = probs_id,
@@ -162,7 +161,8 @@ model_runs_mort <- suppoRt::submit_to_cluster(foo,
 
 suppoRt::save_rds(object = model_runs_mort,
                   filename = "model_runs_sigma.rds",
-                  path = "Data/Output/model_runs/model_runs_sigma.rds.rds")
+                  path = "Data/Output/model_runs/", 
+                  overwrite = overwrite)
 
 ##### DBH dist ####
 by <- 10
@@ -252,7 +252,7 @@ ggplot(data = model_runs_dbh_filtered) +
   theme(legend.position = "bottom", 
         legend.key.width = unit(0.5, units = "cm"))
 
-unique(model_runs_dbh_filtered$id)
+id_dbh <- unique(model_runs_dbh_filtered$id)
 
 #### Nearest-neighbor distribution function ####
 r_nnd <- seq(from = 0, to = 10, length.out = 525)
@@ -346,8 +346,13 @@ ggplot(data = model_runs_nnd) +
   scale_color_viridis_d() +
   theme_classic()
 
-model_runs_nnd_filtered <- dplyr::filter(model_runs_nnd, id %in% 
-                                           unique(model_runs_dbh_filtered$id))
+model_runs_nnd_filtered <- dplyr::filter(model_runs_nnd, !id %in% c(1, 2, 16,
+                                                                    6, 7, 8,11,
+                                                                    18, 19, 20,
+                                                                    21, 22, 23, 
+                                                                    24, 25, 26, 
+                                                                    27,28, 29, 
+                                                                    30))
 
 ggplot(data = model_runs_nnd_filtered) + 
   geom_line(aes(x = r, y = nnd, col = factor(id))) + 
@@ -356,6 +361,8 @@ ggplot(data = model_runs_nnd_filtered) +
   facet_wrap(~ size) +
   scale_color_viridis_d() +
   theme_classic()
+
+id_nnd <- unique(model_runs_nnd_filtered$id)
 
 #### Pair correlation function #####
 r_pcf <- seq(from = 0, to = 50, length.out = 525)
