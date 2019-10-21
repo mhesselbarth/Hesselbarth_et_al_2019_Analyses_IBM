@@ -14,17 +14,47 @@
 source("Helper_functions/helper_functions_setup.R")
 source("Helper_functions/helper_functions_abiotic_conditions.R")
 
-foo <- function(data,
-                sigma,
-                parameters,
-                probs_id,
-                probs,
-                plot_area,
-                years,
-                save_each) {
+# initialse function potential growth #
+fun_potential <- function(dbh, assymp, rate, infl) {     
+  
+  growth <- assymp * rate * infl * exp(-rate * dbh) * 
+    (1 - exp(-rate * dbh)) ^ (infl - 1)
+  
+  return(growth)
+}
 
+# initialse function #
+fun_actual <- function(df, par) { 
+  
+  data_matrix <- as.matrix(df[, c("x", "y", "dbh_99", "growth_pot", "abiotic")])
+  
+  growth_modelled <- rabmp:::rcpp_calculate_actual_abiotic(matrix = data_matrix, 
+                                                           alpha = par[1], 
+                                                           beta = par[2],
+                                                           mod = 1,
+                                                           gamma = par[3],
+                                                           max_dist = 30)
+  
+  difference <- sum(abs(df$growth_full - growth_modelled))
+  
+  return(difference)
+}
+
+explore_sigma <- function(data_1999,
+                          data_2013,
+                          id_top,
+                          sigma,
+                          parameters,
+                          probs_id,
+                          probs,
+                          plot_area,
+                          years,
+                          save_each) {
+
+  # classify abiotic #
+  
   # filter data using threshold sapling/adult #
-  data_abiotic <- spatstat::subset.ppp(data, dbh_99 > 10 & species == "beech")
+  data_abiotic <- spatstat::subset.ppp(data_1999, dbh_99 > 10 & species == "beech")
 
   # get intensity
   habitat <- spatstat::density.ppp(data_abiotic, at = "pixel",
@@ -79,17 +109,43 @@ foo <- function(data,
 
   # set names #
   names(habitat) <- c("absolute", "scaled")
+  
+  # fit parameters #
+  data_2013$abiotic <- rabmp::extract_abiotic(data = data.table::data.table(x = data_2013$x, 
+                                                                            y = data_2013$y), 
+                                              abiotic = habitat$scaled)
 
-  data <- tibble::as_tibble(data)
-  data <- dplyr::select(data, 
+  # set starting functions adapted from Pommerening, A., Maleki, K., 2014. #
+  # Differences between competition kernels and traditional size-ratio based #
+  # competition indices used in forest ecology. For. Ecol. Manage. 331, 135-143. #
+  start_values_actual <- c(parameters$ci_alpha, 
+                           parameters$ci_beta, 
+                           parameters$growth_abiotic)
+  
+  # fit fun #
+  fitted_fun_actual <- optim(par = start_values_actual,
+                             fn = fun_actual, 
+                             df = dplyr::filter(data_2013, 
+                                                !id %in% id_top), 
+                             method = "BFGS",
+                             control = list(trace = FALSE))
+  
+  parameters$ci_alpha <- fitted_fun_actual$par[[1]]
+  parameters$ci_beta <- fitted_fun_actual$par[[2]]
+  parameters$growth_abiotic <- fitted_fun_actual$par[[3]]
+  
+  # run model #
+  
+  data_1999 <- tibble::as_tibble(data_1999)
+  data_1999 <- dplyr::select(data_1999, 
                         x, y, species, dbh_99, type)
-  data <- dplyr::filter(data, species == "beech")
-  data <- dplyr::mutate(data, type = "adult")
-  data <- dplyr::select(data, -species)
-  data <- rabmp::prepare_data(data,
-                              x = "x", y = "y", type = "type", dbh = "dbh_99")
+  data_1999 <- dplyr::filter(data_1999, species == "beech")
+  data_1999 <- dplyr::mutate(data_1999, type = "adult")
+  data_1999 <- dplyr::select(data_1999, -species)
+  data_1999 <- rabmp::prepare_data(data_1999,
+                                   x = "x", y = "y", type = "type", dbh = "dbh_99")
 
-  result <-  rabmp::run_model_abiotic(data = data,
+  result <-  rabmp::run_model_abiotic(data = data_1999,
                                       parameters = parameters,
                                       abiotic = habitat$scaled,
                                       probs = probs[[probs_id]],
@@ -100,13 +156,15 @@ foo <- function(data,
   
   result$sigma <- sigma
   result$probs <- paste(probs[[probs_id]], collapse = "/")
+  
+  result$ci_alpha <- parameters$ci_alpha
+  result$ci_beta <- parameters$ci_beta
+  result$growth_abiotic <- parameters$growth_abiotic
 
   return(result)
 }
 
 #### Import data ####
-
-# import data  #
 beech_1999_ppp <- readr::read_rds("Data/Input/beech_1999_ppp.rds")
 
 beech_2007_ppp <- readr::read_rds("Data/Input/beech_2007_ppp.rds")
@@ -120,7 +178,7 @@ beech_2013_adult_ppp <- readr::read_rds("Data/Input/beech_2013_adult_ppp.rds")
 parameters_fitted_abiotic <- rabmp::read_parameters("Data/Input/parameters_fitted_abiotic.txt",
                                                     sep = ";")
 
-model_runs_mort <- readr::read_rds("Data/Output/model_runs/model_runs_sigma.rds.rds")
+model_runs_mort <- readr::read_rds("Data/Output/model_runs/model_runs_sigma.rds")
 
 #### Pre-process data ####
 beech_2007_df <- tibble::as_tibble(beech_2007_ppp)
@@ -141,17 +199,48 @@ sigma <- combined_ps[, 2]
 years <- 50
 save_each <- 50
 
-#### Run systematic sigma exploratation ####
+breaks <- seq(from = 0, to = max(beech_2013_df$dbh_13) + 10, by = 10)
 
-model_runs_mort <- suppoRt::submit_to_cluster(foo,
+
+# filter data and calculate mean dbh growth #
+beech_2013_df <- dplyr::filter(beech_2013_df, 
+                               !is.na(dbh_99), 
+                               !is.na(dbh_13),
+                               type == "living", 
+                               inside_fence == 0) %>% 
+  dplyr::mutate(growth_mean = (growth_07 + growth_13) / 2,
+                growth_full = (dbh_13 - dbh_99) / 14) %>% 
+  dplyr::filter(growth_mean >= 0,
+                growth_full >= 0)
+
+# classify into dbh classes and get only trees with highest growth #
+breaks <- seq(from = 0, to = max(beech_2013_df$dbh_13) + 10, by = 10)
+
+id_top <- dplyr::mutate(beech_2013_df,
+                        dbh_class = cut(dbh_13, breaks = breaks)) %>% 
+  dplyr::group_by(dbh_class) %>% 
+  dplyr::top_n(n = n() * 0.05, wt = growth_full) %>%
+  dplyr::pull(id)
+
+# calculate potential growth #
+beech_2013_df$growth_pot <- fun_potential(dbh = beech_2013_df$dbh_99, 
+                                          assymp = parameters_fitted_abiotic$growth_assymp, 
+                                          rate = parameters_fitted_abiotic$growth_rate, 
+                                          infl = parameters_fitted_abiotic$growth_infl)
+
+#### Run systematic sigma exploratation ####
+model_runs_mort <- suppoRt::submit_to_cluster(explore_sigma,
                                               sigma = sigma,
                                               probs_id = probs_id,
-                                              const = list(data = pattern_1999,
+                                              const = list(data_1999 = beech_1999_ppp,
+                                                           data_2013 = beech_2013_df,
+                                                           id_top = id_top,
                                                            parameters = parameters_fitted_abiotic,
                                                            probs = probs,
                                                            plot_area = plot_area,
                                                            years = years,
                                                            save_each = save_each),
+                                              export = list(fun_actual = fun_actual),
                                               n_jobs = nrow(combined_ps),
                                               template = list(job_name = "systematic",
                                                               walltime = "02:00:00",
@@ -162,7 +251,8 @@ model_runs_mort <- suppoRt::submit_to_cluster(foo,
 
 suppoRt::save_rds(object = model_runs_mort,
                   filename = "model_runs_sigma.rds",
-                  path = "Data/Output/model_runs/model_runs_sigma.rds.rds")
+                  path = "Data/Output/model_runs/", 
+                  overwrite = overwrite)
 
 ##### DBH dist ####
 by <- 10
