@@ -114,13 +114,13 @@ broom::tidy(fitted_fun_actual)
 # A tibble: 3 x 2
 # parameter   value
 # <chr>       <dbl>
-# parameter1  1.07
-# parameter2  0.435
-# parameter3  -0.00647
+# parameter1  1.08
+# parameter2  0.437  
+# parameter3  0.00835
 
 fitted_fun_actual$value
 # $value
-# [1] 689.1404
+# [1] 688.8405
 
 # ci <- rabmp:::rcpp_calculate_ci(matrix = as.matrix(beech_2013_df[, c("x", "y", 
 #                                                                      "dbh_99")]),

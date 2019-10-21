@@ -29,9 +29,8 @@ repetitions <- 50 # 50
 
 plot_area <- pattern_1999_recon$window
 years <- rep(x = 50, times = repetitions) # 50
-probs <- c(0.2, 0.8)
+probs <- c(0.25, 0.75)
 save_each <- 5
-return_nested <- FALSE
 verbose <- FALSE
 
 #### Pre-processing of input data ####
@@ -63,15 +62,14 @@ model_run_y50_e5_r50_reco_a <- suppoRt::submit_to_cluster(rabmp::run_model_abiot
                                                                        probs = probs,
                                                                        plot_area = plot_area,
                                                                        save_each = save_each,
-                                                                       return_nested = return_nested,
                                                                        verbose = verbose),
                                                           n_jobs = length(years),
-                                                          template = list(job_name = "y50_e5_r50_reco",
+                                                          template = list(job_name = "abiotic_reco",
                                                                           walltime = "02:00:00",
                                                                           queue = "medium", 
                                                                           service = "short",
                                                                           mem_cpu = "2048", 
-                                                                          log_file = "y50_e5_r50_reco.log"))
+                                                                          log_file = "abiotic_reco.log"))
 
 suppoRt::save_rds(object = model_run_y50_e5_r50_reco_a,
                   filename = "model_run_y50_e5_r50_reco_a.rds",
@@ -88,15 +86,14 @@ model_run_y50_e5_r50_real_a <- suppoRt::submit_to_cluster(rabmp::run_model_abiot
                                                                        probs = probs,
                                                                        plot_area = plot_area,
                                                                        save_each = save_each,
-                                                                       return_nested = return_nested,
                                                                        verbose = verbose),
                                                           n_jobs = length(years),
-                                                          template = list(job_name = "y50_e5_r50_real",
-                                                                          walltime = "2:00:00",
+                                                          template = list(job_name = "abiotic_real",
+                                                                          walltime = "02:00:00",
                                                                           queue = "medium", 
                                                                           service = "short",
                                                                           mem_cpu = "2048", 
-                                                                          log_file = "y50_e5_r50_real.log"))
+                                                                          log_file = "abiotic_real.log"))
 
 suppoRt::save_rds(object = model_run_y50_e5_r50_real_a,
                   filename = "model_run_y50_e5_r50_real_a.rds",

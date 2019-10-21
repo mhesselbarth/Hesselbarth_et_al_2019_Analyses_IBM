@@ -15,8 +15,8 @@ source("Helper_functions/helper_functions_comparison_structure.R")
 pattern_2007 <- readr::read_rds("Data/Raw/pattern_2007_ppp.rds")
 pattern_2013 <- readr::read_rds("Data/Raw/pattern_2013_ppp.rds")
 
-model_run_y50_e5_r50_biotic <- readr::read_rds("Data/Output/model_runs/model_run_y50_e5_r50_real_b.rds")
-model_run_y50_e5_r50_abiotic <- readr::read_rds("Data/Output/model_runs/model_run_y50_e5_r50_real_a.rds")
+model_run_y50_e5_r50_biotic <- readr::read_rds("Data/Output/model_runs/model_run_y50_e5_r50_real_b.rds")[1:10]
+model_run_y50_e5_r50_abiotic <- readr::read_rds("Data/Output/model_runs/model_run_y50_e5_r50_real_a.rds")[1:10]
 
 #### Preprocess data ####
 
@@ -101,7 +101,7 @@ ggplot_dbh_dist <- ggplot(data = dbh_dist_overall) +
                                             to = as.numeric(max(dbh_dist_overall$dbh_class)), 
                                             by = 1) * by_dist)) +
   scale_y_continuous(name = "Relative frequency [%]",
-                     breaks = seq(from = 0, to = 60, by = 10), 
+                     breaks = seq(from = 0, to = 60, by = 10),
                      limits = c(0, 60)) +
   theme_classic(base_size = base_size) + 
   theme(legend.position = "bottom", 
@@ -115,7 +115,7 @@ suppoRt::save_ggplot(plot = ggplot_dbh_dist,
                      overwrite = overwrite)
 
 #### Growth ####
-by_growth <- 20
+by_growth <- 10
 
 min <- 0.1
 low <- 0.25

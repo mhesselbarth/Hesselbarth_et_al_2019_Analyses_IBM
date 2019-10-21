@@ -43,7 +43,7 @@ beech_1999_ppp <- spatstat::subset.ppp(beech_1999_ppp, dbh_99 > 10)
 habitat_im <- spatstat::density.ppp(beech_1999_ppp, at = "pixel", 
                                     weights = beech_1999_ppp$marks$dbh_99, 
                                     dimyx = c(645, 609),
-                                    kernel = "epanechnikov", sigma = 7.5)
+                                    kernel = "epanechnikov", sigma = 40)
 
 # number of rows added at edges #
 n_rows <- 3
@@ -88,23 +88,21 @@ habitat_ras$scaled <- scales::rescale(raster::values(habitat_ras),
 # set names #
 names(habitat_ras) <- c("absolute", "scaled")
 
-ggplot(data = raster::as.data.frame(habitat_ras)) +
-  geom_density(aes(scaled), fill = "#440154FF", alpha = 0.3) + 
-  geom_vline(aes(xintercept = median(scaled, na.rm = TRUE)),
-             linetype = "dashed") +
-  geom_vline(aes(xintercept = quantile(scaled, probs = 0.1, na.rm = TRUE)),
-             linetype = "dashed") +
-  geom_vline(aes(xintercept = quantile(scaled, probs = 0.9, na.rm = TRUE)),
-             linetype = "dashed") +
-  scale_x_continuous(limits = c(-1, 1)) +
-  labs(x = "Scaled intensity value", y = "Density") +
-  theme_classic()
+# ggplot(data = raster::as.data.frame(habitat_ras)) +
+#   geom_density(aes(scaled), fill = "#440154FF", alpha = 0.3) + 
+#   geom_vline(aes(xintercept = median(scaled, na.rm = TRUE)),
+#              linetype = "dashed") +
+#   geom_vline(aes(xintercept = quantile(scaled, probs = 0.1, na.rm = TRUE)),
+#              linetype = "dashed") +
+#   geom_vline(aes(xintercept = quantile(scaled, probs = 0.9, na.rm = TRUE)),
+#              linetype = "dashed") +
+#   scale_x_continuous(limits = c(-1, 1)) +
+#   labs(x = "Scaled intensity value", y = "Density") +
+#   theme_classic()
 
 ggplot_abiotic_cond <- ggplot(data = raster::as.data.frame(habitat_ras, xy = TRUE)) + 
   geom_raster(aes(x = x, y = y, fill = scaled)) + 
   geom_polygon(data = plot_area_df, aes(x = x, y = y), fill = NA, col = "black") + 
-  # geom_point(data = tibble::as_tibble(beech_1999_ppp),
-  #            aes(x = x, y = y, size = dbh_99), pch = 1) +
   scale_fill_viridis_c(name = "Intensity", na.value = "white") + 
   coord_equal() + 
   guides(size = FALSE) + 
@@ -143,7 +141,7 @@ beech_1999_rec_ppp <- spatstat::subset.ppp(beech_1999_rec_ppp, dbh > 10)
 habitat_im <- spatstat::density.ppp(beech_1999_rec_ppp, at = "pixel", 
                                     weights = beech_1999_rec_ppp$marks$dbh, 
                                     dimyx = c(645, 609),
-                                    kernel = "epanechnikov", sigma = 7.5)
+                                    kernel = "epanechnikov", sigma = 40)
 
 # number of rows added at edges #
 n_rows <- 3
@@ -189,23 +187,21 @@ habitat_ras$scaled <- scales::rescale(raster::values(habitat_ras),
 names(habitat_ras) <- c("absolute", "scaled")
 
 # plot results #
-ggplot(data = raster::as.data.frame(habitat_ras)) +
-  geom_density(aes(scaled), fill = "#440154FF", alpha = 0.3) + 
-  geom_vline(aes(xintercept = median(scaled, na.rm = TRUE)),
-             linetype = "dashed") +
-  geom_vline(aes(xintercept = quantile(scaled, probs = 0.1, na.rm = TRUE)),
-             linetype = "dashed") +
-  geom_vline(aes(xintercept = quantile(scaled, probs = 0.9, na.rm = TRUE)),
-             linetype = "dashed") +
-  scale_x_continuous(limits = c(-1, 1)) + 
-  labs(x = "Scaled intensity value", y = "Density") +
-  theme_classic()
+# ggplot(data = raster::as.data.frame(habitat_ras)) +
+#   geom_density(aes(scaled), fill = "#440154FF", alpha = 0.3) + 
+#   geom_vline(aes(xintercept = median(scaled, na.rm = TRUE)),
+#              linetype = "dashed") +
+#   geom_vline(aes(xintercept = quantile(scaled, probs = 0.1, na.rm = TRUE)),
+#              linetype = "dashed") +
+#   geom_vline(aes(xintercept = quantile(scaled, probs = 0.9, na.rm = TRUE)),
+#              linetype = "dashed") +
+#   scale_x_continuous(limits = c(-1, 1)) + 
+#   labs(x = "Scaled intensity value", y = "Density") +
+#   theme_classic()
 
 ggplot_abiotic_cond <- ggplot(data = raster::as.data.frame(habitat_ras, xy = TRUE)) + 
   geom_raster(aes(x = x, y = y, fill = scaled)) + 
   geom_polygon(data = plot_area_df, aes(x = x, y = y), fill = NA, col = "black") + 
-  # geom_point(data = tibble::as_tibble(beech_1999_rec_ppp),
-  #            aes(x = x, y = y, size = dbh), pch = 1) +
   scale_fill_viridis_c(name = "Intensity", na.value = "white") + 
   coord_equal() + 
   guides(size = FALSE) + 

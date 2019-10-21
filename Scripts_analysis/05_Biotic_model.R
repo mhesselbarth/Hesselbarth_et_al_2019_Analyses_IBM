@@ -11,10 +11,7 @@
 #### Import libraries and data ####
 
 # load packages #
-library(suppoRt) # devtools::install_github("mhesselbarth/suppoRt")
-library(rabmp)
-library(spatstat)
-library(tidyverse)
+source("Helper_functions/helper_functions_setup.R")
 
 parameters_fitted_biotic <- rabmp::read_parameters("Data/Input/parameters_fitted_biotic.txt",
                                                    sep = ";")
