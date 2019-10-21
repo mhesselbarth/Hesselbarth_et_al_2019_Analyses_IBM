@@ -101,7 +101,7 @@ ggplot_dbh_dist <- ggplot(data = dbh_dist_overall) +
                                             to = as.numeric(max(dbh_dist_overall$dbh_class)), 
                                             by = 1) * by_dist)) +
   scale_y_continuous(name = "Relative frequency [%]",
-                     breaks = seq(from = 0, to = 60, by = 10), 
+                     breaks = seq(from = 0, to = 60, by = 10),
                      limits = c(0, 60)) +
   theme_classic(base_size = base_size) + 
   theme(legend.position = "bottom", 
@@ -115,7 +115,7 @@ suppoRt::save_ggplot(plot = ggplot_dbh_dist,
                      overwrite = overwrite)
 
 #### Growth ####
-by_growth <- 20
+by_growth <- 10
 
 min <- 0.1
 low <- 0.25
