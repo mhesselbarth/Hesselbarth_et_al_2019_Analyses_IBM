@@ -342,7 +342,7 @@ ggplot(data = model_runs_dbh_filtered) +
   theme(legend.position = "bottom", 
         legend.key.width = unit(0.5, units = "cm"))
 
-unique(model_runs_dbh_filtered$id)
+id_dbh <- unique(model_runs_dbh_filtered$id)
 
 #### Nearest-neighbor distribution function ####
 r_nnd <- seq(from = 0, to = 10, length.out = 525)
@@ -436,8 +436,13 @@ ggplot(data = model_runs_nnd) +
   scale_color_viridis_d() +
   theme_classic()
 
-model_runs_nnd_filtered <- dplyr::filter(model_runs_nnd, id %in% 
-                                           unique(model_runs_dbh_filtered$id))
+model_runs_nnd_filtered <- dplyr::filter(model_runs_nnd, !id %in% c(1, 2, 16,
+                                                                    6, 7, 8,11,
+                                                                    18, 19, 20,
+                                                                    21, 22, 23, 
+                                                                    24, 25, 26, 
+                                                                    27,28, 29, 
+                                                                    30))
 
 ggplot(data = model_runs_nnd_filtered) + 
   geom_line(aes(x = r, y = nnd, col = factor(id))) + 
@@ -446,6 +451,8 @@ ggplot(data = model_runs_nnd_filtered) +
   facet_wrap(~ size) +
   scale_color_viridis_d() +
   theme_classic()
+
+id_nnd <- unique(model_runs_nnd_filtered$id)
 
 #### Pair correlation function #####
 r_pcf <- seq(from = 0, to = 50, length.out = 525)
