@@ -1,3 +1,15 @@
+###################################################
+##    Author: Maximilian H.K. Hesselbarth        ##
+##    Department of Ecosystem Modelling          ##
+##    University of Goettingen                   ##
+##    maximilian.hesselbarth@uni-goettingen.de   ##
+##    www.github.com/mhesselbarth                ##
+###################################################
+
+#### Systematic find sigma ####
+
+#### Import libraries ####
+
 # load packages #
 source("Helper_functions/helper_functions_setup.R")
 source("Helper_functions/helper_functions_abiotic_conditions.R")
@@ -69,8 +81,8 @@ foo <- function(data,
   names(habitat) <- c("absolute", "scaled")
 
   data <- tibble::as_tibble(data)
-  data <- dplyr::select(data,
-                              x, y, species, dbh_99, type)
+  data <- dplyr::select(data, 
+                        x, y, species, dbh_99, type)
   data <- dplyr::filter(data, species == "beech")
   data <- dplyr::mutate(data, type = "adult")
   data <- dplyr::select(data, -species)
@@ -92,11 +104,29 @@ foo <- function(data,
   return(result)
 }
 
+#### Import data ####
+
 # import data  #
-pattern_1999 <- readr::read_rds("Data/Raw/pattern_1999_ppp.rds")
+beech_1999_ppp <- readr::read_rds("Data/Input/beech_1999_ppp.rds")
+
+beech_2007_ppp <- readr::read_rds("Data/Input/beech_2007_ppp.rds")
+beech_2007_sapling_ppp <- readr::read_rds("Data/Input/beech_2007_sapling_ppp.rds")
+beech_2007_adult_ppp <- readr::read_rds("Data/Input/beech_2007_adult_ppp.rds")
+
+beech_2013_ppp <- readr::read_rds("Data/Input/beech_2013_ppp.rds")
+beech_2013_sapling_ppp <- readr::read_rds("Data/Input/beech_2013_sapling_ppp.rds")
+beech_2013_adult_ppp <- readr::read_rds("Data/Input/beech_2013_adult_ppp.rds")
 
 parameters_fitted_abiotic <- rabmp::read_parameters("Data/Input/parameters_fitted_abiotic.txt",
                                                     sep = ";")
+
+model_runs_mort <- readr::read_rds("Data/Output/model_runs/model_runs_sigma.rds.rds")
+
+#### Pre-process data ####
+beech_2007_df <- tibble::as_tibble(beech_2007_ppp)
+beech_2013_df <- tibble::as_tibble(beech_2013_ppp)
+
+plot_area <- beech_1999_ppp$window
 
 parameters_fitted_abiotic$growth_abiotic <- 0
 
@@ -108,39 +138,31 @@ combined_ps <- suppoRt::expand_grid_unique(x = 1:2,
 probs_id <- combined_ps[, 1]
 sigma <- combined_ps[, 2]
 
-plot_area <- pattern_1999$window
-
 years <- 50
 save_each <- 50
 
+#### Run systematic sigma exploratation ####
+
 model_runs_mort <- suppoRt::submit_to_cluster(foo,
-                                         sigma = sigma,
-                                         probs_id = probs_id,
-                                         const = list(data = pattern_1999,
-                                                      parameters = parameters_fitted_abiotic,
-                                                      probs = probs,
-                                                      plot_area = plot_area,
-                                                      years = years,
-                                                      save_each = save_each),
-                                         n_jobs = nrow(combined_ps),
-                                         template = list(job_name = "systematic",
-                                                         walltime = "02:00:00",
-                                                         queue = "medium",
-                                                         service = "short",
-                                                         mem_cpu = "2048",
-                                                         log_file = "systematic.log"))
+                                              sigma = sigma,
+                                              probs_id = probs_id,
+                                              const = list(data = pattern_1999,
+                                                           parameters = parameters_fitted_abiotic,
+                                                           probs = probs,
+                                                           plot_area = plot_area,
+                                                           years = years,
+                                                           save_each = save_each),
+                                              n_jobs = nrow(combined_ps),
+                                              template = list(job_name = "systematic",
+                                                              walltime = "02:00:00",
+                                                              queue = "medium",
+                                                              service = "short",
+                                                              mem_cpu = "2048",
+                                                              log_file = "systematic.log"))
 
-# suppoRt::save_rds(object = model_runs_mort, 
-#                   filename = "model_runs_sigma.rds", 
-#                   path = "Data/Output/model_runs/model_runs_sigma.rds.rds")
-
-model_runs_mort <- readr::read_rds("Data/Output/model_runs/model_runs_sigma.rds.rds")
-
-pattern_2007 <- readr::read_rds("Data/Raw/pattern_2007_ppp.rds")
-pattern_2013 <- readr::read_rds("Data/Raw/pattern_2013_ppp.rds")
-
-df_2007 <- tibble::as_tibble(pattern_2007)
-df_2013 <- tibble::as_tibble(pattern_2013)
+suppoRt::save_rds(object = model_runs_mort,
+                  filename = "model_runs_sigma.rds",
+                  path = "Data/Output/model_runs/model_runs_sigma.rds.rds")
 
 ##### DBH dist ####
 by <- 10
@@ -167,12 +189,10 @@ model_runs_dbh <- purrr::map(seq_along(model_runs_mort), function(x) {
     dplyr::mutate(n_rel = n / n_points)
 })
 
-names(model_runs_dbh) <- paste0("Parameter ", 1:length(model_runs_dbh))
+model_runs_dbh <- dplyr::bind_rows(model_runs_dbh, .id = "id") %>% 
+  dplyr::mutate(id = as.integer(id))
 
-model_runs_dbh <- dplyr::bind_rows(model_runs_dbh, .id = "parameter") %>% 
-  dplyr::mutate(data_type = "Model")
-
-dbh_dist_2007 <- dplyr::filter(df_2007, 
+dbh_dist_2007 <- dplyr::filter(beech_2007_df, 
                                type != "dead", !is.na(dbh_07), inside_fence == 0) %>% 
   dplyr::mutate(dbh_class = cut(dbh_07, breaks = seq(from = 0, 
                                                      to = max(dbh_07) + by, 
@@ -182,7 +202,7 @@ dbh_dist_2007 <- dplyr::filter(df_2007,
                    n_rel = n / nrow(.)) %>% 
   dplyr::mutate(data_type = "Field data 2007")
 
-dbh_dist_2013 <- dplyr::filter(df_2013, 
+dbh_dist_2013 <- dplyr::filter(beech_2013_df, 
                                type != "dead", !is.na(dbh_13), inside_fence == 0) %>% 
   dplyr::mutate(dbh_class = cut(dbh_13, breaks = seq(from = 0, 
                                                      to = max(dbh_13) + by, 
@@ -195,20 +215,50 @@ dbh_dist_2013 <- dplyr::filter(df_2013,
 dbh_dist_field <- dplyr::bind_rows(dbh_dist_2007,
                                    dbh_dist_2013)
 
-ggplot(data = model_runs_dbh) + 
-  geom_bar(aes(x = dbh_class, y = n_rel * 100, fill = data_type),
-           position = position_dodge(), stat = "identity") +
+ggplot(data = model_runs_dbh) +
   geom_bar(data = dbh_dist_field ,
            aes(x = dbh_class, y = n_rel * 100, fill = data_type),
            position = position_dodge(), stat = "identity") +
+  geom_point(aes(x = dbh_class, y = n_rel * 100), pch = "-", 
+             size = 5, col = "red") +
   scale_fill_viridis_d(name = "", option = "D") +
-  facet_wrap( ~ parameter, scales = "free_y") + 
+  scale_y_continuous(limits = c(0, 100), 
+                     breaks = seq(0, 100, 10)) +
+  facet_wrap( ~ id) + 
   theme_classic() + 
   theme(legend.position = "bottom", 
         legend.key.width = unit(0.5, units = "cm"))
 
+model_runs_dbh_filtered <- dplyr::filter(model_runs_dbh, !id %in% c(1, 2, 5, 6, 
+                                                                    7, 8, 9, 10, 
+                                                                    11, 12, 16, 
+                                                                    17, 18, 19, 
+                                                                    20, 21, 22, 
+                                                                    23, 24, 25, 
+                                                                    26, 27, 28, 
+                                                                    29, 30))
+
+ggplot(data = model_runs_dbh_filtered) +
+  geom_bar(data = dbh_dist_field ,
+           aes(x = dbh_class, y = n_rel * 100, fill = data_type),
+           position = position_dodge(), stat = "identity") +
+  geom_point(aes(x = dbh_class, y = n_rel * 100), pch = "-", 
+             size = 5, col = "red") +
+  scale_fill_viridis_d(name = "", option = "D") +
+  scale_y_continuous(limits = c(0, 100), 
+                     breaks = seq(0, 100, 10)) +
+  facet_wrap( ~ id) + 
+  theme_classic() + 
+  theme(legend.position = "bottom", 
+        legend.key.width = unit(0.5, units = "cm"))
+
+unique(model_runs_dbh_filtered$id)
+
 #### Nearest-neighbor distribution function ####
-model_runfs_nnd <- purrr::map(seq_along(model_runs_mort), function(x) {
+r_nnd <- seq(from = 0, to = 10, length.out = 525)
+correction_nnd <- "km"
+
+model_runs_nnd <- purrr::map(seq_along(model_runs_mort), function(x) {
   
   message("\r> Progress: ", x, "/", length(model_runs_mort), appendLF = FALSE)
   
@@ -226,17 +276,17 @@ model_runfs_nnd <- purrr::map(seq_along(model_runs_mort), function(x) {
   adults_ppp <- spatstat::ppp(x = adults$x, y = adults$y,
                               window = plot_area)
   
-  saplings_sf <- spatstat::Gest(saplings_ppp, correction = "km", 
-                               r = seq(from = 0, to = 10, length.out = 525)) %>% 
+  saplings_sf <- spatstat::Gest(saplings_ppp, correction = correction_nnd, 
+                               r = r_nnd) %>% 
     tibble::as_tibble() %>% 
-    dplyr::select(r, theo, km) %>% 
+    dplyr::select(r, theo, correction_nnd) %>% 
     purrr::set_names(c("r", "theo", "nnd")) %>% 
     dplyr::mutate(size = "saplings")
   
-  adults_sf <- spatstat::Gest(adults_ppp, correction = "km", 
-                             r = seq(from = 0, to = 10, length.out = 525)) %>% 
+  adults_sf <- spatstat::Gest(adults_ppp, correction = correction_nnd, 
+                              r = r_nnd) %>% 
     tibble::as_tibble() %>% 
-    dplyr::select(r, theo, km) %>% 
+    dplyr::select(r, theo, correction_nnd) %>% 
     purrr::set_names(c("r", "theo", "nnd")) %>% 
     dplyr::mutate(size = "adults")
   
@@ -244,51 +294,37 @@ model_runfs_nnd <- purrr::map(seq_along(model_runs_mort), function(x) {
                    adults_sf)
 })
 
-r_nnd <- seq(from = 0, to = 10, length.out = 525)
-correction_nnd <- "km"
+model_runs_nnd <- dplyr::bind_rows(model_runs_nnd, .id = "id") %>% 
+  dplyr::mutate(id = as.integer(id))
 
-pattern_2007_sapling <- spatstat::subset.ppp(pattern_2007, 
-                                             dbh_07 > 1 & dbh_07 <= 10 & 
-                                               inside_fence == 0)
-
-pattern_2007_adult <- spatstat::subset.ppp(pattern_2007, dbh_07 > 10 & 
-                                             inside_fence == 0)
-
-pattern_2013_sapling <- spatstat::subset.ppp(pattern_2013, 
-                                             dbh_13 > 1 & dbh_13 <= 10 & 
-                                               inside_fence == 0)
-
-pattern_2013_adult <- spatstat::subset.ppp(pattern_2013, dbh_13 > 10 & 
-                                             inside_fence == 0)
-
-nnd_2007_sapling <- spatstat::Gest(pattern_2007_sapling, 
+nnd_2007_sapling <- spatstat::Gest(beech_2007_sapling_ppp, 
                                    r = r_nnd, correction = correction_nnd) %>% 
   tibble::as_tibble() %>% 
-  dplyr::select(r, theo, km) %>%
+  dplyr::select(r, theo, correction_nnd) %>%
   purrr::set_names(c("r", "theo", "nnd")) %>% 
   dplyr::mutate(data_type_field = "Field data 2007", 
                 size = "saplings")
 
-nnd_2007_adult <- spatstat::Gest(pattern_2007_adult, 
+nnd_2007_adult <- spatstat::Gest(beech_2007_adult_ppp, 
                                  r = r_nnd, correction = correction_nnd) %>% 
   tibble::as_tibble() %>% 
-  dplyr::select(r, theo, km) %>% 
+  dplyr::select(r, theo, correction_nnd) %>% 
   purrr::set_names(c("r", "theo", "nnd")) %>% 
   dplyr::mutate(data_type_field = "Field data 2007", 
                 size = "adults")
 
-nnd_2013_sapling <- spatstat::Gest(pattern_2013_sapling, 
-                                  r = r_nnd, correction = correction_nnd) %>% 
+nnd_2013_sapling <- spatstat::Gest(beech_2013_sapling_ppp, 
+                                   r = r_nnd, correction = correction_nnd) %>% 
   tibble::as_tibble() %>%
-  dplyr::select(r, theo, km) %>%
+  dplyr::select(r, theo, correction_nnd) %>%
   purrr::set_names(c("r", "theo", "nnd")) %>% 
   dplyr::mutate(data_type_field = "Field data 2013", 
                 size = "saplings")
 
-nnd_2013_adult <- spatstat::Gest(pattern_2013_adult, 
+nnd_2013_adult <- spatstat::Gest(beech_2013_adult_ppp, 
                                 r = r_nnd, correction = correction_nnd) %>% 
   tibble::as_tibble() %>% 
-  dplyr::select(r, theo, km) %>%
+  dplyr::select(r, theo, correction_nnd) %>%
   purrr::set_names(c("r", "theo", "nnd")) %>% 
   dplyr::mutate(data_type_field = "Field data 2013", 
                 size = "adults")
@@ -302,9 +338,7 @@ nnd_overall_field <- dplyr::bind_rows(nnd_2007_sapling,
                                                     "Field data 2013")),
                 size_field = factor(size, levels = c("saplings", "adults")))
 
-dplyr::bind_rows(model_runfs_nnd, .id = "id") %>%
-  dplyr::mutate(id = as.integer(id)) %>% 
-  ggplot() + 
+ggplot(data = model_runs_nnd) + 
   geom_line(aes(x = r, y = nnd, col = factor(id))) + 
   geom_line(data = nnd_overall_field, 
             aes(x = r, y = nnd, linetype = data_type_field)) +
@@ -312,38 +346,24 @@ dplyr::bind_rows(model_runfs_nnd, .id = "id") %>%
   scale_color_viridis_d() +
   theme_classic()
 
-nnd_overall_field_filterd <- dplyr::filter(nnd_overall_field, size == "saplings")
+model_runs_nnd_filtered <- dplyr::filter(model_runs_nnd, id %in% 
+                                           unique(model_runs_dbh_filtered$id))
 
-model_runfs_nnd_filtered <- dplyr::bind_rows(model_runfs_nnd, .id = "id") %>%
-  dplyr::mutate(id = as.integer(id)) %>% 
-  dplyr::filter(size == "saplings", !id %in% c(1, 10, 11, 12, 13, 14, 15, 9, 8, 7,
-                                               5, 6, 16, 17, 4, 30, 2, 3, 18, 19, 
-                                               20, 21, 22))
-
-# model_runfs_nnd_filtered <- dplyr::bind_rows(model_runfs_nnd, .id = "id") %>%
-#   dplyr::mutate(id = factor(id, ordered = TRUE)) %>%
-#   dplyr::filter(size == "saplings", id %in% c(23, 24))
-
-ggplot(model_runfs_nnd_filtered) + 
+ggplot(data = model_runs_nnd_filtered) + 
   geom_line(aes(x = r, y = nnd, col = factor(id))) + 
-  geom_line(data = nnd_overall_field_filterd, 
+  geom_line(data = nnd_overall_field, 
             aes(x = r, y = nnd, linetype = data_type_field)) +
-  geom_hline(yintercept = 1, linetype = 2) +
+  facet_wrap(~ size) +
   scale_color_viridis_d() +
   theme_classic()
 
-combined_ps[unique(model_runfs_nnd_filtered$id), ]
-#       [,1] [,2]
-# [1,]    2   40
-# [2,]    2   45
-# [3,]    2   50
-# [4,]    2   55
-# [5,]    2   60
-# [6,]    2   65
-# [7,]    2   70
-
 #### Pair correlation function #####
-model_runfs_pcf <- purrr::map(seq_along(model_runs_mort), function(x) {
+r_pcf <- seq(from = 0, to = 50, length.out = 525)
+correction_pcf <- "Ripley"
+stoyan_pcf <- 0.25
+divisor_pcf <- "d"
+
+model_runs_pcf <- purrr::map(seq_along(model_runs_mort), function(x) {
   
   message("\r> Progress: ", x, "/", length(model_runs_mort), appendLF = FALSE)
   
@@ -361,14 +381,16 @@ model_runfs_pcf <- purrr::map(seq_along(model_runs_mort), function(x) {
   adults_ppp <- spatstat::ppp(x = adults$x, y = adults$y,
                               window = plot_area)
   
-  saplings_sf <- spatstat::pcf(saplings_ppp, divisor = "d", correction = "Ripley", 
-                               r = seq(from = 0, to = 50, length.out = 525)) %>% 
+  saplings_sf <- spatstat::pcf(saplings_ppp, 
+                               r = r_pcf, correction = correction_pcf,
+                               divisor = divisor_pcf, stoyan = stoyan_pcf) %>% 
     tibble::as_tibble() %>% 
     purrr::set_names(c("r", "theo", "pcf")) %>% 
     dplyr::mutate(size = "saplings")
   
-  adults_sf <- spatstat::pcf(adults_ppp, divisor = "d", correction = "Ripley", 
-                             r = seq(from = 0, to = 50, length.out = 525)) %>% 
+  adults_sf <- spatstat::pcf(adults_ppp, 
+                             r = r_pcf, correction = correction_pcf,
+                             divisor = divisor_pcf, stoyan = stoyan_pcf) %>% 
     tibble::as_tibble() %>% 
     purrr::set_names(c("r", "theo", "pcf")) %>% 
     dplyr::mutate(size = "adults")
@@ -377,29 +399,10 @@ model_runfs_pcf <- purrr::map(seq_along(model_runs_mort), function(x) {
                    adults_sf)
 })
 
-pattern_2007 <- readr::read_rds("Data/Raw/pattern_2007_ppp.rds")
-pattern_2013 <- readr::read_rds("Data/Raw/pattern_2013_ppp.rds")
+model_runs_pcf <- dplyr::bind_rows(model_runs_pcf, .id = "id") %>% 
+  dplyr::mutate(id = as.integer(id))
 
-r_pcf <- seq(from = 0, to = 50, length.out = 525)
-correction_pcf <- "Ripley"
-stoyan_pcf <- 0.25
-divisor_pcf <- "d"
-
-pattern_2007_sapling <- spatstat::subset.ppp(pattern_2007, 
-                                             dbh_07 > 1 & dbh_07 <= 10 & 
-                                               inside_fence == 0)
-
-pattern_2007_adult <- spatstat::subset.ppp(pattern_2007, dbh_07 > 10 & 
-                                             inside_fence == 0)
-
-pattern_2013_sapling <- spatstat::subset.ppp(pattern_2013, 
-                                             dbh_13 > 1 & dbh_13 <= 10 & 
-                                               inside_fence == 0)
-
-pattern_2013_adult <- spatstat::subset.ppp(pattern_2013, dbh_13 > 10 & 
-                                             inside_fence == 0)
-
-pcf_2007_sapling <- spatstat::pcf(pattern_2007_sapling, 
+pcf_2007_sapling <- spatstat::pcf(beech_2007_sapling_ppp, 
                                   r = r_pcf, correction = correction_pcf, 
                                   divisor = divisor_pcf, stoyan = stoyan_pcf) %>% 
   tibble::as_tibble() %>% 
@@ -407,7 +410,7 @@ pcf_2007_sapling <- spatstat::pcf(pattern_2007_sapling,
   dplyr::mutate(data_type_field = "Field data 2007", 
                 size = "saplings")
 
-pcf_2007_adult <- spatstat::pcf(pattern_2007_adult, 
+pcf_2007_adult <- spatstat::pcf(beech_2007_adult_ppp, 
                                 r = r_pcf, correction = correction_pcf, 
                                 divisor = divisor_pcf, stoyan = stoyan_pcf) %>% 
   tibble::as_tibble() %>% 
@@ -415,7 +418,7 @@ pcf_2007_adult <- spatstat::pcf(pattern_2007_adult,
   dplyr::mutate(data_type_field = "Field data 2007", 
                 size = "adults")
 
-pcf_2013_sapling <- spatstat::pcf(pattern_2013_sapling, 
+pcf_2013_sapling <- spatstat::pcf(beech_2013_sapling_ppp, 
                                   r = r_pcf, correction = correction_pcf, 
                                   divisor = divisor_pcf, stoyan = stoyan_pcf) %>% 
   tibble::as_tibble() %>% 
@@ -423,7 +426,7 @@ pcf_2013_sapling <- spatstat::pcf(pattern_2013_sapling,
   dplyr::mutate(data_type_field = "Field data 2013", 
                 size = "saplings")
 
-pcf_2013_adult <- spatstat::pcf(pattern_2013_adult, 
+pcf_2013_adult <- spatstat::pcf(beech_2013_adult_ppp, 
                                 r = r_pcf, correction = correction_pcf, 
                                 divisor = divisor_pcf, stoyan = stoyan_pcf) %>% 
   tibble::as_tibble() %>% 
@@ -440,9 +443,7 @@ pcf_overall_field <- dplyr::bind_rows(pcf_2007_sapling,
                                                     "Field data 2013")),
                 size_field = factor(size, levels = c("saplings", "adults")))
 
-dplyr::bind_rows(model_runfs_pcf, .id = "id") %>%
-  dplyr::mutate(id = as.integer(id)) %>% 
-  ggplot() + 
+ggplot(model_runs_pcf) + 
   geom_line(aes(x = r, y = pcf, col = factor(id))) + 
   geom_line(data = pcf_overall_field, 
             aes(x = r, y = pcf, linetype = data_type_field)) +
@@ -451,34 +452,15 @@ dplyr::bind_rows(model_runfs_pcf, .id = "id") %>%
   scale_color_viridis_d() +
   theme_classic()
 
-pcf_overall_field_filterd <- dplyr::filter(pcf_overall_field, size == "saplings")
+model_runs_pcf_filtered <- dplyr::filter(model_runs_pcf, id %in% 
+                                           unique(model_runs_dbh_filtered$id))
 
-model_runfs_pcf_filtered <- dplyr::bind_rows(model_runfs_pcf, .id = "id") %>%
-  dplyr::mutate(id = as.integer(id)) %>% 
-  dplyr::filter(size == "saplings", !id %in% c(1, 10, 11, 12, 13, 14, 15, 9, 8, 7,
-                                               5, 6, 16, 17, 4, 30, 2, 3, 18, 19, 
-                                               20, 21, 22))
-
-# model_runfs_pcf_filtered <- dplyr::bind_rows(model_runfs_pcf, .id = "id") %>%
-#   dplyr::mutate(id = factor(id, ordered = TRUE)) %>%
-#   dplyr::filter(size == "saplings", id %in% c(23, 24))
-
-ggplot(model_runfs_pcf_filtered) + 
+ggplot(model_runs_pcf_filtered) + 
   geom_line(aes(x = r, y = pcf, col = factor(id))) + 
-  geom_line(data = pcf_overall_field_filterd, 
+  geom_line(data = pcf_overall_field, 
             aes(x = r, y = pcf, linetype = data_type_field)) +
   geom_hline(yintercept = 1, linetype = 2) +
-  # facet_wrap(~ size) + 
+  facet_wrap(~ size) +
   scale_color_viridis_d() +
   theme_classic()
-
-combined_ps[unique(model_runfs_pcf_filtered$id), ]
-#       [,1] [,2]
-# [1,]    2   40
-# [2,]    2   45
-# [3,]    2   50
-# [4,]    2   55
-# [5,]    2   60
-# [6,]    2   65
-# [7,]    2   70
 

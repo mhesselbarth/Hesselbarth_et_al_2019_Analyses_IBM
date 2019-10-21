@@ -15,7 +15,7 @@ source("Helper_functions/helper_functions_setup.R")
 source("Helper_functions/helper_functions_abiotic_conditions.R")
 
 # import data  #
-pattern_1999_ppp <- readr::read_rds("Data/Raw/pattern_1999_ppp.rds")
+beech_1999_ppp <- readr::read_rds("Data/Input/beech_1999_ppp.rds")
 
 beech_1999_rec_ppp <- readr::read_rds("Data/Input/beech_1999_rec_ppp.rds")
 
@@ -29,11 +29,7 @@ plot_area_df <- as.data.frame(plot_area)
 ####            ####
 ####################
 
-# filter data #
-beech_1999_ppp <- spatstat::subset.ppp(pattern_1999_ppp, 
-                                       species == "beech" &  type != "dead")
-
-# dbh threshold for habitat characterisation #
+# # dbh threshold for habitat characterisation #
 # dbh_threshold <- quantile(beech_1999_ppp$marks$dbh_99, probs = 0.65)
 
 # filter data using threshold sapling/adult #
@@ -127,11 +123,7 @@ suppoRt::save_ggplot(plot = ggplot_abiotic_cond,
 ####                    ####
 ############################
 
-# filter data #
-beech_1999_rec_ppp <- spatstat::subset.ppp(beech_1999_rec_ppp, 
-                                           species == "beech" &  type != "dead")
-
-# dbh threshold for habitat characterisation #
+# # dbh threshold for habitat characterisation #
 # dbh_threshold <- quantile(beech_1999_rec_ppp$marks$dbh, probs = 0.65)
 
 # filter data using threshold sapling-adult #
