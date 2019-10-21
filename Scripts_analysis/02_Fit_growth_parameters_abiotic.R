@@ -13,8 +13,8 @@
 source("Helper_functions/helper_functions_setup.R")
 
 # import helper function for fitting
-Rcpp::sourceCpp("Helper_functions/rcpp_calculate_actual_abiotic.cpp", 
-                embeddedR = FALSE)
+# Rcpp::sourceCpp("Helper_functions/rcpp_calculate_actual_abiotic.cpp", 
+#                 embeddedR = FALSE)
 
 # read paramters #
 parameters_default_abiotic <- rabmp::read_parameters("Data/Input/parameters_fitted_biotic.txt", 
@@ -80,12 +80,12 @@ fun_actual <- function(df, par) {
   
   data_matrix <- as.matrix(df[, c("x", "y", "dbh_99", "growth_pot", "abiotic")])
   
-  growth_modelled <- rcpp_calculate_actual_abiotic(matrix = data_matrix, 
-                                                   alpha = par[1], 
-                                                   beta = par[2],
-                                                   mod = 1,
-                                                   gamma = par[3],
-                                                   max_dist = 30)
+  growth_modelled <- rabmp:::rcpp_calculate_actual_abiotic(matrix = data_matrix, 
+                                                           alpha = par[1], 
+                                                           beta = par[2],
+                                                           mod = 1,
+                                                           gamma = par[3],
+                                                           max_dist = 30)
   
   difference <- sum(abs(df$growth_full - growth_modelled))
   
