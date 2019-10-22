@@ -24,7 +24,7 @@ parameters_default_abiotic <- rabmp::read_parameters("Data/Input/parameters_fitt
 parameters_default_abiotic$growth_abiotic <- 0
 
 # import data  #
-abiotic_conditions <- readr::read_rds("Data/Input/abiotic_cond_real.rds")
+abiotic_conditions <- readr::read_rds("Data/Input/abiotic_cond_real_fit.rds")
 
 pattern_2013_df <- readr::read_rds("Data/Raw/pattern_2013_df.rds")
 

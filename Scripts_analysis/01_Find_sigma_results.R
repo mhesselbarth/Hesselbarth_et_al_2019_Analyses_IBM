@@ -97,14 +97,11 @@ ggplot(data = model_runs_dbh) +
   theme(legend.position = "bottom", 
         legend.key.width = unit(0.5, units = "cm"))
 
-model_runs_dbh_filtered <- dplyr::filter(model_runs_dbh, !id %in% c(1, 2, 5, 6, 
-                                                                    7, 8, 9, 10, 
-                                                                    11, 12, 16, 
-                                                                    17, 18, 19, 
-                                                                    20, 21, 22, 
-                                                                    23, 24, 25, 
-                                                                    26, 27, 28, 
-                                                                    29, 30))
+model_runs_dbh_filtered <- dplyr::filter(model_runs_dbh, !id %in% c(1, 2, 3, 
+                                                                    8, 10, 12, 
+                                                                    14, 16, 18, 
+                                                                    20, 22, 24,
+                                                                    26, 28, 30))
 
 ggplot(data = model_runs_dbh_filtered) +
   geom_bar(data = dbh_dist_field ,
@@ -214,13 +211,11 @@ ggplot(data = model_runs_nnd) +
   scale_color_viridis_d() +
   theme_classic()
 
-model_runs_nnd_filtered <- dplyr::filter(model_runs_nnd, !id %in% c(1, 2, 16,
-                                                                    6, 7, 8,11,
-                                                                    18, 19, 20,
-                                                                    21, 22, 23, 
-                                                                    24, 25, 26, 
-                                                                    27,28, 29, 
-                                                                    30))
+model_runs_nnd_filtered <- dplyr::filter(model_runs_nnd, !id %in% c(1, 2, 8, 
+                                                                    10, 12, 14, 
+                                                                    16, 18, 20,
+                                                                    22, 24, 26,
+                                                                    28, 30))
 
 ggplot(data = model_runs_nnd_filtered) + 
   geom_line(aes(x = r, y = nnd, col = factor(id))) + 
@@ -327,8 +322,12 @@ ggplot(model_runs_pcf) +
   scale_color_viridis_d() +
   theme_classic()
 
-model_runs_pcf_filtered <- dplyr::filter(model_runs_pcf, id %in% 
-                                           unique(model_runs_dbh_filtered$id))
+model_runs_pcf_filtered <- dplyr::filter(model_runs_pcf, !id %in% c(1, 2, 3, 
+                                                                    4, 5, 7, 9, 
+                                                                    11, 13, 15, 
+                                                                    17, 19, 21, 
+                                                                    23, 25, 27, 
+                                                                    29, 30))
 
 ggplot(model_runs_pcf_filtered) + 
   geom_line(aes(x = r, y = pcf, col = factor(id))) + 
@@ -338,3 +337,11 @@ ggplot(model_runs_pcf_filtered) +
   facet_wrap(~ size) +
   scale_color_viridis_d() +
   theme_classic()
+
+id_pcf <- unique(model_runs_pcf_filtered$id)
+
+x <- dplyr::intersect(x = dplyr::intersect(x = id_pcf, y = id_nnd), y = id_dbh)
+
+dplyr::select(model_runs_sigma[[x]], sigma, probs)
+# sigma = 15, 
+# probs = 0.25/0.75

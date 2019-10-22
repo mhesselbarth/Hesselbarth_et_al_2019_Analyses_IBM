@@ -20,7 +20,7 @@ pattern_1999_recon <- readr::read_rds("Data/Input/beech_1999_rec_ppp.rds")
 
 pattern_1999 <- readr::read_rds("Data/Raw/pattern_1999_ppp.rds")
 
-abiotic_habitats_real <- readr::read_rds("Data/Input/abiotic_cond_real.rds")
+abiotic_habitats_real <- readr::read_rds("Data/Input/abiotic_cond_real_model.rds")
 
 abiotic_habitats_reco <- readr::read_rds("Data/Input/abiotic_cond_reco.rds")
 
