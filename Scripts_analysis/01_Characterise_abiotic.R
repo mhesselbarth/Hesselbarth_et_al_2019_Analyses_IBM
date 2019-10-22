@@ -12,7 +12,6 @@
 
 # load packages #
 source("Helper_functions/helper_functions_setup.R")
-source("Helper_functions/helper_functions_abiotic_conditions.R")
 
 # import data  #
 beech_1999_ppp <- readr::read_rds("Data/Input/beech_1999_ppp.rds")
@@ -39,7 +38,7 @@ beech_1999_ppp <- spatstat::subset.ppp(beech_1999_ppp, dbh_99 > 10)
 habitat_im <- spatstat::density.ppp(beech_1999_ppp, at = "pixel", 
                                     weights = beech_1999_ppp$marks$dbh_99, 
                                     dimyx = c(645, 609),
-                                    kernel = "epanechnikov", sigma = 40)
+                                    kernel = "epanechnikov", sigma = 5)
 
 # number of rows added at edges #
 n_rows <- 3
@@ -133,7 +132,7 @@ beech_1999_rec_ppp <- spatstat::subset.ppp(beech_1999_rec_ppp, dbh > 10)
 habitat_im <- spatstat::density.ppp(beech_1999_rec_ppp, at = "pixel", 
                                     weights = beech_1999_rec_ppp$marks$dbh, 
                                     dimyx = c(645, 609),
-                                    kernel = "epanechnikov", sigma = 40)
+                                    kernel = "epanechnikov", sigma = 5)
 
 # number of rows added at edges #
 n_rows <- 3

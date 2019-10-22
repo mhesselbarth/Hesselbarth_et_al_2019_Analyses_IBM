@@ -13,15 +13,15 @@
 source("Helper_functions/helper_functions_setup.R")
 
 # import helper function for fitting
-# Rcpp::sourceCpp("Helper_functions/rcpp_calculate_actual_abiotic.cpp", 
-#                 embeddedR = FALSE)
+Rcpp::sourceCpp("Helper_functions/rcpp_calculate_actual_abiotic.cpp",
+                embeddedR = FALSE)
 
 # read paramters #
 parameters_default_abiotic <- rabmp::read_parameters("Data/Input/parameters_fitted_biotic.txt", 
                                                      sep = ";")
 
 # set growth biotic parameter to 1
-parameters_default_abiotic$growth_abiotic <- 1
+parameters_default_abiotic$growth_abiotic <- 0
 
 # import data  #
 abiotic_conditions <- readr::read_rds("Data/Input/abiotic_cond_real.rds")
@@ -114,13 +114,13 @@ broom::tidy(fitted_fun_actual)
 # A tibble: 3 x 2
 # parameter   value
 # <chr>       <dbl>
-# parameter1  1.08
-# parameter2  0.437  
-# parameter3  0.00835
+# parameter1  1.27 
+# parameter2  0.440  
+# parameter3  -0.0543
 
 fitted_fun_actual$value
 # $value
-# [1] 688.8405
+# [1] 685.4118
 
 # ci <- rabmp:::rcpp_calculate_ci(matrix = as.matrix(beech_2013_df[, c("x", "y", 
 #                                                                      "dbh_99")]),
