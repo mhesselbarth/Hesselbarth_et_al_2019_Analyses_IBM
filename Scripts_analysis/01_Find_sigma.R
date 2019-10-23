@@ -60,7 +60,7 @@ model_runs_sigma <- suppoRt::submit_to_cluster(explore_sigma,
                                                template = list(job_name = "systematic",
                                                                walltime = "02:00:00",
                                                                queue = "medium",
-                                                               service = "normal",
+                                                               service = "short",
                                                                mem_cpu = "2048",
                                                                log_file = "systematic.log"))
 
