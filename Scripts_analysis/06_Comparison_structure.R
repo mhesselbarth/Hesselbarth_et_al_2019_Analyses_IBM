@@ -15,8 +15,8 @@ source("Helper_functions/helper_functions_comparison_structure.R")
 pattern_2007 <- readr::read_rds("Data/Raw/pattern_2007_ppp.rds")
 pattern_2013 <- readr::read_rds("Data/Raw/pattern_2013_ppp.rds")
 
-model_run_y50_e5_r50_biotic <- readr::read_rds("Data/Output/model_runs/model_run_y50_e5_r50_real_b.rds")[1:10]
-model_run_y50_e5_r50_abiotic <- readr::read_rds("Data/Output/model_runs/model_run_y50_e5_r50_real_a.rds")[1:10]
+model_run_y50_e5_r50_biotic <- readr::read_rds("Data/Output/model_runs/model_run_y50_e5_r50_real_b.rds")
+model_run_y50_e5_r50_abiotic <- readr::read_rds("Data/Output/model_runs/model_run_y50_e5_r50_real_a.rds")
 
 #### Preprocess data ####
 
