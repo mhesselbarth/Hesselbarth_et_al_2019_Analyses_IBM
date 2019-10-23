@@ -11,15 +11,7 @@
 #### Import libraries and data ####
 
 # load packages #
-library(patchwork)
-library(quantreg)
-library(rabmp)
-library(Rcpp)
-library(suppoRt) # devtools::install_github("mhesselbarth/suppoRt")
-library(spatstat)
-library(tidyverse)
-
-base_size <- 10
+source("Helper_functions/helper_functions_setup.R")
 
 Rcpp::sourceCpp("Helper_functions/rcpp_calculate_actual_biotic.cpp", 
                 embeddedR = FALSE)
@@ -94,11 +86,6 @@ fun_potential <- function(dbh, assymp, rate, infl) {
 # set starting functions adapted from Pommerening, A., Maleki, K., 2014. #
 # Differences between competition kernels and traditional size-ratio based #
 # competition indices used in forest ecology. For. Ecol. Manage. 331, 135-143. #
-
-# start_values_potential <- list(assymp = parameters_default$growth_assymp, 
-#                                rate = parameters_default$growth_rate, 
-#                                infl = parameters_default$growth_infl)
-
 start_values_potential <- list(assymp = 120, # max(beech_2013$dbh_99) 
                                rate = 0.005, # median(beech_2013$growth_full) / 14
                                infl = 1.5) # Try and error
@@ -161,10 +148,6 @@ fun_actual <- function(df, par) {
 # competition indices used in forest ecology. For. Ecol. Manage. 331, 135-143. #
 start_values_actual <- c(parameters_default$ci_alpha,
                          parameters_default$ci_beta)
-
-# start_values_actual <- c(parameters_default$ci_alpha,
-#                          parameters_default$ci_beta,
-#                          parameters_default$growth_mod)
 
 # fit fun #
 fitted_fun_actual <- optim(par = start_values_actual,
@@ -230,8 +213,6 @@ parameters_fitted$seed_success <- default
 write.table(parameters_fitted, row.names = FALSE, sep = ";")
 
 #### Save plots #### 
-overwrite <- FALSE
-
 ggplot_fitting_growth <- ggplot_fitting_potential + ggplot_fitting_actual + 
   patchwork::plot_annotation(tag_levels = "a", tag_suffix = ")")
 
@@ -240,15 +221,3 @@ suppoRt::save_ggplot(plot = ggplot_fitting_growth,
                      filename = "ggplot_fitting_growth.png", 
                      dpi = 300, height = 10, width = 21.0, units = "cm", 
                      overwrite = overwrite)
-
-# suppoRt::save_ggplot(plot = ggplot_fitting_dbh_growth, 
-#                      path = "Figures/Appendix",
-#                      filename = "ggplot_fitting_dbh_growth.png", 
-#                      dpi = 300, height = 10, width = 12.5, units = "cm", 
-#                      overwrite = overwrite)
-# 
-# suppoRt::save_ggplot(plot = ggplot_fitting_actual, 
-#                      path = "Figures/",
-#                      filename = "ggplot_fitting_actual.png", 
-#                      dpi = 300, height = 10, width = 12.5, units = "cm", 
-#                      overwrite = overwrite)

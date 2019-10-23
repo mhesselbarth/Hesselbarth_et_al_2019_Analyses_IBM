@@ -9,10 +9,7 @@
 #### Results reconstruct input pattern ####
 
 #### Import libraries and data ####
-library(onpoint) # devtools::install_github("r-spatialecology/onpoint")
-library(suppoRt) # devtools::install_github("mhesselbarth/suppoRt")
-library(spatstat)
-library(tidyverse)
+source("Helper_functions/helper_functions_setup.R")
 
 #### import data ####
 pattern_1999 <- readr::read_rds("Data/Raw/pattern_1999_ppp.rds")

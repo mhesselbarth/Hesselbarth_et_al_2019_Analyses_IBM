@@ -10,12 +10,18 @@
 library(data.table)
 library(magrittr)
 library(landscapemetrics)
+library(onpoint)
+library(patchwork)
+library(quantreg)
 library(rabmp)
 library(raster)
 library(Rcpp)
+library(sensitivity)
+library(shar)
 library(suppoRt) # devtools::install_github("mhesselbarth/suppoRt")
 library(spatstat)
 library(tidyverse)
+
 
 # set parapemters plotting #
 overwrite <- FALSE

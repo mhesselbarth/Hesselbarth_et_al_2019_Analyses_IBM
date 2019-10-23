@@ -11,19 +11,14 @@
 #### Import libraries and data ####
 
 # load packages #
-library(suppoRt) # devtools::install_github("mhesselbarth/suppoRt")
-library(rabmp)
-library(sensitivity)
-library(spatstat)
-library(tidyverse)
+source("Helper_functions/helper_functions_setup.R")
+source("Helper_functions/helper_functions_sa.R")
 
 # import data #
 parameters_beech_fitted <- rabmp::read_parameters("Data/Input/parameters_fitted_biotic.txt", 
                                                   sep = ";")
 
 pattern_1999 <- readr::read_rds("Data/Raw/pattern_1999_ppp.rds")
-
-source("Helper_functions/helper_functions_sa.R")
 
 #### Set SA parameters ####
 repetitions <- 50 # 25

@@ -451,6 +451,6 @@ ggplot_ci <- ggplot(data = ci_overall_model) +
 suppoRt::save_ggplot(plot = ggplot_ci, 
                      filename = "ggplot_ci.png", 
                      path = "Figures/", 
-                     dpi = 300, 
+                     dpi = dpi, 
                      width = width_full, height = height_small, units = units, 
                      overwrite = overwrite)

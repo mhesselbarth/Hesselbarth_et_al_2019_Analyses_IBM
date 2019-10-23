@@ -9,7 +9,6 @@
 #### Fit model parameters ####
 
 #### Import libraries and data ####
-
 source("Helper_functions/helper_functions_setup.R")
 
 # import helper function for fitting
@@ -122,24 +121,6 @@ fitted_fun_actual$value
 # $value
 # [1] 685.4118
 
-# ci <- rabmp:::rcpp_calculate_ci(matrix = as.matrix(beech_2013_df[, c("x", "y", 
-#                                                                      "dbh_99")]),
-#                                 alpha = fitted_fun_actual$par[[1]],
-#                                 beta = fitted_fun_actual$par[[2]],
-#                                 max_dist = 30)
-# 
-# beech_2013_df <- dplyr::mutate(beech_2013_df, ci = ci)
-# 
-# ggplot_fitting_actual <- ggplot(beech_2013_df) +
-#   geom_point(aes(x = dbh_99, y = growth_full, col = ci), pch = 1,  size = 2) + 
-#   geom_line(aes(x = dbh_99, y = growth_pot), size = 1) +
-#   scale_x_continuous(name = "DBH [cm]") +
-#   scale_y_continuous(name = "Mean annual growth [cm]", limits = c(0, 1.25)) +
-#   scale_color_viridis_c(name = "CI", option = "A") +
-#   theme_classic(base_size = 15) + 
-#   theme(legend.position = "bottom", 
-#         legend.key.width = unit(1.5, "cm"))
-
 #### Fit abiotic seed dispersal ####
 # Olesen, C.R., Madsen, P., 2008. The impact of roe deer (Capreolus capreolus),
 # seedbed, light and seed fall on natural beech (Fagus sylvatica) regeneration.
@@ -190,27 +171,6 @@ parameters_fitted_abiotic$mort_int_late_high <- -7.8
 parameters_fitted_abiotic$mort_dbh_late_low <- 0.033
 parameters_fitted_abiotic$mort_dbh_late_high <- 0.070
 
+#### Write parameters ####
 write.table(parameters_fitted_abiotic, row.names = FALSE, sep = ";")
-
-#### Save plots #### 
-# overwrite <- FALSE
-# 
-# suppoRt::save_ggplot(plot = ggplot_fitting_dbh_growth, 
-#                      path = "Figures/Appendix",
-#                      filename = "ggplot_fitting_dbh_growth.png", 
-#                      dpi = 300, height = 10, width = 12.5, units = "cm", 
-#                      overwrite = overwrite)
-# 
-# suppoRt::save_ggplot(plot = ggplot_fitting_potential, 
-#                      path = "Figures/Appendix",
-#                      filename = "ggplot_fitting_potential.png", 
-#                      dpi = 300, height = 10, width = 12.5, units = "cm", 
-#                      overwrite = overwrite)
-# 
-# suppoRt::save_ggplot(plot = ggplot_fitting_actual, 
-#                      path = "Figures/Appendix",
-#                      filename = "ggplot_fitting_actual.png", 
-#                      dpi = 300, height = 10, width = 12.5, units = "cm", 
-#                      overwrite = overwrite)
-
 

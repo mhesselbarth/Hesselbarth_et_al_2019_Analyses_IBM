@@ -9,10 +9,7 @@
 #### Reconstruct input pattern ####
 
 #### load packages ####
-library(shar) # devtools::install_github("r-spatialecology/shar")
-library(suppoRt) # devtools::install_github("mhesselbarth/suppoRt")
-library(spatstat)
-library(tidyverse)
+source("Helper_functions/helper_functions_setup.R")
 
 #### import data ####
 pattern_1999 <- readr::read_rds("Data/Raw/pattern_1999_ppp.rds")
@@ -43,16 +40,6 @@ shar::plot_randomized_pattern(pattern = beech_1999_rec_rd_mar, ask = FALSE)
 suppoRt::save_rds(object = beech_1999_rec_rd_mar, 
                   filename = "beech_1999_rec_rd_mar.rds", 
                   path = "Data/Input/")
-
-# # just to compare
-# beech_1999_fit <- shar::fit_point_process(pattern = beech_1999, 
-#                                           n_random = 1, 
-#                                           process = "cluster")
-# 
-# print(beech_1999_fit)
-# shar::calculate_energy(beech_1999_fit, return_mean = TRUE)
-# shar::plot_energy(pattern = beech_1999_fit)
-# shar::plot_randomized_pattern(pattern = beech_1999_fit, ask = FALSE)
 
 # get only randomized pattern 
 beech_1999_rec_ppp <- beech_1999_rec$randomized[[1]]
