@@ -32,6 +32,69 @@ plot_area <- readr::read_rds("Data/Raw/plot_area_owin.rds")
 beech_2007_df <- tibble::as_tibble(beech_2007_ppp)
 beech_2013_df <- tibble::as_tibble(beech_2013_ppp)
 
+#### number of living trees ####
+model_runs_n <- purrr::map(seq_along(model_runs_sigma), function(x) {
+  
+  # get living trees of last time step
+  temp_data <- dplyr::filter(model_runs_sigma[[x]], 
+                             i == max(i), type != "dead") %>% 
+    dplyr::group_by(type) %>% 
+    dplyr::summarise(n = dplyr::n())
+})
+
+model_runs_n <- dplyr::bind_rows(model_runs_n, .id = "id") %>% 
+  dplyr::mutate(id = as.integer(id))
+
+n_2007 <- dplyr::filter(beech_2007_df, 
+                        type != "dead", !is.na(dbh_07), inside_fence == 0) %>% 
+  dplyr::mutate(type = dplyr::case_when(dbh_07 > 1 & dbh_07 <= 10 ~ "sapling", 
+                                        dbh_07 > 10 ~  "adult")) %>% 
+  dplyr::group_by(type) %>% 
+  dplyr::summarise(n = dplyr::n()) %>% 
+  dplyr::mutate(data_type = "Field data 2007")
+
+n_2013 <- dplyr::filter(beech_2013_df, 
+                        type != "dead", !is.na(dbh_13), inside_fence == 0) %>% 
+  dplyr::mutate(type = dplyr::case_when(dbh_13 > 1 & dbh_13 <= 10 ~ "sapling", 
+                                        dbh_13 > 10 ~  "adult")) %>% 
+  dplyr::group_by(type) %>% 
+  dplyr::summarise(n = dplyr::n()) %>% 
+  dplyr::mutate(data_type = "Field data 2013")
+
+n_field <- dplyr::bind_rows(n_2007,
+                            n_2013)
+
+ggplot(data = model_runs_n) +
+  geom_bar(data = n_field ,
+           aes(x = type, y = n, fill = data_type),
+           position = position_dodge(), stat = "identity") +
+  geom_point(aes(x = type, y = n), pch = "-", 
+             size = 5, col = "red") +
+  scale_fill_viridis_d(name = "", option = "D") +
+  facet_wrap( ~ id) + 
+  theme_classic() + 
+  theme(legend.position = "bottom", 
+        legend.key.width = unit(0.5, units = "cm"))
+
+model_runs_n_filtered <- dplyr::filter(model_runs_n, !id %in% c(1, 2, 3, 8, 10, 
+                                                                12, 14, 16, 18, 
+                                                                20, 22, 24, 26, 
+                                                                28, 30))
+
+ggplot(data = model_runs_n_filtered) +
+  geom_bar(data = n_field ,
+           aes(x = type, y = n, fill = data_type),
+           position = position_dodge(), stat = "identity") +
+  geom_point(aes(x = type, y = n), pch = "-", 
+             size = 5, col = "red") +
+  scale_fill_viridis_d(name = "", option = "D") +
+  facet_wrap( ~ id) + 
+  theme_classic() + 
+  theme(legend.position = "bottom", 
+        legend.key.width = unit(0.5, units = "cm"))
+
+id_n <- unique(model_runs_dbh_filtered$id)
+
 ##### DBH dist ####
 by <- 10
 
@@ -203,11 +266,11 @@ nnd_overall_field <- dplyr::bind_rows(nnd_2007_sapling,
                                                     "Field data 2013")),
                 size_field = factor(size, levels = c("saplings", "adults")))
 
-ggplot(data = model_runs_nnd) + 
-  geom_line(aes(x = r, y = nnd, col = factor(id))) + 
-  geom_line(data = nnd_overall_field, 
+ggplot(data = dplyr::filter(model_runs_nnd, size == "saplings")) + 
+  geom_line(aes(x = r, y = nnd)) + 
+  geom_line(data = dplyr::filter(nnd_overall_field, size == "saplings"),
             aes(x = r, y = nnd, linetype = data_type_field)) +
-  facet_wrap(~ size) +
+  facet_wrap(~ id) +
   scale_color_viridis_d() +
   theme_classic()
 
@@ -217,11 +280,11 @@ model_runs_nnd_filtered <- dplyr::filter(model_runs_nnd, !id %in% c(1, 2, 8,
                                                                     22, 24, 26,
                                                                     28, 30))
 
-ggplot(data = model_runs_nnd_filtered) + 
-  geom_line(aes(x = r, y = nnd, col = factor(id))) + 
-  geom_line(data = nnd_overall_field, 
+ggplot(data = dplyr::filter(model_runs_nnd_filtered, size == "saplings")) + 
+  geom_line(aes(x = r, y = nnd)) + 
+  geom_line(data = dplyr::filter(nnd_overall_field, size == "saplings"),
             aes(x = r, y = nnd, linetype = data_type_field)) +
-  facet_wrap(~ size) +
+  facet_wrap(~ id) +
   scale_color_viridis_d() +
   theme_classic()
 
@@ -313,12 +376,12 @@ pcf_overall_field <- dplyr::bind_rows(pcf_2007_sapling,
                                                     "Field data 2013")),
                 size_field = factor(size, levels = c("saplings", "adults")))
 
-ggplot(model_runs_pcf) + 
-  geom_line(aes(x = r, y = pcf, col = factor(id))) + 
-  geom_line(data = pcf_overall_field, 
+ggplot(dplyr::filter(model_runs_pcf, size == "saplings")) + 
+  geom_line(aes(x = r, y = pcf), col = "#21908CFF") + 
+  geom_line(data = dplyr::filter(pcf_overall_field, size == "saplings"),
             aes(x = r, y = pcf, linetype = data_type_field)) +
   geom_hline(yintercept = 1, linetype = 2) +
-  facet_wrap(~ size) +
+  facet_wrap(~ id) +
   scale_color_viridis_d() +
   theme_classic()
 
@@ -327,20 +390,24 @@ model_runs_pcf_filtered <- dplyr::filter(model_runs_pcf, !id %in% c(1, 2, 3,
                                                                     11, 13, 15, 
                                                                     17, 19, 21, 
                                                                     23, 25, 27, 
-                                                                    29, 30))
+                                                                    29))
 
-ggplot(model_runs_pcf_filtered) + 
-  geom_line(aes(x = r, y = pcf, col = factor(id))) + 
-  geom_line(data = pcf_overall_field, 
+ggplot(dplyr::filter(model_runs_pcf_filtered, size == "saplings")) + 
+  geom_line(aes(x = r, y = pcf), col = "#21908CFF") + 
+  geom_line(data = dplyr::filter(pcf_overall_field, size == "saplings"),
             aes(x = r, y = pcf, linetype = data_type_field)) +
   geom_hline(yintercept = 1, linetype = 2) +
-  facet_wrap(~ size) +
+  facet_wrap(~ id) +
   scale_color_viridis_d() +
   theme_classic()
 
 id_pcf <- unique(model_runs_pcf_filtered$id)
 
-x <- dplyr::intersect(x = dplyr::intersect(x = id_pcf, y = id_nnd), y = id_dbh)
+
+#### Find common x
+x <- dplyr::intersect(x = dplyr::intersect(x = dplyr::intersect(x = id_pcf,
+                                                                y = id_nnd), 
+                                           y = id_dbh), y = id_n)
 
 dplyr::select(model_runs_sigma[[x]], sigma, probs)
 # sigma = 15, 
