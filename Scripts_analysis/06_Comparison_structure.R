@@ -12,8 +12,8 @@
 source("Helper_functions/helper_functions_setup.R")
 source("Helper_functions/helper_functions_comparison_structure.R")
 
-pattern_2007 <- readr::read_rds("Data/Raw/pattern_2007_ppp.rds")
-pattern_2013 <- readr::read_rds("Data/Raw/pattern_2013_ppp.rds")
+pattern_2007 <- readr::read_rds("Data/Input/beech_2007_ppp.rds")
+pattern_2013 <- readr::read_rds("Data/Input/beech_2013_ppp.rds")
 
 model_run_y50_e5_r50_biotic <- readr::read_rds("Data/Output/model_runs/model_run_y50_e5_r50_real_b.rds")
 model_run_y50_e5_r50_abiotic <- readr::read_rds("Data/Output/model_runs/model_run_y50_e5_r50_real_a.rds")
@@ -33,6 +33,14 @@ df_2007 <- tibble::as_tibble(pattern_2007) %>%
 df_2013 <- tibble::as_tibble(pattern_2013) %>% 
   dplyr::filter(species == "beech", 
                 dbh_13 > 1, inside_fence == 0)
+
+#### Number of individuals ####
+
+individual_biotic <- calc_n_comp(model_run_y50_e5_r50_biotic)
+individual_abiotic <- calc_n_comp(model_run_y50_e5_r50_abiotic)
+
+individual_2007 <- nrow(df_2007)
+individual_2013 <- nrow(df_2013)
 
 #### DBH distribution ####
 by_dist <- 10
@@ -87,12 +95,18 @@ dbh_dist_overall <- dplyr::bind_rows(dbh_dist_model_biotic,
                                               "Abiotic model", 
                                               "Field data 2007",
                                               "Field data 2013")), 
-                dbh_class = factor(dbh_class, ordered = TRUE))
+                dbh_class = factor(dbh_class, ordered = TRUE), 
+                n_rel_sd = dplyr::case_when(n_rel_sd != 0 ~ n_rel_sd, 
+                                            n_rel_sd == 0 ~ -1))
 
 ggplot_dbh_dist <- ggplot(data = dbh_dist_overall) + 
   geom_bar(aes(x = dbh_class, y = n_rel_mean * 100, fill = data_type), 
            position = position_dodge(), stat = "identity") +
-  scale_fill_viridis_d(name = "", option = "D") + 
+  geom_errorbar(aes(x = dbh_class, group = data_type,
+                    ymin = (n_rel_mean - n_rel_sd) * 100, 
+                    ymax = (n_rel_mean + n_rel_sd) * 100),
+                width = 0.5, position = position_dodge(0.9)) +
+  scale_fill_viridis_d(name = "", option = "C") + 
   scale_x_discrete(name = "dbh class [cm]",
                    breaks = seq(from = 1, 
                                 to = as.numeric(max(dbh_dist_overall$dbh_class)), 
@@ -101,8 +115,8 @@ ggplot_dbh_dist <- ggplot(data = dbh_dist_overall) +
                                             to = as.numeric(max(dbh_dist_overall$dbh_class)), 
                                             by = 1) * by_dist)) +
   scale_y_continuous(name = "Relative frequency [%]",
-                     breaks = seq(from = 0, to = 60, by = 10),
-                     limits = c(0, 60)) +
+                     breaks = seq(from = 0, to = 65, by = 10),
+                     limits = c(0, 65)) +
   theme_classic(base_size = base_size) + 
   theme(legend.position = "bottom", 
         legend.key.width = unit(0.5, units = "cm"))
@@ -175,7 +189,7 @@ ggplot_growth <- ggplot(data = dbh_growth_overall) +
                    middle = inc_median,  
                    upper = inc_high, ymax = inc_max), 
                stat = "identity") + 
-  scale_fill_viridis_d(name = "") +
+  scale_fill_viridis_d(name = "", option = "C") +
   scale_x_discrete(name = "dbh class [cm]",
                    breaks = seq(from = 1, 
                                 to = as.numeric(max(dbh_growth_overall$dbh_class)), 
@@ -195,5 +209,3 @@ suppoRt::save_ggplot(plot = ggplot_growth,
                      dpi = dpi, 
                      width = width_small, height = height_small, units = units, 
                      overwrite = overwrite)
-
-

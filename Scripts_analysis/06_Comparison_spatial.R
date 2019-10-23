@@ -12,11 +12,16 @@
 source("Helper_functions/helper_functions_setup.R")
 source("Helper_functions/helper_functions_comparison_spatial.R")
 
-pattern_2007 <- readr::read_rds("Data/Raw/pattern_2007_ppp.rds")
-pattern_2013 <- readr::read_rds("Data/Raw/pattern_2013_ppp.rds")
+beech_2007_ppp <- readr::read_rds("Data/Input/beech_2007_ppp.rds")
+beech_2007_sapling_ppp <- readr::read_rds("Data/Input/beech_2007_sapling_ppp.rds")
+beech_2007_adult_ppp <- readr::read_rds("Data/Input/beech_2007_adult_ppp.rds")
 
-model_run_y50_e5_r50_biotic <- readr::read_rds("Data/Output/model_runs/model_run_y50_e5_r50_real_b.rds")[1:10]
-model_run_y50_e5_r50_abiotic <- readr::read_rds("Data/Output/model_runs/model_run_y50_e5_r50_real_a.rds")[1:10]
+beech_2013_ppp <- readr::read_rds("Data/Input/beech_2013_ppp.rds")
+beech_2013_sapling_ppp <- readr::read_rds("Data/Input/beech_2013_sapling_ppp.rds")
+beech_2013_adult_ppp <- readr::read_rds("Data/Input/beech_2013_adult_ppp.rds")
+
+model_run_y50_e5_r50_biotic <- readr::read_rds("Data/Output/model_runs/model_run_y50_e5_r50_real_b.rds")
+model_run_y50_e5_r50_abiotic <- readr::read_rds("Data/Output/model_runs/model_run_y50_e5_r50_real_a.rds")
 
 window <- readr::read_rds("Data/Raw/plot_area_owin.rds")
 
@@ -53,20 +58,6 @@ model_run_y50_e5_r50_abiotic_adult <- purrr::map(model_run_y50_e5_r50_abiotic,
                                                  function(x) 
                                                    dplyr::filter(x, type == "adult"))
 
-pattern_2007_sapling <- spatstat::subset.ppp(pattern_2007, 
-                                             dbh_07 > 1 & dbh_07 <= 10 & 
-                                               inside_fence == 0)
-
-pattern_2007_adult <- spatstat::subset.ppp(pattern_2007, dbh_07 > 10 & 
-                                             inside_fence == 0)
-
-pattern_2013_sapling <- spatstat::subset.ppp(pattern_2013, 
-                                             dbh_13 > 1 & dbh_13 <= 10 & 
-                                               inside_fence == 0)
-
-pattern_2013_adult <- spatstat::subset.ppp(pattern_2013, dbh_13 > 10 & 
-                                             inside_fence == 0)
-
 #### Nearest-neighbor distribution function ####
 r_nnd <- seq(from = 0, to = 10, length.out = 525)
 correction_nnd <- "km"
@@ -96,7 +87,7 @@ nnd_model_abiotic_adult <- calc_nnd_comp(data = model_run_y50_e5_r50_abiotic_adu
   dplyr::mutate(data_type_model = "Abiotic model", 
                 size_model = "Adult")
 
-nnd_2007_sapling <- spatstat::subset.ppp(pattern_2007_sapling, 
+nnd_2007_sapling <- spatstat::subset.ppp(beech_2007_sapling_ppp, 
                                          inside_fence == 0 & type != "dead") %>% 
   spatstat::Gest(r = r_nnd, correction = correction_nnd) %>% 
   tibble::as_tibble() %>% 
@@ -104,7 +95,7 @@ nnd_2007_sapling <- spatstat::subset.ppp(pattern_2007_sapling,
   dplyr::mutate(data_type_field = "Field data 2007", 
                 size_field = "Sapling")
 
-nnd_2007_adult <- spatstat::subset.ppp(pattern_2007_adult, 
+nnd_2007_adult <- spatstat::subset.ppp(beech_2007_adult_ppp, 
                                        inside_fence == 0 & type != "dead") %>% 
   spatstat::Gest(r = r_nnd, correction = correction_nnd) %>% 
   tibble::as_tibble() %>% 
@@ -112,7 +103,7 @@ nnd_2007_adult <- spatstat::subset.ppp(pattern_2007_adult,
   dplyr::mutate(data_type_field = "Field data 2007", 
                 size_field = "Adult")
 
-nnd_2013_sapling <- spatstat::subset.ppp(pattern_2013_sapling, 
+nnd_2013_sapling <- spatstat::subset.ppp(beech_2013_sapling_ppp, 
                                          inside_fence == 0 & type != "dead") %>% 
   spatstat::Gest(r = r_nnd, correction = correction_nnd) %>% 
   tibble::as_tibble() %>% 
@@ -120,7 +111,7 @@ nnd_2013_sapling <- spatstat::subset.ppp(pattern_2013_sapling,
   dplyr::mutate(data_type_field = "Field data 2013", 
                 size_field = "Sapling")
 
-nnd_2013_adult <- spatstat::subset.ppp(pattern_2013_adult, 
+nnd_2013_adult <- spatstat::subset.ppp(beech_2013_adult_ppp, 
                                        inside_fence == 0 & type != "dead") %>% 
   spatstat::Gest(r = r_nnd, correction = correction_nnd) %>% 
   tibble::as_tibble() %>% 
@@ -154,8 +145,8 @@ ggplot_nnd <- ggplot(data = nnd_overall_model) +
   geom_line(data = nnd_overall_field, 
             aes(x = r, y = km, col = size_field, linetype = data_type_field)) +
   facet_wrap(~ data_type_model) + 
-  scale_color_viridis_d(name = "") +
-  scale_fill_viridis_d(name = "") +
+  scale_color_viridis_d(name = "", option = "C") +
+  scale_fill_viridis_d(name = "", option = "C") +
   scale_linetype_manual(name = "", values = c(1, 2)) +
   labs(x = "r [m]", y = "G(r)") +
   theme_classic(base_size = base_size) + 
@@ -204,7 +195,7 @@ pcf_model_abiotic_adult <- calc_pcf_comp(data = model_run_y50_e5_r50_abiotic_adu
   dplyr::mutate(data_type_model = "Abiotic model", 
                 size_model = "Adult")
 
-pcf_2007_sapling <- spatstat::pcf(pattern_2007_sapling, 
+pcf_2007_sapling <- spatstat::pcf(beech_2007_sapling_ppp, 
                                   r = r_pcf, correction = correction_pcf, 
                                   divisor = divisor_pcf, stoyan = stoyan_pcf) %>% 
   tibble::as_tibble() %>% 
@@ -212,7 +203,7 @@ pcf_2007_sapling <- spatstat::pcf(pattern_2007_sapling,
   dplyr::mutate(data_type_field = "Field data 2007", 
                 size_field = "Sapling")
 
-pcf_2007_adult <- spatstat::pcf(pattern_2007_adult, 
+pcf_2007_adult <- spatstat::pcf(beech_2007_adult_ppp, 
                                 r = r_pcf, correction = correction_pcf, 
                                 divisor = divisor_pcf, stoyan = stoyan_pcf) %>% 
   tibble::as_tibble() %>% 
@@ -220,7 +211,7 @@ pcf_2007_adult <- spatstat::pcf(pattern_2007_adult,
   dplyr::mutate(data_type_field = "Field data 2007", 
                 size_field = "Adult")
 
-pcf_2013_sapling <- spatstat::pcf(pattern_2013_sapling, 
+pcf_2013_sapling <- spatstat::pcf(beech_2013_sapling_ppp, 
                                   r = r_pcf, correction = correction_pcf, 
                                   divisor = divisor_pcf, stoyan = stoyan_pcf) %>% 
   tibble::as_tibble() %>% 
@@ -228,7 +219,7 @@ pcf_2013_sapling <- spatstat::pcf(pattern_2013_sapling,
   dplyr::mutate(data_type_field = "Field data 2013", 
                 size_field = "Sapling")
 
-pcf_2013_adult <- spatstat::pcf(pattern_2013_adult, 
+pcf_2013_adult <- spatstat::pcf(beech_2013_adult_ppp, 
                                 r = r_pcf, correction = correction_pcf, 
                                 divisor = divisor_pcf, stoyan = stoyan_pcf) %>% 
   tibble::as_tibble() %>% 
@@ -262,8 +253,8 @@ ggplot_pcf <- ggplot(data = pcf_overall_model) +
             aes(x = r, y = pcf, col = size_field, linetype = data_type_field)) +
   geom_hline(yintercept = 1, linetype = 3, size = 0.25) +
   facet_wrap(~ data_type_model, scales = "free_y") +
-  scale_color_viridis_d(name = "") +
-  scale_fill_viridis_d(name = "") +
+  scale_color_viridis_d(name = "", option = "C") +
+  scale_fill_viridis_d(name = "", option = "C") +
   scale_linetype_manual(name = "", values = c(1, 2)) +
   labs(x = "r [m]", y = "g(r)") +
   theme_classic(base_size = base_size) + 
@@ -284,7 +275,7 @@ correction_kmm <- "Ripley"
 # calculate kmm #
 kmm_model_biotic_sapling <- calc_kmm_comp(data = model_run_y50_e5_r50_biotic_sapling,
                                           r = r_kmm, correction = correction_kmm,
-                                          window = window, stoyan = stoyan_kmm) %>% 
+                                          window = window) %>% 
   dplyr::mutate(data_type_model = "Biotic model", 
                 size_model = "Sapling")
 
@@ -306,7 +297,7 @@ kmm_model_abiotic_adult <- calc_kmm_comp(data = model_run_y50_e5_r50_abiotic_adu
   dplyr::mutate(data_type_model = "Abiotic model", 
                 size_model = "Adult")
 
-kmm_2007_sapling <- spatstat::markcorr(spatstat::subset.ppp(pattern_2007_sapling, 
+kmm_2007_sapling <- spatstat::markcorr(spatstat::subset.ppp(beech_2007_sapling_ppp, 
                                                             select = dbh_07), 
                                        r = r_kmm, correction = correction_kmm) %>% 
   tibble::as_tibble() %>% 
@@ -314,7 +305,7 @@ kmm_2007_sapling <- spatstat::markcorr(spatstat::subset.ppp(pattern_2007_sapling
   dplyr::mutate(data_type_field = "Field data 2007", 
                 size_field = "Sapling")
 
-kmm_2007_adult <- spatstat::markcorr(spatstat::subset.ppp(pattern_2007_adult, 
+kmm_2007_adult <- spatstat::markcorr(spatstat::subset.ppp(beech_2007_adult_ppp, 
                                                           select = dbh_07), 
                                      r = r_kmm, correction = correction_kmm) %>% 
   tibble::as_tibble() %>% 
@@ -322,7 +313,7 @@ kmm_2007_adult <- spatstat::markcorr(spatstat::subset.ppp(pattern_2007_adult,
   dplyr::mutate(data_type_field = "Field data 2007", 
                 size_field = "Adult")
 
-kmm_2013_sapling <- spatstat::markcorr(spatstat::subset.ppp(pattern_2013_sapling, 
+kmm_2013_sapling <- spatstat::markcorr(spatstat::subset.ppp(beech_2013_sapling_ppp, 
                                                             select = dbh_13), 
                                        r = r_kmm, correction = correction_kmm) %>% 
   tibble::as_tibble() %>% 
@@ -330,7 +321,7 @@ kmm_2013_sapling <- spatstat::markcorr(spatstat::subset.ppp(pattern_2013_sapling
   dplyr::mutate(data_type_field = "Field data 2013", 
                 size_field = "Sapling")
 
-kmm_2013_adult <- spatstat::markcorr(spatstat::subset.ppp(pattern_2013_adult, 
+kmm_2013_adult <- spatstat::markcorr(spatstat::subset.ppp(beech_2013_adult_ppp, 
                                                           select = dbh_13), 
                                      r = r_kmm, correction = correction_kmm) %>% 
   tibble::as_tibble() %>% 
@@ -364,8 +355,8 @@ ggplot_kmm <- ggplot(data = kmm_overall_model) +
             aes(x = r, y = kmm, col = size_field, linetype = data_type_field)) +
   geom_hline(yintercept = 1, linetype = 3, size = 0.25) +
   facet_wrap(~ data_type_model, scales = "free_y") + 
-  scale_color_viridis_d(name = "") +
-  scale_fill_viridis_d(name = "") +
+  scale_color_viridis_d(name = "", option = "C") +
+  scale_fill_viridis_d(name = "", option = "C") +
   scale_linetype_manual(name = "", values = c(1, 2)) +
   coord_cartesian(ylim = c(0.5, 1.75)) +
   labs(x = "r [m]", y = "kmm(r)") +
@@ -380,24 +371,37 @@ suppoRt::save_ggplot(plot = ggplot_kmm,
                      width = width_full, height = height_small, units = units,
                      overwrite = overwrite)
 
-
 #### CI index ####
 from_ci <- 0.25
 to_ci <- 1
 
-ci_model_biotic <- calc_ci_comp(data = model_run_y50_e5_r50_biotic, 
+ci_model_biotic_sapling <- calc_ci_comp(data = model_run_y50_e5_r50_biotic_sapling, 
                                 parameters = parameters_fitted_biotic, 
                                 from = from_ci, to = to_ci) %>% 
-  dplyr::mutate(data_type_model = "Biotic model")
+  dplyr::mutate(data_type_model = "Biotic model", 
+                size_model = "Sapling")
 
-ci_model_abiotic <- calc_ci_comp(data = model_run_y50_e5_r50_abiotic, 
-                                 parameters = parameters_fitted_abiotic, 
-                                 from = from_ci, to = to_ci) %>% 
-  dplyr::mutate(data_type_model = "Abiotic model")
+ci_model_biotic_adult <- calc_ci_comp(data = model_run_y50_e5_r50_biotic_adult, 
+                                        parameters = parameters_fitted_biotic, 
+                                        from = from_ci, to = to_ci) %>% 
+  dplyr::mutate(data_type_model = "Biotic model", 
+                size_model = "Adult")
 
-ci_2007 <- spatstat::subset.ppp(pattern_2007, 
-                                inside_fence == 0 & type != "dead", 
-                                select = dbh_07) %>%
+ci_model_abiotic_sapling <- calc_ci_comp(data = model_run_y50_e5_r50_abiotic_sapling, 
+                                         parameters = parameters_fitted_abiotic, 
+                                         from = from_ci, to = to_ci) %>% 
+  dplyr::mutate(data_type_model = "Abiotic model", 
+                size_model = "Sapling")
+
+ci_model_abiotic_adult <- calc_ci_comp(data = model_run_y50_e5_r50_abiotic_adult, 
+                                       parameters = parameters_fitted_abiotic, 
+                                       from = from_ci, to = to_ci) %>% 
+  dplyr::mutate(data_type_model = "Abiotic model", 
+                size_model = "Adult")
+
+ci_2007_sapling <- spatstat::subset.ppp(beech_2007_sapling_ppp, 
+                                        inside_fence == 0 & type != "dead", 
+                                        select = dbh_07) %>%
   data.table::as.data.table() %>% 
   as.matrix() %>% 
   rabmp:::rcpp_calculate_ci(alpha = parameters_fitted_biotic$ci_alpha,
@@ -405,12 +409,14 @@ ci_2007 <- spatstat::subset.ppp(pattern_2007,
                             max_dist = parameters_fitted_biotic$ci_max_dist) %>% 
   density(from = from_ci, to = to_ci, n = 512)
 
-ci_2007 <- tibble::tibble(x = ci_2007$x, y = ci_2007$y) %>% 
-  dplyr::mutate(data_type_field = "Field data 2007")
+ci_2007_sapling <- tibble::tibble(x = ci_2007_sapling$x, 
+                                  y = ci_2007_sapling$y) %>% 
+  dplyr::mutate(data_type_field = "Field data 2007", 
+                size_field = "Sapling")
 
-ci_2013 <- spatstat::subset.ppp(pattern_2013, 
-                                inside_fence == 0 & type != "dead" & !is.na(dbh_13), 
-                                select = dbh_13) %>% 
+ci_2007_adult <- spatstat::subset.ppp(beech_2007_adult_ppp, 
+                                      inside_fence == 0 & type != "dead", 
+                                      select = dbh_07) %>%
   data.table::as.data.table() %>% 
   as.matrix() %>% 
   rabmp:::rcpp_calculate_ci(alpha = parameters_fitted_biotic$ci_alpha,
@@ -418,30 +424,68 @@ ci_2013 <- spatstat::subset.ppp(pattern_2013,
                             max_dist = parameters_fitted_biotic$ci_max_dist) %>% 
   density(from = from_ci, to = to_ci, n = 512)
 
-ci_2013 <- tibble::tibble(x = ci_2013$x, y = ci_2013$y) %>% 
-  dplyr::mutate(data_type_field = "Field data 2013")
+ci_2007_adult <- tibble::tibble(x = ci_2007_adult$x, 
+                                y = ci_2007_adult$y) %>% 
+  dplyr::mutate(data_type_field = "Field data 2007", 
+                size_field = "Adult")
+
+ci_2013_sapling <- spatstat::subset.ppp(beech_2013_sapling_ppp, 
+                                        inside_fence == 0 & type != "dead", 
+                                        select = dbh_13) %>%
+  data.table::as.data.table() %>% 
+  as.matrix() %>% 
+  rabmp:::rcpp_calculate_ci(alpha = parameters_fitted_biotic$ci_alpha,
+                            beta = parameters_fitted_biotic$ci_beta,
+                            max_dist = parameters_fitted_biotic$ci_max_dist) %>% 
+  density(from = from_ci, to = to_ci, n = 512)
+
+ci_2013_sapling <- tibble::tibble(x = ci_2013_sapling$x, 
+                                  y = ci_2013_sapling$y) %>% 
+  dplyr::mutate(data_type_field = "Field data 2013", 
+                size_field = "Sapling")
+
+ci_2013_adult <- spatstat::subset.ppp(beech_2013_adult_ppp, 
+                                      inside_fence == 0 & type != "dead", 
+                                      select = dbh_13) %>%
+  data.table::as.data.table() %>% 
+  as.matrix() %>% 
+  rabmp:::rcpp_calculate_ci(alpha = parameters_fitted_biotic$ci_alpha,
+                            beta = parameters_fitted_biotic$ci_beta,
+                            max_dist = parameters_fitted_biotic$ci_max_dist) %>% 
+  density(from = from_ci, to = to_ci, n = 512)
+
+ci_2013_adult <- tibble::tibble(x = ci_2013_adult$x, 
+                                y = ci_2013_adult$y) %>% 
+  dplyr::mutate(data_type_field = "Field data 2013", 
+                size_field = "Adult")
 
 # combine to one df #
-ci_overall_model <- dplyr::bind_rows(ci_model_biotic,
-                                     ci_model_abiotic) %>% 
+ci_overall_model <- dplyr::bind_rows(ci_model_biotic_sapling,
+                                     ci_model_biotic_adult,
+                                     ci_model_abiotic_sapling,
+                                     ci_model_abiotic_adult) %>% 
   dplyr::mutate(data_type_model = factor(data_type_model, 
                                          levels = c("Biotic model",
-                                                    "Abiotic model")))
+                                                    "Abiotic model")), 
+                size_model = factor(size_model, levels = c("Sapling", "Adult")))
 
-ci_overall_field <- dplyr::bind_rows(ci_2007, 
-                                     ci_2013) %>% 
+ci_overall_field <- dplyr::bind_rows(ci_2007_sapling,
+                                     ci_2007_adult,
+                                     ci_2013_sapling, 
+                                     ci_2013_adult) %>% 
   dplyr::mutate(data_type_field = factor(data_type_field, 
                                          levels = c("Field data 2007",
-                                                    "Field data 2013")))
+                                                    "Field data 2013")), 
+                size_field = factor(size_field, levels = c("Sapling", "Adult")))
 
 ggplot_ci <- ggplot(data = ci_overall_model) + 
-  geom_density(data = ci_overall_field,
-               aes(x = x, y = y, fill = data_type_field),
-               stat = "identity", alpha = 0.5, col = NA) +
-  geom_density(aes(x = x, y = fun_mean, col = "Model"),
-               stat = "identity", alpha = 0.5) +
-  scale_fill_viridis_d(name = "") +
-  scale_color_manual(name = "", values = "black") +
+  geom_density(aes(x = x, y = fun_mean, fill = size_model),
+               col = NA, stat = "identity", alpha = 0.5) +
+  geom_density(data = ci_overall_field, stat = "identity",
+               aes(x = x, y = y, color = size_field, linetype = data_type_field)) +
+  scale_fill_viridis_d(name = "", option = "C") +
+  scale_color_viridis_d(name = "", option = "C") +
+  scale_linetype_manual(name = "", values = c(1, 2)) +
   facet_wrap(~ data_type_model) + 
   labs(x = "Competition value", y = "Density") +
   theme_classic(base_size = base_size) + 
