@@ -98,10 +98,10 @@ r_nnd <- seq(from = 0, to = 10, length.out = 525)
 
 # increased parameters #
 sa_nnd_increased_5_sapling <- calc_nnd_sa_int(default = sa_default_sapling,
-                                      changed = sa_increased_5_sapling,
-                                      correction = correction_nnd,
-                                      r = r_nnd,
-                                      window = window) %>% 
+                                              changed = sa_increased_5_sapling,
+                                              correction = correction_nnd,
+                                              r = r_nnd,
+                                              window = window) %>% 
   dplyr::mutate(direction = "Increased +5%", 
                 size = "sapling")
 
@@ -184,18 +184,18 @@ ggplot_sa_nnd <- ggplot(data = sa_nnd) +
   geom_bar(aes(x = parameter, y = nnd_mean * 100, fill = direction),
            col = "black", stat = "identity", position = position_dodge()) +
   facet_wrap(~ size) +
-  geom_hline(yintercept = -10, linetype = 2, col = "#440154FF") +
-  geom_hline(yintercept = -5, linetype = 2, col = "#31688EFF") +
+  geom_hline(yintercept = -10, linetype = 2, col = "#0D0887FF") +
+  geom_hline(yintercept = -5, linetype = 2, col = "#9C179EFF") +
   geom_hline(yintercept = 0, linetype = 1) +
-  geom_hline(yintercept = 5, linetype = 2, col = "#35B779FF") +
-  geom_hline(yintercept = 10, linetype = 2, col = "#FDE725FF") +
+  geom_hline(yintercept = 5, linetype = 2, col = "#ED7953FF") +
+  geom_hline(yintercept = 10, linetype = 2, col = "#F0F921FF") +
   coord_flip() +
   scale_x_discrete(name = "Parameter") +
   scale_y_continuous(name = expression(paste("Relative difference", integral(G(r), 0, r))),
                      breaks = seq(-20, 20, 5)) +
   scale_fill_manual(name = "Parameter change",
-                    values = c("#440154FF", "#31688EFF", 
-                               "#35B779FF","#FDE725FF")) +
+                    values = c("#0D0887FF", "#9C179EFF" ,
+                               "#ED7953FF", "#F0F921FF")) +
   theme_classic(base_size = base_size) + 
   theme(legend.position = "bottom")
 
@@ -318,18 +318,18 @@ ggplot_sa_pcf <- ggplot(data = sa_pcf) +
   geom_bar(aes(x = parameter, y = pcf_mean * 100, fill = direction),
            col = "black", stat = "identity", position = position_dodge()) +
   facet_wrap(~ size) +
-  geom_hline(yintercept = -10, linetype = 2, col = "#440154FF") +
-  geom_hline(yintercept = -5, linetype = 2, col = "#31688EFF") +
+  geom_hline(yintercept = -10, linetype = 2, col = "#0D0887FF") +
+  geom_hline(yintercept = -5, linetype = 2, col = "#9C179EFF") +
   geom_hline(yintercept = 0, linetype = 1) +
-  geom_hline(yintercept = 5, linetype = 2, col = "#35B779FF") +
-  geom_hline(yintercept = 10, linetype = 2, col = "#FDE725FF") + 
+  geom_hline(yintercept = 5, linetype = 2, col = "#ED7953FF") +
+  geom_hline(yintercept = 10, linetype = 2, col = "#F0F921FF") +
   coord_flip() +
   scale_x_discrete(name = "Parameter") +
   scale_y_continuous(name = expression(paste("Relative difference", integral(g(r), 0, r))),
                      breaks = seq(-12.5, 12.5, 2.5)) +
   scale_fill_manual(name = "Parameter change",
-                    values = c("#440154FF", "#31688EFF", 
-                               "#35B779FF","#FDE725FF")) +
+                    values = c("#0D0887FF", "#9C179EFF" ,
+                               "#ED7953FF", "#F0F921FF")) +
   theme_classic(base_size = base_size) + 
   theme(legend.position = "bottom")
 
@@ -433,17 +433,18 @@ ggplot_sa_kmm <- ggplot(data = sa_kmm) +
   geom_bar(aes(x = parameter, y = kmm_mean * 100, fill = direction),
            col = "black", stat = "identity", position = position_dodge()) +
   facet_wrap(~ size) + 
-  geom_hline(yintercept = -10, linetype = 2, col = "#21908CFF") + 
-  geom_hline(yintercept = -5, linetype = 2, col = "#440154FF") + 
-  geom_hline(yintercept = 0, linetype = 1) + 
-  geom_hline(yintercept = 5, linetype = 2, col = "#440154FF") + 
-  geom_hline(yintercept = 10, linetype = 2, col = "#21908CFF") + 
+  geom_hline(yintercept = -10, linetype = 2, col = "#0D0887FF") +
+  geom_hline(yintercept = -5, linetype = 2, col = "#9C179EFF") +
+  geom_hline(yintercept = 0, linetype = 1) +
+  geom_hline(yintercept = 5, linetype = 2, col = "#ED7953FF") +
+  geom_hline(yintercept = 10, linetype = 2, col = "#F0F921FF") +
   coord_flip() +
   scale_x_discrete(name = "Parameter") +
   scale_y_continuous(name = expression(paste("Relative difference", integral(kmm(r), 0, r))),
                      breaks = seq(-12.5, 12.5, 2.5)) +
   scale_fill_manual(name = "Parameter change", 
-                    values = c("#440154FF", "#21908CFF")) +
+                    values = c("#0D0887FF", "#9C179EFF" ,
+                               "#ED7953FF", "#F0F921FF")) +
   theme_classic(base_size = base_size) + 
   theme(legend.position = "bottom")
 

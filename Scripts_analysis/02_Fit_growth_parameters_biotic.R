@@ -155,6 +155,7 @@ fitted_fun_actual <- optim(par = start_values_actual,
                            df = dplyr::filter(beech_2013, 
                                               !id %in% beech_2013_top), 
                            method = "BFGS",
+                           hessian = TRUE,
                            control = list(trace = TRUE, 
                                           maxit = 1000,
                                           REPORT = 1))
@@ -169,6 +170,9 @@ broom::tidy(fitted_fun_actual)
 fitted_fun_actual$value
 # $value
 # [1] 689.1816
+
+standard_errors <- sqrt(abs(diag(solve(-fitted_fun_actual$hessian))))
+# [1] 0.035125727 0.005524192
 
 ci <- rabmp:::rcpp_calculate_ci(matrix = as.matrix(beech_2013[, c("x", "y", "dbh_99")]),
                                 alpha = fitted_fun_actual$par[[1]],

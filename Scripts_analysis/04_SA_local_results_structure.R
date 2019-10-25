@@ -35,39 +35,31 @@ parameter_levels <- rev(c("ci_alpha", "ci_beta",
                           "mort_int_early", "mort_int_late", 
                           "mort_dinc"))
 
-#### DBH distribution ####
-
-# set parameters #
-by <- 10
+#### n individuals ####
 
 # Increased parameters #
-sa_dbh_dist_inc_5 <- calc_dbh_dist_sa(default = sa_default, 
-                                      changed = sa_increased_5, 
-                                      by = by) %>% 
+sa_individuals_inc_5 <- calc_n_sa(default = sa_default,
+                                  changed = sa_increased_5) %>%
   dplyr::mutate(direction = "Increased +5%")
 
-sa_dbh_dist_inc_10 <- calc_dbh_dist_sa(default = sa_default, 
-                                       changed = sa_increased_10, 
-                                       by = by) %>% 
+sa_individuals_inc_10 <- calc_n_sa(default = sa_default,
+                                   changed = sa_increased_10) %>%
   dplyr::mutate(direction = "Increased +10%")
 
-# Decrease parameters #
-sa_dbh_dist_dec_5 <- calc_dbh_dist_sa(default = sa_default, 
-                                      changed = sa_decreased_5, 
-                                      by = by) %>% 
+# Decreased parameters #
+sa_individuals_dec_5 <- calc_n_sa(default = sa_default,
+                                  changed = sa_decreased_5) %>%
   dplyr::mutate(direction = "Decreased -5%")
 
-sa_dbh_dist_dec_10 <- calc_dbh_dist_sa(default = sa_default, 
-                                       changed = sa_decreased_10, 
-                                       by = by) %>% 
+sa_individuals_dec_10 <- calc_n_sa(default = sa_default,
+                                   changed = sa_decreased_10) %>%
   dplyr::mutate(direction = "Decreased -10%")
 
-sa_dbh_dist <- dplyr::bind_rows(sa_dbh_dist_inc_5, 
-                                sa_dbh_dist_inc_10,
-                                sa_dbh_dist_dec_5, 
-                                sa_dbh_dist_dec_10) %>% 
-  dplyr::mutate(dbh_class = factor(dbh_class, ordered = TRUE), 
-                parameter = factor(parameter, 
+sa_individuals <- dplyr::bind_rows(sa_individuals_inc_5, 
+                                   sa_individuals_inc_10, 
+                                   sa_individuals_dec_5, 
+                                   sa_individuals_dec_10) %>% 
+  dplyr::mutate(parameter = factor(parameter, 
                                    levels = parameter_levels),
                 direction = factor(direction, 
                                    levels = c("Decreased -10%", 
@@ -75,36 +67,31 @@ sa_dbh_dist <- dplyr::bind_rows(sa_dbh_dist_inc_5,
                                               "Increased +5%", 
                                               "Increased +10%")))
 
-ggplot_sa_dbh_dist <- ggplot(data = sa_dbh_dist) + 
-  geom_bar(aes(x = dbh_class, y = diff_n_rel * 100, 
-               fill = direction), col = "black", 
+ggplot_sa_individuals <- ggplot(data = sa_individuals) + 
+  geom_bar(aes(x = parameter, y = diff_n * 100, 
+               fill = direction), col = "black",
            stat = "identity", position = "dodge") + 
-  geom_hline(yintercept = -10, linetype = 2, col = "#440154FF") +
-  geom_hline(yintercept = -5, linetype = 2, col = "#31688EFF") +
+  geom_hline(yintercept = -10, linetype = 2, col = "#0D0887FF") +
+  geom_hline(yintercept = -5, linetype = 2, col = "#9C179EFF") +
   geom_hline(yintercept = 0, linetype = 1) +
-  geom_hline(yintercept = 5, linetype = 2, col = "#35B779FF") +
-  geom_hline(yintercept = 10, linetype = 2, col = "#FDE725FF") +
-  facet_wrap(~ parameter, scales = "free_y", ncol = 4) + 
-  scale_x_discrete(name = "dbh class [cm]",
-                   breaks = seq(from = as.numeric(min(sa_dbh_dist_dec$dbh_class)),
-                                to = as.numeric(max(sa_dbh_dist_dec$dbh_class)),
-                                by = 1), 
-                   labels = paste0("<", seq(from = as.numeric(min(sa_dbh_dist$dbh_class)) * 10,
-                                            to = as.numeric(max(sa_dbh_dist$dbh_class)) * 10,
-                                            by = by))) +
-  scale_y_continuous(name = "Relative difference [%]") +
+  geom_hline(yintercept = 5, linetype = 2, col = "#ED7953FF") +
+  geom_hline(yintercept = 10, linetype = 2, col = "#F0F921FF") +
+  coord_flip() +
+  scale_x_discrete(name = "Parameter") +
+  scale_y_continuous(name = "Difference individuals [%]",
+                     breaks = seq(-50, 50, 10),
+                     limits = c(-50, 50)) +
   scale_fill_manual(name = "Parameter change",
-                    values = c("#440154FF", "#31688EFF", 
-                               "#35B779FF","#FDE725FF")) +
+                    values = c("#0D0887FF", "#9C179EFF" ,
+                               "#ED7953FF", "#F0F921FF")) +
   theme_classic(base_size = base_size) + 
-  theme(legend.position = "bottom", 
-        axis.text.x = element_text(angle = 90, vjust = 0.5))
+  theme(legend.position = "bottom")
 
-suppoRt::save_ggplot(plot = ggplot_sa_dbh_dist, 
-                     filename = "ggplot_sa_dbh_dist.png", 
-                     path = "Figures/Appendix", 
+suppoRt::save_ggplot(plot = ggplot_sa_individuals, 
+                     filename = "ggplot_sa_individuals.png", 
+                     path = "Figures/Appendix/",     
                      dpi = dpi,
-                     width = height_full, height = width_full, units = units,
+                     width = width_full, height = height_full, units = units, 
                      overwrite = overwrite)
 
 #### DBH growth ####
@@ -143,19 +130,19 @@ ggplot_sa_growth <- ggplot(data = sa_growth) +
   geom_bar(aes(x = parameter, y = diff_inc * 100, 
                fill = direction), col = "black",
            stat = "identity", position = "dodge") + 
-  geom_hline(yintercept = -10, linetype = 2, col = "#440154FF") +
-  geom_hline(yintercept = -5, linetype = 2, col = "#31688EFF") +
+  geom_hline(yintercept = -10, linetype = 2, col = "#0D0887FF") +
+  geom_hline(yintercept = -5, linetype = 2, col = "#9C179EFF") +
   geom_hline(yintercept = 0, linetype = 1) +
-  geom_hline(yintercept = 5, linetype = 2, col = "#35B779FF") +
-  geom_hline(yintercept = 10, linetype = 2, col = "#FDE725FF") +
+  geom_hline(yintercept = 5, linetype = 2, col = "#ED7953FF") +
+  geom_hline(yintercept = 10, linetype = 2, col = "#F0F921FF") +
   coord_flip() +
   scale_x_discrete(name = "Parameter") +
   scale_y_continuous(name = "Difference mean annual DBH increment [%]", 
                      breaks = seq(-20, 20, 5), 
                      limits = c(-22.5, 22.5)) +
   scale_fill_manual(name = "Parameter change",
-                    values = c("#440154FF", "#31688EFF", 
-                               "#35B779FF","#FDE725FF")) +
+                    values = c("#0D0887FF", "#9C179EFF" ,
+                               "#ED7953FF", "#F0F921FF")) +
   theme_classic(base_size = base_size) + 
   theme(legend.position = "bottom")
 
@@ -163,7 +150,7 @@ suppoRt::save_ggplot(plot = ggplot_sa_growth,
                      filename = "ggplot_sa_growth.png", 
                      path = "Figures/Appendix/", 
                      dpi = dpi,
-                     width = width_full, height = height_small, units = units, 
+                     width = width_full, height = height_full, units = units, 
                      overwrite = overwrite)
 
 #### n died ####
@@ -202,19 +189,19 @@ ggplot_sa_died <- ggplot(data = sa_died) +
   geom_bar(aes(x = parameter, y = diff_n_rel * 100, 
                fill = direction), col = "black",
            stat = "identity", position = "dodge") + 
-  geom_hline(yintercept = -10, linetype = 2, col = "#440154FF") +
-  geom_hline(yintercept = -5, linetype = 2, col = "#31688EFF") +
+  geom_hline(yintercept = -10, linetype = 2, col = "#0D0887FF") +
+  geom_hline(yintercept = -5, linetype = 2, col = "#9C179EFF") +
   geom_hline(yintercept = 0, linetype = 1) +
-  geom_hline(yintercept = 5, linetype = 2, col = "#35B779FF") +
-  geom_hline(yintercept = 10, linetype = 2, col = "#FDE725FF") +
+  geom_hline(yintercept = 5, linetype = 2, col = "#ED7953FF") +
+  geom_hline(yintercept = 10, linetype = 2, col = "#F0F921FF") +
   coord_flip() +
   scale_x_discrete(name = "Parameter") +
   scale_y_continuous(name = "Difference n died [%]",
                      breaks = seq(-45, 45, 5),
                      limits = c(-45, 45)) +
   scale_fill_manual(name = "Parameter change",
-                    values = c("#440154FF", "#31688EFF", 
-                               "#35B779FF","#FDE725FF")) +
+                    values = c("#0D0887FF", "#9C179EFF" ,
+                               "#ED7953FF", "#F0F921FF")) +
   theme_classic(base_size = base_size) + 
   theme(legend.position = "bottom")
 

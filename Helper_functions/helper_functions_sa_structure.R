@@ -8,8 +8,8 @@
 
 #### Helper functions SA structure #### 
 
-calc_dbh_dist_sa <- function(default, changed,
-                             by = 1, verbose = TRUE) {
+calc_n_sa <- function(default, changed, 
+                      verbose = TRUE) {
   
   # get name of changed to get changed parameters
   names_parameters <- names(changed)
@@ -21,84 +21,55 @@ calc_dbh_dist_sa <- function(default, changed,
   # repeat counter 1:repetitions of default data for each changed parameter
   counter_default <- rep(x = 1:n_default, times = length(unique(names(changed))))
   
-  # get dbh distribution of default data
-  dbh_dist_default <- purrr::map(seq_along(default), function(x) {
+  # loop through all input data
+  individuals_default <- purrr::map(seq_along(default), function(x) {
     
     if (verbose) {
       message("\r> Progress (default): ", x, "/", n_default, appendLF = FALSE)
     }
-
-    # get data of last time step
-    temp_data <- dplyr::filter(default[[x]], i == max(i))
-
-    # get number of points for relative n
-    temp_n_points <- nrow(temp_data)
-
-    # classify dbh into classes and count n in each class
-    dplyr::mutate(temp_data, dbh_class = cut(dbh, breaks = seq(from = 0,
-                                                               to = max(dbh) + by,
-                                                               by = by), 
-                                             labels = FALSE)) %>%
-      dplyr::group_by(dbh_class) %>%
-      dplyr::summarise(n = dplyr::n()) %>% 
-      dplyr::mutate(n_rel = n / temp_n_points)
+    
+    # get number of living trees
+    temp_default <- dplyr::filter(default[[x]], i == max(i), type != "dead") %>% 
+      nrow()
   })
   
   if (verbose) {
     message("")
   }
   
-  # get distribution of changed data
-  dbh_dist_changed <- purrr::map(seq_along(changed), function(x) {
-    
-    # get default result
-    temp_dbh_dist_default <- dbh_dist_default[[counter_default[x]]]
+  # loop through all input data
+  individuals_changed <- purrr::map(seq_along(changed), function(x) {
     
     if (verbose) {
-      
-      message("\r> Progress (changed): ", x, "/", n_changed, appendLF = FALSE)
+      message("\r> Progress (default): ", x, "/", n_changed, appendLF = FALSE)
     }
     
-    # get data of last time step
-    temp_data <- dplyr::filter(changed[[x]], i == max(i))
-
-    # get number of points for relative n
-    temp_n_points <- nrow(temp_data)
-
-    # classify dbh into classes and count n in each class
-    dplyr::mutate(temp_data,
-                  dbh_class = cut(dbh, breaks = seq(from = 0,
-                                                    to = max(dbh) + by,
-                                                    by = by), 
-                                  labels = FALSE)) %>%
-      dplyr::group_by(dbh_class) %>%
-      dplyr::summarise(n = dplyr::n()) %>% 
-      dplyr::mutate(n_rel = n / temp_n_points) %>% 
-      dplyr::left_join(y = temp_dbh_dist_default,
-                       by = "dbh_class", 
-                       suffix = c(".changed", ".default")) %>% 
-      tidyr::replace_na(replace = list(n.changed = 0, n_rel.changed = 0, 
-                                       n.default = 0, n_rel.default = 0)) %>% 
-      dplyr::mutate(diff_n = (n.changed - n.default) / n.default, 
-                    diff_n_rel = (n_rel.changed - n_rel.default) / n_rel.default)
+    # get default data
+    temp_default <- individuals_default[[counter_default[x]]]
+    
+    # get number of living trees
+    temp_changed <- dplyr::filter(changed[[x]], i == max(i), type != "dead") %>%
+      nrow()
+    
+    tibble::tibble(n_changed = temp_changed, n_default = temp_default) %>% 
+      dplyr::mutate(diff_n = (n_changed - n_default) / n_default)
   })
   
   # add changed parameters as names
-  names(dbh_dist_changed) <- names_parameters
+  names(individuals_changed) <- names_parameters
   
   if (verbose) {
     message("")
   }
   
-  dbh_dist_changed <- dplyr::bind_rows(dbh_dist_changed, .id = "parameter") %>%
-    dplyr::group_by(parameter, dbh_class) %>% 
+  individuals_changed <- dplyr::bind_rows(individuals_changed, 
+                                          .id = "parameter") %>% 
+    dplyr::group_by(parameter) %>% 
     dplyr::summarise(diff_n = mean(suppoRt::replace_infinite(diff_n), 
-                                   na.rm = TRUE), 
-                     diff_n_rel = mean(suppoRt::replace_infinite(diff_n_rel), 
-                                       na.rm = TRUE)) %>%
+                                   na.rm = TRUE)) %>%
     dplyr::ungroup()
   
-  return(dbh_dist_changed)
+  return(individuals_changed)
 }
 
 calc_growth_sa <- function(default, changed, 
