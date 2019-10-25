@@ -7,27 +7,27 @@
 ###################################################
 
 #### Sobol indice ####
-calc_sobol_indiv <- function(param, data, plot_area, years, save_each) {
+calc_sobol_indiv <- function(x, data, parameters, plot_area, years, save_each) {
   
-  parameters <- list(ci_alpha = param[1], 
-                     ci_beta = param[2],
-                     ci_max_dist = parameters_fitted_biotic$ci_max_dist,
-                     growth_assymp = parameters_fitted_biotic$growth_assymp, 
-                     growth_infl = param[3],
-                     growth_mod = parameters_fitted_biotic$growth_mod, 
-                     growth_rate = parameters_fitted_biotic$growth_rate,
-                     mort_dbh_early = param[4], 
-                     mord_dbh_late = parameters_fitted_biotic$mort_dbh_late, 
-                     mord_dinc = parameters_fitted_biotic$mort_dinc, 
-                     mort_int_early = param[5], 
-                     mort_int_late = parameters_fitted_biotic$mort_int_late, 
-                     seed_str = parameters_fitted_biotic$seed_str, 
-                     seed_success = parameters_fitted_biotic$seed_success,
-                     seed_beta = parameters_fitted_biotic$seed_beta, 
-                     seed_max_dist = parameters_fitted_biotic$seed_max_dist)
+  parameters_temp <- list(ci_alpha = x[1], 
+                          ci_beta = x[2],
+                          ci_max_dist = parameters$ci_max_dist,
+                          growth_assymp = parameters$growth_assymp, 
+                          growth_infl = x[3],
+                          growth_mod = parameters$growth_mod, 
+                          growth_rate = parameters$growth_rate,
+                          mort_dbh_early = x[4], 
+                          mort_dbh_late = parameters$mort_dbh_late, 
+                          mort_dinc = parameters$mort_dinc, 
+                          mort_int_early = x[5], 
+                          mort_int_late = parameters$mort_int_late, 
+                          seed_str = parameters$seed_str, 
+                          seed_success = parameters$seed_success,
+                          seed_beta = parameters$seed_beta, 
+                          seed_max_dist = parameters$seed_max_dist)
   
   output <- rabmp::run_model_biotic(data = data, 
-                                    parameters = parameters, 
+                                    parameters = parameters_temp, 
                                     plot_area = plot_area, 
                                     years = years,
                                     save_each = save_each, 
@@ -38,27 +38,27 @@ calc_sobol_indiv <- function(param, data, plot_area, years, save_each) {
   nrow(output)
 }
 
-calc_sobol_pcf <- function(param) {
+calc_sobol_pcf <- function(x, data, parameters, plot_area, years, save_each) {
   
-  parameters <- list(ci_alpha = param[1], 
-                     ci_beta = param[2],
-                     ci_max_dist = parameters_fitted_biotic$ci_max_dist,
-                     growth_assymp = parameters_fitted_biotic$growth_assymp, 
-                     growth_infl = param[3],
-                     growth_mod = parameters_fitted_biotic$growth_mod, 
-                     growth_rate = parameters_fitted_biotic$growth_rate,
-                     mort_dbh_early = param[4], 
-                     mord_dbh_late = parameters_fitted_biotic$mort_dbh_late, 
-                     mord_dinc = parameters_fitted_biotic$mort_dinc, 
-                     mort_int_early = parameters_fitted_biotic$mort_int_early, 
-                     mort_int_late = param[5], 
-                     seed_str = parameters_fitted_biotic$seed_str, 
-                     seed_success = parameters_fitted_biotic$seed_success,
-                     seed_beta = parameters_fitted_biotic$seed_beta, 
-                     seed_max_dist = parameters_fitted_biotic$seed_max_dist)
+  parameters_temp <- list(ci_alpha = x[1], 
+                          ci_beta = x[2],
+                          ci_max_dist = parameters$ci_max_dist,
+                          growth_assymp = parameters$growth_assymp, 
+                          growth_infl = x[3],
+                          growth_mod = parameters$growth_mod, 
+                          growth_rate = parameters$growth_rate,
+                          mort_dbh_early = x[4], 
+                          mort_dbh_late = parameters$mort_dbh_late, 
+                          mort_dinc = parameters$mort_dinc, 
+                          mort_int_early = parameters$mort_int_early, 
+                          mort_int_late = x[5], 
+                          seed_str = parameters$seed_str, 
+                          seed_success = parameters$seed_success,
+                          seed_beta = parameters$seed_beta, 
+                          seed_max_dist = parameters$seed_max_dist)
   
-  output <- rabmp::run_model_biotic(data = pattern_1999_dt, 
-                                    parameters = parameters, 
+  output <- rabmp::run_model_biotic(data = data, 
+                                    parameters = parameters_temp, 
                                     plot_area = plot_area, 
                                     years = years,
                                     save_each = save_each, 
