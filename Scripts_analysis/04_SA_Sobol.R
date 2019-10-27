@@ -98,14 +98,14 @@ sobol_model_indiv_df <- tibble::as_tibble(sobol_model_indiv$S) %>%
   purrr::set_names(c("value", "bias", "std_error", "min_ci", "max_ci")) %>% 
   dplyr::mutate(parameter = c("ci_alpha", "ci_beta", "growth_infl", 
                               "mort_dbh_early", "mort_int_early"), 
-                effect = "First order indices", 
+                effect = "Main effect indices", 
                 output = "Number of individuals")
 
 sobol_model_indiv_df <- tibble::as_tibble(sobol_model_indiv$T) %>% 
   purrr::set_names(c("value", "bias", "std_error", "min_ci", "max_ci")) %>% 
   dplyr::mutate(parameter = c("ci_alpha", "ci_beta", "growth_infl", 
                               "mort_dbh_early", "mort_int_early"), 
-                effect = "Total indices", 
+                effect = "Total effect indices", 
                 output = "Number of individuals") %>% 
   dplyr::bind_rows(sobol_model_indiv_df, .) %>% 
   dplyr::mutate(value = dplyr::case_when(value < 0 ~ 0, 
@@ -132,7 +132,17 @@ suppoRt::save_ggplot(plot = ggplot_sobol_individual,
                      path = "Figures/", 
                      dpi = dpi,
                      width = width_full, height = height_small, units = units, 
-                     overwrite = overwrite)
+                     overwrite = T)
+
+dplyr::filter(sobol_model_indiv_df, effect == "Main effect indices") %>% 
+  dplyr::pull(value) %>% 
+  sum() %>%
+  round(digits = 2)
+
+dplyr::filter(sobol_model_indiv_df, effect == "Total effect indices") %>% 
+  dplyr::pull(value) %>% 
+  sum() %>% 
+  round(digits = 2)
 
 #### Pair-correlation function ####
 
