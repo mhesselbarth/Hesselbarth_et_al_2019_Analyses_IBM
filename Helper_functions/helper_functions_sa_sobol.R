@@ -69,7 +69,8 @@ calc_sobol_pcf <- function(x, data, parameters, plot_area, years, save_each) {
   output <- spatstat::ppp(x = output$x, y = output$y, 
                           window = plot_area)
   
-  output_pcf <- spatstat::pcf(output, correction = "Ripley", divisor = "d")
+  output_pcf <- spatstat::pcf(output, correction = "Ripley", divisor = "d", 
+                              r = seq(from = 0, to = 75, length.out = 513))
   
   MESS::auc(output_pcf$r, output_pcf$pcf, 
             from = min(output_pcf$r), to = max(output_pcf$r))
