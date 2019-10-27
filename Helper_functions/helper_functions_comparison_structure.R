@@ -22,7 +22,7 @@ calc_n_comp <- function(data, verbose = TRUE) {
     # get living trees of last time step
     temp_data <- dplyr::filter(data[[x]], type != "dead")
     
-    dplyr::group_by(temp_data, i) %>% 
+    dplyr::group_by(temp_data, i, type) %>% 
       dplyr::summarise(n = dplyr::n())
   })
   
@@ -31,7 +31,7 @@ calc_n_comp <- function(data, verbose = TRUE) {
   }
   
   result <- dplyr::bind_rows(result) %>% 
-    dplyr::group_by(i) %>% 
+    dplyr::group_by(i, type) %>% 
     dplyr::summarise(n_mean = mean(n), 
                      n_min = min(n), 
                      n_max = max(n), 
