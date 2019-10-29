@@ -98,14 +98,14 @@ sobol_model_indiv_df <- tibble::as_tibble(sobol_model_indiv$S) %>%
   purrr::set_names(c("value", "bias", "std_error", "min_ci", "max_ci")) %>% 
   dplyr::mutate(parameter = c("ci_alpha", "ci_beta", "growth_infl", 
                               "mort_dbh_early", "mort_int_early"), 
-                effect = "Main effect indices", 
+                effect = "Main effect", 
                 output = "Number of individuals")
 
 sobol_model_indiv_df <- tibble::as_tibble(sobol_model_indiv$T) %>% 
   purrr::set_names(c("value", "bias", "std_error", "min_ci", "max_ci")) %>% 
   dplyr::mutate(parameter = c("ci_alpha", "ci_beta", "growth_infl", 
                               "mort_dbh_early", "mort_int_early"), 
-                effect = "Total effect indices", 
+                effect = "Total effect", 
                 output = "Number of individuals") %>% 
   dplyr::bind_rows(sobol_model_indiv_df, .) %>% 
   dplyr::mutate(value = dplyr::case_when(value < 0 ~ 0, 
@@ -156,14 +156,14 @@ sobol_model_pcf_df <- tibble::as_tibble(sobol_model_pcf$S) %>%
   purrr::set_names(c("value", "bias", "std_error", "min_ci", "max_ci")) %>% 
   dplyr::mutate(parameter = c("ci_alpha", "ci_beta", "growth_infl", 
                               "mort_dbh_early", "mort_int_late"), 
-                effect = "Main effect indices", 
+                effect = "Main effect", 
                 output = "Integral pair-correlation function")
 
 sobol_model_pcf_df <- tibble::as_tibble(sobol_model_pcf$T) %>% 
   purrr::set_names(c("value", "bias", "std_error", "min_ci", "max_ci")) %>% 
   dplyr::mutate(parameter = c("ci_alpha", "ci_beta", "growth_infl", 
                               "mort_dbh_early", "mort_int_late"), 
-                effect = "Total effect indices", 
+                effect = "Total effect", 
                 output = "Integral pair-correlation function") %>% 
   dplyr::bind_rows(sobol_model_pcf_df, .) %>% 
   dplyr::mutate(value = dplyr::case_when(value < 0 ~ 0, 
@@ -177,24 +177,31 @@ sobol_model_pcf_df <- tibble::as_tibble(sobol_model_pcf$T) %>%
 #### Overall results ####
 sobol_model_overall_df <- dplyr::bind_rows(sobol_model_indiv_df, 
                                            sobol_model_pcf_df) %>% 
-  dplyr::mutate(output = factor(output, 
-                                levels = c("Number of individuals", 
-                                           "Integral pair-correlation function")))
+  dplyr::mutate(effect = factor(effect, levels = c("Main effect", 
+                                                   "Total effect")), 
+                output = factor(output, levels = c("Number of individuals",
+                                                   "Integral pair-correlation function")))
+
+dplyr::group_by(sobol_model_overall_df, effect, output) %>% 
+  dplyr::summarise(value = sum(value))
 
 ggplot_sobol <- ggplot(data = sobol_model_overall_df) + 
-    geom_point(aes(x = parameter, y = value, col = effect),
-               size = 5, position = position_dodge(width = 0.5)) +
-    geom_errorbar(aes(x  = parameter, ymin = min_ci, ymax = max_ci,col = effect),
-                  width = 0.1, position = position_dodge(width = 0.5)) +
+  geom_point(aes(x = parameter, y = value, col = effect),
+             size = 2.5, position = position_dodge(width = 0.5)) +
+  geom_errorbar(aes(x  = parameter, ymin = min_ci, ymax = max_ci,col = effect),
+                width = 0.1, position = position_dodge(width = 0.5),
+                size = 0.25) +
   facet_wrap(~ output, scales = "free_x") +
-    scale_color_viridis_d(name = "", option = "C") +
-    scale_y_continuous(name = "Effect strength", limits = c(0, 1)) +
-    scale_x_discrete(name = "Parameter") +
-    theme_classic(base_size = base_size) + 
-  theme(legend.position = "bottom")
+  scale_color_viridis_d(name = "", option = "C") +
+  scale_y_continuous(name = "Effect strength", limits = c(0, 1)) +
+  scale_x_discrete(name = "Parameter") +
+  theme_classic(base_size = base_size) + 
+  theme(legend.position = "bottom", 
+        axis.text.x = element_text(angle = 45, hjust = 1))
 
 suppoRt::save_ggplot(plot = ggplot_sobol, 
                      filename = "ggplot_sobol.png", 
                      path = "Figures/", 
                      units = units, dpi = dpi, 
-                     width = width_full, height = height_small)
+                     width = width_full, height = height_small, 
+                     overwrite = overwrite)
