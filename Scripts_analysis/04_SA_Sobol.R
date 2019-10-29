@@ -183,16 +183,22 @@ sobol_model_overall_df <- dplyr::bind_rows(sobol_model_indiv_df,
                                                    "Integral pair-correlation function")))
 
 dplyr::group_by(sobol_model_overall_df, effect, output) %>% 
-  dplyr::summarise(value = sum(value))
+  dplyr::summarise(value = round(sum(value), digits = 2))
+
+dplyr::filter(sobol_model_overall_df, output == "Number of individuals")
+dplyr::filter(sobol_model_overall_df, output == "Integral pair-correlation function")
+
 
 ggplot_sobol <- ggplot(data = sobol_model_overall_df) + 
   geom_point(aes(x = parameter, y = value, col = effect),
-             size = 2.5, position = position_dodge(width = 0.5)) +
+             size = 3.5, position = position_dodge(width = 0.5)) +
   geom_errorbar(aes(x  = parameter, ymin = min_ci, ymax = max_ci,col = effect),
                 width = 0.1, position = position_dodge(width = 0.5),
                 size = 0.25) +
   facet_wrap(~ output, scales = "free_x") +
-  scale_color_viridis_d(name = "", option = "C") +
+  # scale_color_viridis_d(name = "", option = "C") +
+  scale_color_manual(name = "", values = c("Main effect" = "#0D0887FF", 
+                                           "Total effect" = "#CC4678FF")) +
   scale_y_continuous(name = "Effect strength", limits = c(0, 1)) +
   scale_x_discrete(name = "Parameter") +
   theme_classic(base_size = base_size) + 
