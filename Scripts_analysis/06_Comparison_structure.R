@@ -12,6 +12,7 @@
 source("Helper_functions/helper_functions_setup.R")
 source("Helper_functions/helper_functions_comparison_structure.R")
 
+pattern_1999 <- readr::read_rds("Data/Input/beech_1999_ppp.rds")
 pattern_2007 <- readr::read_rds("Data/Input/beech_2007_ppp.rds")
 pattern_2013 <- readr::read_rds("Data/Input/beech_2013_ppp.rds")
 
@@ -26,21 +27,46 @@ names(model_run_y50_e5_r50_biotic) <- rep("Biotic model",
 names(model_run_y50_e5_r50_abiotic) <- rep("Abiotic model", 
                                            times = length(model_run_y50_e5_r50_abiotic))
 
+df_1999 <- tibble::as_tibble(pattern_1999) %>% 
+  dplyr::filter(species == "beech", type == "living",
+                dbh_99 > 1)
+
 df_2007 <- tibble::as_tibble(pattern_2007) %>% 
-  dplyr::filter(species == "beech", 
+  dplyr::filter(species == "beech", type == "living",
                 dbh_07 > 1, inside_fence == 0)
 
 df_2013 <- tibble::as_tibble(pattern_2013) %>% 
-  dplyr::filter(species == "beech", 
+  dplyr::filter(species == "beech", type == "living",
                 dbh_13 > 1, inside_fence == 0)
 
 #### Number of individuals ####
 
-individual_biotic <- calc_n_comp(model_run_y50_e5_r50_biotic)
-individual_abiotic <- calc_n_comp(model_run_y50_e5_r50_abiotic)
+individual_biotic <- calc_n_comp(model_run_y50_e5_r50_biotic) %>% 
+  dplyr::filter(i %in% c(0, 10, 15, 50))
 
-individual_2007 <- nrow(df_2007)
-individual_2013 <- nrow(df_2013)
+individual_abiotic <- calc_n_comp(model_run_y50_e5_r50_abiotic) %>% 
+  dplyr::filter(i %in% c(0, 10, 15, 50))
+
+individual_1999 <- dplyr::mutate(df_1999, 
+                                 type = dplyr::case_when(dbh_99 > 1 & dbh_99 <= 10 ~ "sapling", 
+                                                         dbh_99 > 10 ~ "adult",
+                                                         dbh_99 < 1 ~ "seedling")) %>% 
+  dplyr::group_by(type) %>% 
+  dplyr::summarise(n = dplyr::n())
+
+individual_2007 <- dplyr::mutate(df_2007, 
+                                 type = dplyr::case_when(dbh_07 > 1 & dbh_07 <= 10 ~ "sapling", 
+                                                         dbh_07 > 10 ~ "adult",
+                                                         dbh_07 < 1 ~ "seedling")) %>% 
+  dplyr::group_by(type) %>% 
+  dplyr::summarise(n = dplyr::n())
+
+individual_2013 <- dplyr::mutate(df_2013, 
+                                 type = dplyr::case_when(dbh_13 > 1 & dbh_13 <= 10 ~ "sapling", 
+                                                         dbh_13 > 10 ~ "adult", 
+                                                         dbh_13 < 1 ~ "seedling")) %>% 
+  dplyr::group_by(type) %>% 
+  dplyr::summarise(n = dplyr::n())
 
 #### DBH distribution ####
 by_dist <- 10

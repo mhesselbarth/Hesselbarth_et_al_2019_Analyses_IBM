@@ -95,119 +95,119 @@ suppoRt::save_ggplot(plot = ggplot_sa_individuals,
                      overwrite = overwrite)
 
 #### DBH growth ####
-
-# Increased parameters #
-sa_growth_inc_5 <- calc_growth_sa(default = sa_default, 
-                                  changed = sa_increased_5) %>%
-  dplyr::mutate(direction = "Increased +5%")
-
-sa_growth_inc_10 <- calc_growth_sa(default = sa_default, 
-                                   changed = sa_increased_10) %>%
-  dplyr::mutate(direction = "Increased +10%")
-
-# Decreased parameters #
-sa_growth_dec_5 <- calc_growth_sa(default = sa_default, 
-                                  changed = sa_decreased_5) %>%
-  dplyr::mutate(direction = "Decreased -5%")
-
-sa_growth_dec_10 <- calc_growth_sa(default = sa_default, 
-                                   changed = sa_decreased_10) %>%
-  dplyr::mutate(direction = "Decreased -10%")
-
-sa_growth <- dplyr::bind_rows(sa_growth_inc_5,
-                              sa_growth_inc_10,
-                              sa_growth_dec_5, 
-                              sa_growth_dec_10) %>% 
-  dplyr::mutate(parameter = factor(parameter, 
-                                   levels = parameter_levels),
-                direction = factor(direction, 
-                                   levels = c("Decreased -10%", 
-                                              "Decreased -5%", 
-                                              "Increased +5%", 
-                                              "Increased +10%")))
-
-ggplot_sa_growth <- ggplot(data = sa_growth) + 
-  geom_bar(aes(x = parameter, y = diff_inc * 100, 
-               fill = direction), col = "black",
-           stat = "identity", position = "dodge") + 
-  geom_hline(yintercept = -10, linetype = 2, col = "#0D0887FF") +
-  geom_hline(yintercept = -5, linetype = 2, col = "#9C179EFF") +
-  geom_hline(yintercept = 0, linetype = 1) +
-  geom_hline(yintercept = 5, linetype = 2, col = "#ED7953FF") +
-  geom_hline(yintercept = 10, linetype = 2, col = "#F0F921FF") +
-  coord_flip() +
-  scale_x_discrete(name = "Parameter") +
-  scale_y_continuous(name = "Difference mean annual DBH increment [%]", 
-                     breaks = seq(-20, 20, 5), 
-                     limits = c(-22.5, 22.5)) +
-  scale_fill_manual(name = "Parameter change",
-                    values = c("#0D0887FF", "#9C179EFF" ,
-                               "#ED7953FF", "#F0F921FF")) +
-  theme_classic(base_size = base_size) + 
-  theme(legend.position = "bottom")
-
-suppoRt::save_ggplot(plot = ggplot_sa_growth, 
-                     filename = "ggplot_sa_growth.png", 
-                     path = "Figures/Appendix/", 
-                     dpi = dpi,
-                     width = width_full, height = height_full, units = units, 
-                     overwrite = overwrite)
-
-#### n died ####
-
-# Increased parameters #
-sa_died_inc_5 <- calc_died_sa(default = sa_default,
-                              changed = sa_increased_5) %>%
-  dplyr::mutate(direction = "Increased +5%")
-
-sa_died_inc_10 <- calc_died_sa(default = sa_default,
-                               changed = sa_increased_10) %>%
-  dplyr::mutate(direction = "Increased +10%")
-
-# Decreased parameters #
-sa_died_dec_5 <- calc_died_sa(default = sa_default,
-                              changed = sa_decreased_5) %>%
-  dplyr::mutate(direction = "Decreased -5%")
-
-sa_died_dec_10 <- calc_died_sa(default = sa_default,
-                               changed = sa_decreased_10) %>%
-  dplyr::mutate(direction = "Decreased -10%")
-
-sa_died <- dplyr::bind_rows(sa_died_inc_5, 
-                            sa_died_inc_10, 
-                            sa_died_dec_5, 
-                            sa_died_dec_10) %>% 
-  dplyr::mutate(parameter = factor(parameter, 
-                                   levels = parameter_levels),
-                direction = factor(direction, 
-                                   levels = c("Decreased -10%", 
-                                              "Decreased -5%", 
-                                              "Increased +5%", 
-                                              "Increased +10%")))
-
-ggplot_sa_died <- ggplot(data = sa_died) + 
-  geom_bar(aes(x = parameter, y = diff_n_rel * 100, 
-               fill = direction), col = "black",
-           stat = "identity", position = "dodge") + 
-  geom_hline(yintercept = -10, linetype = 2, col = "#0D0887FF") +
-  geom_hline(yintercept = -5, linetype = 2, col = "#9C179EFF") +
-  geom_hline(yintercept = 0, linetype = 1) +
-  geom_hline(yintercept = 5, linetype = 2, col = "#ED7953FF") +
-  geom_hline(yintercept = 10, linetype = 2, col = "#F0F921FF") +
-  coord_flip() +
-  scale_x_discrete(name = "Parameter") +
-  scale_y_continuous(name = "Difference n died [%]",
-                     breaks = seq(-45, 45, 5),
-                     limits = c(-45, 45)) +
-  scale_fill_manual(name = "Parameter change",
-                    values = c("#0D0887FF", "#9C179EFF" ,
-                               "#ED7953FF", "#F0F921FF")) +
-  theme_classic(base_size = base_size) + 
-  theme(legend.position = "bottom")
-
-suppoRt::save_ggplot(plot = ggplot_sa_died, 
-                     filename = "ggplot_sa_died.png", 
-                     path = "Figures/Appendix/",     
-                     dpi = dpi,
-                     width = width_full, height = height_small, units = units, 
-                     overwrite = overwrite)
+# 
+# # Increased parameters #
+# sa_growth_inc_5 <- calc_growth_sa(default = sa_default, 
+#                                   changed = sa_increased_5) %>%
+#   dplyr::mutate(direction = "Increased +5%")
+# 
+# sa_growth_inc_10 <- calc_growth_sa(default = sa_default, 
+#                                    changed = sa_increased_10) %>%
+#   dplyr::mutate(direction = "Increased +10%")
+# 
+# # Decreased parameters #
+# sa_growth_dec_5 <- calc_growth_sa(default = sa_default, 
+#                                   changed = sa_decreased_5) %>%
+#   dplyr::mutate(direction = "Decreased -5%")
+# 
+# sa_growth_dec_10 <- calc_growth_sa(default = sa_default, 
+#                                    changed = sa_decreased_10) %>%
+#   dplyr::mutate(direction = "Decreased -10%")
+# 
+# sa_growth <- dplyr::bind_rows(sa_growth_inc_5,
+#                               sa_growth_inc_10,
+#                               sa_growth_dec_5, 
+#                               sa_growth_dec_10) %>% 
+#   dplyr::mutate(parameter = factor(parameter, 
+#                                    levels = parameter_levels),
+#                 direction = factor(direction, 
+#                                    levels = c("Decreased -10%", 
+#                                               "Decreased -5%", 
+#                                               "Increased +5%", 
+#                                               "Increased +10%")))
+# 
+# ggplot_sa_growth <- ggplot(data = sa_growth) + 
+#   geom_bar(aes(x = parameter, y = diff_inc * 100, 
+#                fill = direction), col = "black",
+#            stat = "identity", position = "dodge") + 
+#   geom_hline(yintercept = -10, linetype = 2, col = "#0D0887FF") +
+#   geom_hline(yintercept = -5, linetype = 2, col = "#9C179EFF") +
+#   geom_hline(yintercept = 0, linetype = 1) +
+#   geom_hline(yintercept = 5, linetype = 2, col = "#ED7953FF") +
+#   geom_hline(yintercept = 10, linetype = 2, col = "#F0F921FF") +
+#   coord_flip() +
+#   scale_x_discrete(name = "Parameter") +
+#   scale_y_continuous(name = "Difference mean annual DBH increment [%]", 
+#                      breaks = seq(-20, 20, 5), 
+#                      limits = c(-22.5, 22.5)) +
+#   scale_fill_manual(name = "Parameter change",
+#                     values = c("#0D0887FF", "#9C179EFF" ,
+#                                "#ED7953FF", "#F0F921FF")) +
+#   theme_classic(base_size = base_size) + 
+#   theme(legend.position = "bottom")
+# 
+# suppoRt::save_ggplot(plot = ggplot_sa_growth, 
+#                      filename = "ggplot_sa_growth.png", 
+#                      path = "Figures/Appendix/", 
+#                      dpi = dpi,
+#                      width = width_full, height = height_full, units = units, 
+#                      overwrite = overwrite)
+# 
+# #### n died ####
+# 
+# # Increased parameters #
+# sa_died_inc_5 <- calc_died_sa(default = sa_default,
+#                               changed = sa_increased_5) %>%
+#   dplyr::mutate(direction = "Increased +5%")
+# 
+# sa_died_inc_10 <- calc_died_sa(default = sa_default,
+#                                changed = sa_increased_10) %>%
+#   dplyr::mutate(direction = "Increased +10%")
+# 
+# # Decreased parameters #
+# sa_died_dec_5 <- calc_died_sa(default = sa_default,
+#                               changed = sa_decreased_5) %>%
+#   dplyr::mutate(direction = "Decreased -5%")
+# 
+# sa_died_dec_10 <- calc_died_sa(default = sa_default,
+#                                changed = sa_decreased_10) %>%
+#   dplyr::mutate(direction = "Decreased -10%")
+# 
+# sa_died <- dplyr::bind_rows(sa_died_inc_5, 
+#                             sa_died_inc_10, 
+#                             sa_died_dec_5, 
+#                             sa_died_dec_10) %>% 
+#   dplyr::mutate(parameter = factor(parameter, 
+#                                    levels = parameter_levels),
+#                 direction = factor(direction, 
+#                                    levels = c("Decreased -10%", 
+#                                               "Decreased -5%", 
+#                                               "Increased +5%", 
+#                                               "Increased +10%")))
+# 
+# ggplot_sa_died <- ggplot(data = sa_died) + 
+#   geom_bar(aes(x = parameter, y = diff_n_rel * 100, 
+#                fill = direction), col = "black",
+#            stat = "identity", position = "dodge") + 
+#   geom_hline(yintercept = -10, linetype = 2, col = "#0D0887FF") +
+#   geom_hline(yintercept = -5, linetype = 2, col = "#9C179EFF") +
+#   geom_hline(yintercept = 0, linetype = 1) +
+#   geom_hline(yintercept = 5, linetype = 2, col = "#ED7953FF") +
+#   geom_hline(yintercept = 10, linetype = 2, col = "#F0F921FF") +
+#   coord_flip() +
+#   scale_x_discrete(name = "Parameter") +
+#   scale_y_continuous(name = "Difference n died [%]",
+#                      breaks = seq(-45, 45, 5),
+#                      limits = c(-45, 45)) +
+#   scale_fill_manual(name = "Parameter change",
+#                     values = c("#0D0887FF", "#9C179EFF" ,
+#                                "#ED7953FF", "#F0F921FF")) +
+#   theme_classic(base_size = base_size) + 
+#   theme(legend.position = "bottom")
+# 
+# suppoRt::save_ggplot(plot = ggplot_sa_died, 
+#                      filename = "ggplot_sa_died.png", 
+#                      path = "Figures/Appendix/",     
+#                      dpi = dpi,
+#                      width = width_full, height = height_small, units = units, 
+#                      overwrite = overwrite)
