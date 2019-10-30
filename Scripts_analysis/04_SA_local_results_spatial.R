@@ -337,7 +337,9 @@ suppoRt::save_ggplot(plot = ggplot_sa_pcf,
                      filename = "ggplot_sa_pcf.png", 
                      path = "Figures/Appendix/",
                      dpi = dpi, 
-                     width = width_full, height = height_small, units = units)
+                     width = width_full, height = height_full * (2/3),
+                     units = units, 
+                     overwrite = overwrite)
 
 ### Mark-correlation function ####
 # 
