@@ -40,7 +40,6 @@ df_2013 <- tibble::as_tibble(pattern_2013) %>%
                 dbh_13 > 1, inside_fence == 0)
 
 #### Number of individuals ####
-
 individual_biotic <- calc_n_comp(model_run_y50_e5_r50_biotic) %>% 
   dplyr::filter(i %in% c(0, 10, 15, 50))
 
@@ -72,6 +71,7 @@ individual_2013 <- dplyr::mutate(df_2013,
 by_dist <- 10
 
 dbh_dist_model_biotic <- calc_dbh_dist_comp(data = model_run_y50_e5_r50_biotic, 
+                                            sim_i = 15,
                                             by = by_dist) %>% 
   dplyr::bind_rows() %>% 
   dplyr::group_by(dbh_class) %>% 
@@ -82,6 +82,7 @@ dbh_dist_model_biotic <- calc_dbh_dist_comp(data = model_run_y50_e5_r50_biotic,
   dplyr::mutate(data_type = "Biotic model")
 
 dbh_dist_model_abiotic <- calc_dbh_dist_comp(data = model_run_y50_e5_r50_abiotic, 
+                                             sim_i = 15,
                                              by = by_dist) %>% 
   dplyr::bind_rows() %>% 
   dplyr::group_by(dbh_class) %>% 
@@ -148,7 +149,7 @@ ggplot_dbh_dist <- ggplot(data = dbh_dist_overall) +
         legend.key.width = unit(0.5, units = "cm"))
 
 suppoRt::save_ggplot(plot = ggplot_dbh_dist, 
-                     filename = "ggplot_dbh_dist.png",
+                     filename = "ggplot_dbh_dist_y15.png",
                      path = "Figures/", 
                      dpi = dpi, 
                      width = width_full, height = height_small, units = units, 
@@ -163,7 +164,8 @@ median <- 0.5
 high <- 0.75
 max <- 0.9
 
-dbh_growth_model_biotic <- calc_growth_comp(data = model_run_y50_e5_r50_biotic, 
+dbh_growth_model_biotic <- calc_growth_comp(data = model_run_y50_e5_r50_biotic,
+                                            sim_i = 15,
                                             by = by_growth) %>% 
   dplyr::bind_rows() %>% 
   dplyr::group_by(dbh_class) %>% 
@@ -174,7 +176,8 @@ dbh_growth_model_biotic <- calc_growth_comp(data = model_run_y50_e5_r50_biotic,
                    inc_max = quantile(dbh_inc, probs = max)) %>% 
   dplyr::mutate(data_type = "Biotic model")
 
-dbh_growth_model_abiotic <- calc_growth_comp(data = model_run_y50_e5_r50_abiotic, 
+dbh_growth_model_abiotic <- calc_growth_comp(data = model_run_y50_e5_r50_abiotic,
+                                             sim_i = 15,
                                              by = by_growth) %>% 
   dplyr::bind_rows() %>% 
   dplyr::group_by(dbh_class) %>% 
@@ -230,7 +233,7 @@ ggplot_growth <- ggplot(data = dbh_growth_overall) +
   theme(legend.position = "bottom")
 
 suppoRt::save_ggplot(plot = ggplot_growth, 
-                     filename = "ggplot_growth.png", 
+                     filename = "ggplot_growth_y15.png", 
                      path = "Figures/", 
                      dpi = dpi, 
                      width = width_small, height = height_small, units = units, 

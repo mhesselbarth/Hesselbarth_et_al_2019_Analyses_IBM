@@ -1,6 +1,6 @@
 #### helper function model comparison spatial ### 
 
-calc_nnd_comp <- function(data, window, r, correction, verbose = TRUE, ...) {
+calc_nnd_comp <- function(data, sim_i, window, r, correction, verbose = TRUE, ...) {
   
   # get length of input for printig
   n_data <- length(data)
@@ -11,7 +11,7 @@ calc_nnd_comp <- function(data, window, r, correction, verbose = TRUE, ...) {
       message("\r> Progress: ", x, "/", n_data, appendLF = FALSE)
     }
     
-    temp_data <- dplyr::filter(data[[x]], i == max(i), type != "dead")
+    temp_data <- dplyr::filter(data[[x]], i == sim_i, type != "dead")
     
     # convert to ppp
     temp_ppp <- spatstat::ppp(x = temp_data$x, y = temp_data$y,
@@ -38,7 +38,7 @@ calc_nnd_comp <- function(data, window, r, correction, verbose = TRUE, ...) {
   return(nnd_result)
 }
 
-calc_pcf_comp <- function(data, window, verbose = TRUE, ...) {
+calc_pcf_comp <- function(data, sim_i, window, verbose = TRUE, ...) {
   
   # get length of input for printig
   n_data <- length(data)
@@ -50,7 +50,7 @@ calc_pcf_comp <- function(data, window, verbose = TRUE, ...) {
     }
     
     # get data of last timestep
-    temp_data <- dplyr::filter(data[[x]], i == max(i), type != "dead")
+    temp_data <- dplyr::filter(data[[x]], i == sim_i, type != "dead")
     
     # convert to ppp
     temp_ppp <- spatstat::ppp(x = temp_data$x, y = temp_data$y,
@@ -77,7 +77,7 @@ calc_pcf_comp <- function(data, window, verbose = TRUE, ...) {
   return(pcf_result)
 }
 
-calc_kmm_comp <- function(data, window, r, verbose = TRUE, ...) {
+calc_kmm_comp <- function(data, sim_i, window, r, verbose = TRUE, ...) {
   
   # get length of input for printig
   n_data <- length(data)
@@ -90,7 +90,7 @@ calc_kmm_comp <- function(data, window, r, verbose = TRUE, ...) {
     }
     
     # get data of last timestep
-    temp_data <- dplyr::filter(data[[x]], i == max(i), type != "dead")
+    temp_data <- dplyr::filter(data[[x]], i == sim_i, type != "dead")
     
     # convert to ppp
     temp_ppp <- spatstat::ppp(x = temp_data$x, y = temp_data$y,
@@ -125,7 +125,7 @@ calc_kmm_comp <- function(data, window, r, verbose = TRUE, ...) {
   return(kmm_data)
 }
 
-calc_ci_comp <- function(data, parameters, from = 0, to = 1, verbose = TRUE) {
+calc_ci_comp <- function(data, sim_i, parameters, from = 0, to = 1, verbose = TRUE) {
   
   # get length of input for printig
   n_data <- length(data)
@@ -138,7 +138,7 @@ calc_ci_comp <- function(data, parameters, from = 0, to = 1, verbose = TRUE) {
     }
     
     # get data of last timestep
-    temp_data <- dplyr::filter(data[[x]], i == max(i), type != "dead")
+    temp_data <- dplyr::filter(data[[x]], i == sim_i, type != "dead")
     
     # check which points are inside
     temp_inside <- spatstat::inside.owin(x = temp_data$x, y = temp_data$y,

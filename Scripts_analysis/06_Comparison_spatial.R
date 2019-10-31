@@ -168,6 +168,7 @@ divisor_pcf <- "d"
 
 # calculate pcf #
 pcf_model_biotic_sapling <- calc_pcf_comp(data = model_run_y50_e5_r50_biotic_sapling,
+                                          sim_i = 15,
                                           r = r_pcf, correction = correction_pcf,
                                           window = window, stoyan = stoyan_pcf, 
                                           divisor = divisor_pcf) %>% 
@@ -175,6 +176,7 @@ pcf_model_biotic_sapling <- calc_pcf_comp(data = model_run_y50_e5_r50_biotic_sap
                 size_model = "Sapling")
 
 pcf_model_biotic_adult <- calc_pcf_comp(data = model_run_y50_e5_r50_biotic_adult,
+                                        sim_i = 15,
                                         r = r_pcf, correction = correction_pcf,
                                         window = window, stoyan = stoyan_pcf, 
                                         divisor = divisor_pcf) %>% 
@@ -182,6 +184,7 @@ pcf_model_biotic_adult <- calc_pcf_comp(data = model_run_y50_e5_r50_biotic_adult
                 size_model = "Adult")
 
 pcf_model_abiotic_sapling <- calc_pcf_comp(data = model_run_y50_e5_r50_abiotic_sapling,
+                                           sim_i = 15,
                                            r = r_pcf, correction = correction_pcf,
                                            window = window, stoyan = stoyan_pcf, 
                                            divisor = divisor_pcf) %>% 
@@ -189,6 +192,7 @@ pcf_model_abiotic_sapling <- calc_pcf_comp(data = model_run_y50_e5_r50_abiotic_s
                 size_model = "Sapling")
 
 pcf_model_abiotic_adult <- calc_pcf_comp(data = model_run_y50_e5_r50_abiotic_adult,
+                                         sim_i = 15,
                                          r = r_pcf, correction = correction_pcf,
                                          window = window, stoyan = stoyan_pcf, 
                                          divisor = divisor_pcf) %>% 
@@ -264,7 +268,7 @@ ggplot_pcf <- ggplot(data = pcf_overall_model) +
         legend.key.width = unit(0.5, units = "cm"))
 
 suppoRt::save_ggplot(plot = ggplot_pcf,
-                     filename = "ggplot_pcf.png",
+                     filename = "ggplot_pcf_y15.png",
                      path = "Figures/",
                      dpi = dpi, 
                      width = width_full, height = height_small, units = units,
@@ -276,24 +280,28 @@ correction_kmm <- "Ripley"
 
 # calculate kmm #
 kmm_model_biotic_sapling <- calc_kmm_comp(data = model_run_y50_e5_r50_biotic_sapling,
+                                          sim_i = 15,
                                           r = r_kmm, correction = correction_kmm,
                                           window = window) %>% 
   dplyr::mutate(data_type_model = "Biotic model", 
                 size_model = "Sapling")
 
 kmm_model_biotic_adult <- calc_kmm_comp(data = model_run_y50_e5_r50_biotic_adult,
+                                        sim_i = 15,
                                         r = r_kmm, correction = correction_kmm,
                                         window = window) %>% 
   dplyr::mutate(data_type_model = "Biotic model", 
                 size_model = "Adult")
 
 kmm_model_abiotic_sapling <- calc_kmm_comp(data = model_run_y50_e5_r50_abiotic_sapling,
+                                           sim_i = 15,
                                            r = r_kmm, correction = correction_kmm,
                                            window = window) %>% 
   dplyr::mutate(data_type_model = "Abiotic model", 
                 size_model = "Sapling")
 
 kmm_model_abiotic_adult <- calc_kmm_comp(data = model_run_y50_e5_r50_abiotic_adult,
+                                         sim_i = 15,
                                          r = r_kmm, correction = correction_kmm,
                                          window = window) %>% 
   dplyr::mutate(data_type_model = "Abiotic model", 
@@ -369,7 +377,7 @@ ggplot_kmm <- ggplot(data = kmm_overall_model) +
         legend.key.width = unit(0.5, units = "cm"))
 
 suppoRt::save_ggplot(plot = ggplot_kmm,
-                     filename = "ggplot_kmm.png",
+                     filename = "ggplot_kmm_y15.png",
                      path = "Figures/",
                      dpi = dpi, 
                      width = width_full, height = height_small, units = units,
@@ -380,24 +388,28 @@ from_ci <- 0.25
 to_ci <- 1
 
 ci_model_biotic_sapling <- calc_ci_comp(data = model_run_y50_e5_r50_biotic_sapling, 
-                                parameters = parameters_fitted_biotic, 
-                                from = from_ci, to = to_ci) %>% 
+                                        sim_i = 15,
+                                        parameters = parameters_fitted_biotic, 
+                                        from = from_ci, to = to_ci) %>% 
   dplyr::mutate(data_type_model = "Biotic model", 
                 size_model = "Sapling")
 
 ci_model_biotic_adult <- calc_ci_comp(data = model_run_y50_e5_r50_biotic_adult, 
-                                        parameters = parameters_fitted_biotic, 
-                                        from = from_ci, to = to_ci) %>% 
+                                      sim_i = 15,  
+                                      parameters = parameters_fitted_biotic, 
+                                      from = from_ci, to = to_ci) %>% 
   dplyr::mutate(data_type_model = "Biotic model", 
                 size_model = "Adult")
 
 ci_model_abiotic_sapling <- calc_ci_comp(data = model_run_y50_e5_r50_abiotic_sapling, 
+                                         sim_i = 15,
                                          parameters = parameters_fitted_abiotic, 
                                          from = from_ci, to = to_ci) %>% 
   dplyr::mutate(data_type_model = "Abiotic model", 
                 size_model = "Sapling")
 
 ci_model_abiotic_adult <- calc_ci_comp(data = model_run_y50_e5_r50_abiotic_adult, 
+                                       sim_i = 15,
                                        parameters = parameters_fitted_abiotic, 
                                        from = from_ci, to = to_ci) %>% 
   dplyr::mutate(data_type_model = "Abiotic model", 
@@ -499,7 +511,7 @@ ggplot_ci <- ggplot(data = ci_overall_model) +
         legend.key.width = unit(0.5, units = "cm"))
 
 suppoRt::save_ggplot(plot = ggplot_ci, 
-                     filename = "ggplot_ci.png", 
+                     filename = "ggplot_ci_y15.png", 
                      path = "Figures/", 
                      dpi = dpi, 
                      width = width_full, height = height_small, units = units, 
