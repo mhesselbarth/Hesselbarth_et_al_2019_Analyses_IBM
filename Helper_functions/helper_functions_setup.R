@@ -30,12 +30,12 @@ overwrite <- FALSE
 
 base_size <- 12.5
 
-width_full <- 21.0
-width_small <- 17.5
+width_full <- 210
+width_small <- 175
 
-height_full <- 29.7
-height_small <- 12.5
+height_full <- 297
+height_small <- 125
 
-units <- "cm"
+units <- "mm"
 
 dpi <- 300

@@ -262,7 +262,7 @@ ggplot_pcf <- ggplot(data = pcf_overall_model) +
   scale_color_manual(name = "", values = c("Sapling" = "#0D0887FF", 
                                            "Adult" = "#CC4678FF")) +
   scale_linetype_manual(name = "", values = c(1, 2)) +
-  labs(x = "r [m]", y = "g(r)") +
+  labs(x = "r [m]", y = expression(italic(g(r)))) +
   theme_classic(base_size = base_size) + 
   theme(legend.position = "bottom", 
         legend.key.width = unit(0.5, units = "cm"))
@@ -371,7 +371,7 @@ ggplot_kmm <- ggplot(data = kmm_overall_model) +
                                            "Adult" = "#CC4678FF")) +
   scale_linetype_manual(name = "", values = c(1, 2)) +
   coord_cartesian(ylim = c(0.5, 1.75)) +
-  labs(x = "r [m]", y = "kmm(r)") +
+  labs(x = "r [m]", y = expression(italic(k[mm](r)))) +
   theme_classic(base_size = base_size) + 
   theme(legend.position = "bottom", 
         legend.key.width = unit(0.5, units = "cm"))
