@@ -12,30 +12,29 @@
 source("Helper_functions/helper_functions_setup.R")
 
 #### import data ####
-pattern_1999 <- readr::read_rds("Data/Raw/pattern_1999_ppp.rds")
 
-# filter for all beech trees
-beech_1999 <- spatstat::subset.ppp(pattern_1999, species == "beech")
+# field data
+beech_1999_ppp_ppp <- readr::read_rds("Data/Input/beech_1999_ppp_ppp.rds")
 
 # inport reconstruted data
-beech_1999_rec <- readr::read_rds("Data/Input/beech_1999_rec.rds")
+beech_1999_ppp_ppp_rec <- readr::read_rds("Data/Input/beech_1999_ppp_ppp_rec_ppp.rds")
 
 #### Compare non-spatial structure #### 
 
 # make sure number of points is identical
-beech_1999$n
-beech_1999_rec$n
+beech_1999_ppp_ppp$n
+beech_1999_ppp_ppp_rec$n
 
 # make sure only beech
-beech_1999$marks$species %>% table()
-beech_1999_rec$marks$species %>% table()
+beech_1999_ppp$marks$species %>% table()
+beech_1999_ppp_ppp_rec$marks$species %>% table()
 
 # make sure all all living/adult
-beech_1999$marks$type %>% table()
-beech_1999_rec$marks$type %>% table()
+beech_1999_ppp$marks$type %>% table()
+beech_1999_ppp_ppp_rec$marks$type %>% table()
 
 #### DBH distribution ####
-dbh_dist <- beech_1999$marks %>% 
+dbh_dist <- beech_1999_ppp$marks %>% 
   tibble::as_tibble() %>% 
   dplyr::mutate(dbh_class = cut(dbh_99, breaks = seq(from = 0, to = 130, by = 5)), 
                 data_type = "Input data") %>% 
@@ -43,7 +42,7 @@ dbh_dist <- beech_1999$marks %>%
   dplyr::group_by(data_type, dbh_class) %>% 
   dplyr::summarise(n = n())
 
-dbh_dist_rec <- beech_1999_rec$marks %>% 
+dbh_dist_rec <- beech_1999_ppp_ppp_rec$marks %>% 
   tibble::as_tibble() %>% 
   dplyr::mutate(dbh_class = cut(dbh, breaks = seq(from = 0, to = 130, by = 5)), 
                 data_type = "Reconstructed data") %>% 
@@ -68,7 +67,7 @@ correction_nnd <- "km"
 correction_mcf <- "Ripley"
 
 # calculate pcf # 
-pcf_beech <- spatstat::pcf(X = beech_1999, 
+pcf_beech <- spatstat::pcf(X = beech_1999_ppp, 
                            correction = correction_pcf, 
                            divisor = divisor) %>% 
   tibble::as_tibble() %>% 
@@ -76,7 +75,7 @@ pcf_beech <- spatstat::pcf(X = beech_1999,
   dplyr::mutate(data_type = "Input data", 
                 sf = "Pair-correlation function")
 
-pcf_beech_rec <- spatstat::pcf(X = beech_1999_rec, 
+pcf_beech_rec <- spatstat::pcf(X = beech_1999_ppp_ppp_rec, 
                                correction = correction_pcf, 
                                divisor = divisor) %>% 
   tibble::as_tibble() %>% 
@@ -87,7 +86,7 @@ pcf_beech_rec <- spatstat::pcf(X = beech_1999_rec,
 pcf_full <- dplyr::bind_rows(pcf_beech, pcf_beech_rec)
 
 # calculate NND #
-nnd_beech <- spatstat::Gest(X = beech_1999, 
+nnd_beech <- spatstat::Gest(X = beech_1999_ppp, 
                             correction = correction_nnd) %>% 
   tibble::as_tibble() %>% 
   dplyr::select(r, theo, correction_nnd) %>% 
@@ -95,7 +94,7 @@ nnd_beech <- spatstat::Gest(X = beech_1999,
   dplyr::mutate(data_type = "Input data", 
                 sf = "Neareast neighbor distribution function")
 
-nnd_beech_rec <- spatstat::Gest(X = beech_1999_rec, 
+nnd_beech_rec <- spatstat::Gest(X = beech_1999_ppp_ppp_rec, 
                                 correction = correction_nnd) %>% 
   tibble::as_tibble() %>% 
   dplyr::select(r, theo, km) %>% 
@@ -106,14 +105,14 @@ nnd_beech_rec <- spatstat::Gest(X = beech_1999_rec,
 nnd_full <- dplyr::bind_rows(nnd_beech, nnd_beech_rec)
 
 # calculate mark-corrlation function # 
-mc_beech <- spatstat::subset.ppp(x = beech_1999, select = dbh_99) %>% 
+mc_beech <- spatstat::subset.ppp(x = beech_1999_ppp, select = dbh_99) %>% 
   spatstat::markcorr(correction = correction_mcf) %>% 
   tibble::as_tibble() %>% 
   purrr::set_names(c("r", "theo", "fun")) %>% 
   dplyr::mutate(data_type = "Input data", 
                 sf = "Mark-correlation function")
 
-mc_beech_rec <- spatstat::subset.ppp(x = beech_1999_rec, select = dbh) %>% 
+mc_beech_rec <- spatstat::subset.ppp(x = beech_1999_ppp_ppp_rec, select = dbh) %>% 
   spatstat::markcorr(correction = correction_mcf) %>% 
   tibble::as_tibble() %>% 
   purrr::set_names(c("r", "theo", "fun")) %>% 

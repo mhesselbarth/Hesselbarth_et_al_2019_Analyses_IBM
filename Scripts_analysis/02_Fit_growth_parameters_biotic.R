@@ -21,11 +21,11 @@ parameters_default <- rabmp::read_parameters("Data/Input/parameters_default.txt"
                                              sep = ";")
 
 # import data  #
-pattern_2013 <- readr::read_rds("Data/Raw/pattern_2013_df.rds")
+beech_2013 <- readr::read_rds("Data/Input/beech_2013_ppp.rds") %>% 
+  tibble::as_tibble()
 
 # filter data and calculate mean dbh growth #
-beech_2013 <- dplyr::filter(pattern_2013, 
-                            species == "beech", 
+beech_2013 <- dplyr::filter(beech_2013, 
                             !is.na(dbh_99), 
                             !is.na(dbh_13),
                             type == "living", 
@@ -121,9 +121,9 @@ broom::tidy(fitted_fun_potential)
 # A tibble: 3 x 5
 #   term      estimate  std.error   statistic   p.value
 #   <chr>     <dbl>     <dbl>       <dbl>       <dbl>
-#   assymp    205.      31.2        6.57        5.10e-11
-#   rate      0.00649   0.00124     5.22        1.82e- 7
-#   infl      1.35      0.0502      26.9        0.      
+#   assymp    205.      37.5        6.57        5.10e-11
+#   rate      0.00649   0.00145     5.22        1.82e- 7
+#   infl      1.35      0.0511      26.9        0.      
 
 #### Fit ci parameters ####
 

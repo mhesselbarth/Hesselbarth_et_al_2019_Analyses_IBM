@@ -13,16 +13,14 @@
 # load packages #
 source("Helper_functions/helper_functions_setup.R")
 
-parameters_fitted_abiotic <- rabmp::read_parameters("Data/Input/parameters_fitted_abiotic.txt", 
+parameters_fitted_abiotic <- rabmp::read_parameters("Data/Input/parameters_fitted_abiotic_real.txt", 
                                                     sep = ";")
 
-# pattern_1999_recon <- readr::read_rds("Data/Input/beech_1999_rec_ppp.rds")
+# beech_1999_rec_ppp <- readr::read_rds("Data/Input/beech_1999_rec_ppp.rds")
 
-pattern_1999 <- readr::read_rds("Data/Raw/pattern_1999_ppp.rds")
+beech_1999_ppp <- readr::read_rds("Data/Input/beech_1999_ppp.rds")
 
 abiotic_habitats_real <- readr::read_rds("Data/Input/abiotic_cond_real_model.rds")
-
-# abiotic_habitats_reco <- readr::read_rds("Data/Input/abiotic_cond_reco.rds")
 
 plot_area <- readr::read_rds("Data/Raw/plot_area_owin.rds")
 
@@ -36,21 +34,19 @@ verbose <- FALSE
 
 #### Pre-processing of input data ####
 
-# data_reconstruction <- tibble::as_tibble(pattern_1999_recon) %>%
-#   dplyr::filter(species == "beech") %>%
+# data_reconstruction <- tibble::as_tibble(beech_1999_rec_ppp) %>%
 #   dplyr::select(-species) %>% 
 #   rabmp::prepare_data(x = "x", y = "y", type = "type", dbh = "dbh")
 
-data_real <- tibble::as_tibble(pattern_1999) %>%
+data_real <- tibble::as_tibble(beech_1999_ppp) %>%
   dplyr::select(x, y, species, dbh_99, type) %>% 
-  dplyr::filter(species == "beech") %>%
   dplyr::mutate(type = "adult") %>% 
   dplyr::select(-species) %>% 
   rabmp::prepare_data(x = "x", y = "y", type = "type", dbh = "dbh_99")
 
-# rm(pattern_1999_recon)
+# rm(beech_1999_rec_ppp)
 
-rm(pattern_1999)
+rm(beech_1999_ppp)
 
 #### Run model ####
 
