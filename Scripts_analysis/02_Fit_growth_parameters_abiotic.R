@@ -168,12 +168,12 @@ broom::tidy(fitted_fun_actual_reco)
 # A tibble: 3 x 2
 # parameter   value
 # <chr>       <dbl>
-# parameter1  1.07 
+# parameter1  1.11 
 # parameter2  0.437  
-# parameter3  -0.0134
+# parameter3  -0.0231
 
 fitted_fun_actual_reco$value
-# [1] 688.7742
+# [1] 687.9963
 
 ####################################
 ####                            ####
@@ -230,7 +230,6 @@ parameters_fitted_abiotic_real <- parameters_default_abiotic
 parameters_fitted_abiotic_real$ci_alpha <- fitted_fun_actual_real$par[[1]]
 parameters_fitted_abiotic_real$ci_beta <- fitted_fun_actual_real$par[[2]]
 parameters_fitted_abiotic_real$growth_abiotic <- fitted_fun_actual_real$par[[3]]
-
 
 parameters_fitted_abiotic_reco <- parameters_default_abiotic
 

@@ -16,7 +16,7 @@ source("Helper_functions/helper_functions_setup.R")
 # import data  #
 beech_1999_ppp <- readr::read_rds("Data/Input/beech_1999_ppp.rds")
 
-beech_1999_rec_ppp <- readr::read_rds("Data/Input/beech_1999_rec_ppp.rds")
+beech_1999_ppp_rec <- readr::read_rds("Data/Input/beech_1999_ppp_rec.rds")
 
 plot_area <- readr::read_rds("Data/Raw/plot_area_owin.rds")
 
@@ -196,14 +196,14 @@ suppoRt::save_ggplot(plot = ggplot_abiotic_cond,
 ######################################
 
 # # dbh threshold for habitat characterisation #
-# dbh_threshold <- quantile(beech_1999_rec_ppp$marks$dbh, probs = 0.65)
+# dbh_threshold <- quantile(beech_1999_ppp_rec$marks$dbh, probs = 0.65)
 
 # filter data using threshold sapling-adult #
-beech_1999_rec_ppp <- spatstat::subset.ppp(beech_1999_rec_ppp, dbh > 10)
+beech_1999_ppp_rec <- spatstat::subset.ppp(beech_1999_ppp_rec, dbh > 10)
 
 # get intensity
-habitat_im_fit <- spatstat::density.ppp(beech_1999_rec_ppp, at = "pixel",
-                                        weights = beech_1999_rec_ppp$marks$dbh,
+habitat_im_fit <- spatstat::density.ppp(beech_1999_ppp_rec, at = "pixel",
+                                        weights = beech_1999_ppp_rec$marks$dbh,
                                         dimyx = c(645, 609),
                                         kernel = "epanechnikov", sigma = 5)
 
@@ -263,14 +263,14 @@ suppoRt::save_rds(object = habitat_ras_fit,
 ######################################
 
 # # dbh threshold for habitat characterisation #
-# dbh_threshold <- quantile(beech_1999_rec_ppp$marks$dbh, probs = 0.65)
+# dbh_threshold <- quantile(beech_1999_ppp_rec$marks$dbh, probs = 0.65)
 
 # filter data using threshold sapling-adult #
-beech_1999_rec_ppp <- spatstat::subset.ppp(beech_1999_rec_ppp, dbh > 10)
+beech_1999_ppp_rec <- spatstat::subset.ppp(beech_1999_ppp_rec, dbh > 10)
 
 # get intensity
-habitat_im_model <- spatstat::density.ppp(beech_1999_rec_ppp, at = "pixel",
-                                          weights = beech_1999_rec_ppp$marks$dbh,
+habitat_im_model <- spatstat::density.ppp(beech_1999_ppp_rec, at = "pixel",
+                                          weights = beech_1999_ppp_rec$marks$dbh,
                                           dimyx = c(645, 609),
                                           kernel = "epanechnikov", sigma = 15)
 

@@ -13,7 +13,7 @@
 # load packages #
 source("Helper_functions/helper_functions_setup.R")
 
-parameters_fitted_abiotic <- rabmp::read_parameters("Data/Input/parameters_fitted_abiotic_real.txt", 
+parameters_fitted_abiotic_real <- rabmp::read_parameters("Data/Input/parameters_fitted_abiotic_real.txt", 
                                                     sep = ";")
 
 # beech_1999_rec_ppp <- readr::read_rds("Data/Input/beech_1999_rec_ppp.rds")
@@ -78,7 +78,7 @@ rm(beech_1999_ppp)
 model_run_y50_e5_r50_real_a <- suppoRt::submit_to_cluster(rabmp::run_model_abiotic,
                                                           years = years,
                                                           const = list(data = data_real,
-                                                                       parameters = parameters_fitted_abiotic,
+                                                                       parameters = parameters_fitted_abiotic_real,
                                                                        abiotic = abiotic_habitats_real$scaled,
                                                                        probs = probs,
                                                                        plot_area = plot_area,

@@ -32,13 +32,12 @@ parameters_fitted_abiotic <- rabmp::read_parameters("Data/Input/parameters_fitte
                                                     sep = ";")
 
 #### Preprocess data ####
-
 # set names # 
 
-names(model_run_y50_e5_r50_biotic) <- rep("Biotic model", 
+names(model_run_y50_e5_r50_biotic) <- rep("Biotic model version", 
                                           times = length(model_run_y50_e5_r50_biotic))
 
-names(model_run_y50_e5_r50_abiotic) <- rep("Abiotic model", 
+names(model_run_y50_e5_r50_abiotic) <- rep("Combined model version", 
                                            times = length(model_run_y50_e5_r50_abiotic))
 
 # filter size classes # 
@@ -58,107 +57,7 @@ model_run_y50_e5_r50_abiotic_adult <- purrr::map(model_run_y50_e5_r50_abiotic,
                                                  function(x) 
                                                    dplyr::filter(x, type == "adult"))
 
-# #### Nearest-neighbor distribution function ####
-# r_nnd <- seq(from = 0, to = 10, length.out = 525)
-# correction_nnd <- "km"
-# 
-# # calculate NND #
-# nnd_model_biotic_sapling <- calc_nnd_comp(data = model_run_y50_e5_r50_biotic_sapling, 
-#                                           r = r_nnd, correction = correction_nnd, 
-#                                           window = window) %>% 
-#   dplyr::mutate(data_type_model = "Biotic model", 
-#                 size_model = "Sapling")
-# 
-# nnd_model_biotic_adult <- calc_nnd_comp(data = model_run_y50_e5_r50_biotic_adult, 
-#                                         r = r_nnd, correction = correction_nnd, 
-#                                         window = window) %>% 
-#   dplyr::mutate(data_type_model = "Biotic model", 
-#                 size_model = "Adult")
-# 
-# nnd_model_abiotic_sapling <- calc_nnd_comp(data = model_run_y50_e5_r50_abiotic_sapling, 
-#                                            r = r_nnd, correction = correction_nnd, 
-#                                            window = window) %>% 
-#   dplyr::mutate(data_type_model = "Abiotic model", 
-#                 size_model = "Sapling")
-# 
-# nnd_model_abiotic_adult <- calc_nnd_comp(data = model_run_y50_e5_r50_abiotic_adult, 
-#                                          r = r_nnd, correction = correction_nnd, 
-#                                          window = window) %>% 
-#   dplyr::mutate(data_type_model = "Abiotic model", 
-#                 size_model = "Adult")
-# 
-# nnd_2007_sapling <- spatstat::subset.ppp(beech_2007_sapling_ppp, 
-#                                          inside_fence == 0 & type != "dead") %>% 
-#   spatstat::Gest(r = r_nnd, correction = correction_nnd) %>% 
-#   tibble::as_tibble() %>% 
-#   dplyr::select(r, theo, correction_nnd) %>% 
-#   dplyr::mutate(data_type_field = "Field data 2007", 
-#                 size_field = "Sapling")
-# 
-# nnd_2007_adult <- spatstat::subset.ppp(beech_2007_adult_ppp, 
-#                                        inside_fence == 0 & type != "dead") %>% 
-#   spatstat::Gest(r = r_nnd, correction = correction_nnd) %>% 
-#   tibble::as_tibble() %>% 
-#   dplyr::select(r, theo, correction_nnd) %>% 
-#   dplyr::mutate(data_type_field = "Field data 2007", 
-#                 size_field = "Adult")
-# 
-# nnd_2013_sapling <- spatstat::subset.ppp(beech_2013_sapling_ppp, 
-#                                          inside_fence == 0 & type != "dead") %>% 
-#   spatstat::Gest(r = r_nnd, correction = correction_nnd) %>% 
-#   tibble::as_tibble() %>% 
-#   dplyr::select(r, theo, correction_nnd) %>% 
-#   dplyr::mutate(data_type_field = "Field data 2013", 
-#                 size_field = "Sapling")
-# 
-# nnd_2013_adult <- spatstat::subset.ppp(beech_2013_adult_ppp, 
-#                                        inside_fence == 0 & type != "dead") %>% 
-#   spatstat::Gest(r = r_nnd, correction = correction_nnd) %>% 
-#   tibble::as_tibble() %>% 
-#   dplyr::select(r, theo, correction_nnd) %>% 
-#   dplyr::mutate(data_type_field = "Field data 2013", 
-#                 size_field = "Adult")
-# 
-# # combine to one df #
-# nnd_overall_model <- dplyr::bind_rows(nnd_model_biotic_sapling,
-#                                       nnd_model_biotic_adult,
-#                                       nnd_model_abiotic_sapling,
-#                                       nnd_model_abiotic_adult) %>% 
-#   dplyr::mutate(data_type_model = factor(data_type_model, 
-#                                          levels = c("Biotic model",
-#                                                     "Abiotic model")), 
-#                 size_model = factor(size_model, levels = c("Sapling", "Adult")))
-# 
-# nnd_overall_field <- dplyr::bind_rows(nnd_2007_sapling,
-#                                       nnd_2007_adult,
-#                                       nnd_2013_sapling, 
-#                                       nnd_2013_adult) %>% 
-#   dplyr::mutate(data_type_field = factor(data_type_field, 
-#                                          levels = c("Field data 2007",
-#                                                     "Field data 2013")), 
-#                 size_field = factor(size_field, levels = c("Sapling", "Adult")))
-# 
-# # create plot #
-# ggplot_nnd <- ggplot(data = nnd_overall_model) + 
-#   geom_ribbon(aes(x = r, ymin = fun_lo, ymax = fun_hi, fill = size_model), 
-#               alpha = 0.5) +
-#   geom_line(data = nnd_overall_field, 
-#             aes(x = r, y = km, col = size_field, linetype = data_type_field)) +
-#   facet_wrap(~ data_type_model) + 
-#   scale_color_viridis_d(name = "", option = "C") +
-#   scale_fill_viridis_d(name = "", option = "C") +
-#   scale_linetype_manual(name = "", values = c(1, 2)) +
-#   labs(x = "r [m]", y = "G(r)") +
-#   theme_classic(base_size = base_size) + 
-#   theme(legend.position = "bottom", 
-#         legend.key.width = unit(0.5, units = "cm"))
-# 
-# suppoRt::save_ggplot(plot = ggplot_nnd,
-#                      filename = "ggplot_nnd.png",
-#                      path = "Figures/",
-#                      dpi = dpi, 
-#                      width = width_full, height = height_small, units = units,
-#                      overwrite = overwrite)
+sim_i <- 15
 
 #### Pair-correlation function #### 
 r_pcf <- seq(from = 0, to = 50, length.out = 525)
@@ -168,35 +67,35 @@ divisor_pcf <- "d"
 
 # calculate pcf #
 pcf_model_biotic_sapling <- calc_pcf_comp(data = model_run_y50_e5_r50_biotic_sapling,
-                                          sim_i = 15,
+                                          sim_i = sim_i,
                                           r = r_pcf, correction = correction_pcf,
                                           window = window, stoyan = stoyan_pcf, 
                                           divisor = divisor_pcf) %>% 
-  dplyr::mutate(data_type_model = "Biotic model", 
+  dplyr::mutate(data_type_model = "Biotic model version", 
                 size_model = "Sapling")
 
 pcf_model_biotic_adult <- calc_pcf_comp(data = model_run_y50_e5_r50_biotic_adult,
-                                        sim_i = 15,
+                                        sim_i = sim_i,
                                         r = r_pcf, correction = correction_pcf,
                                         window = window, stoyan = stoyan_pcf, 
                                         divisor = divisor_pcf) %>% 
-  dplyr::mutate(data_type_model = "Biotic model", 
+  dplyr::mutate(data_type_model = "Biotic model version", 
                 size_model = "Adult")
 
 pcf_model_abiotic_sapling <- calc_pcf_comp(data = model_run_y50_e5_r50_abiotic_sapling,
-                                           sim_i = 15,
+                                           sim_i = sim_i,
                                            r = r_pcf, correction = correction_pcf,
                                            window = window, stoyan = stoyan_pcf, 
                                            divisor = divisor_pcf) %>% 
-  dplyr::mutate(data_type_model = "Abiotic model", 
+  dplyr::mutate(data_type_model = "Combined model version", 
                 size_model = "Sapling")
 
 pcf_model_abiotic_adult <- calc_pcf_comp(data = model_run_y50_e5_r50_abiotic_adult,
-                                         sim_i = 15,
+                                         sim_i = sim_i,
                                          r = r_pcf, correction = correction_pcf,
                                          window = window, stoyan = stoyan_pcf, 
                                          divisor = divisor_pcf) %>% 
-  dplyr::mutate(data_type_model = "Abiotic model", 
+  dplyr::mutate(data_type_model = "Combined model version", 
                 size_model = "Adult")
 
 pcf_2007_sapling <- spatstat::pcf(beech_2007_sapling_ppp, 
@@ -236,8 +135,8 @@ pcf_overall_model <- dplyr::bind_rows(pcf_model_biotic_sapling,
                                       pcf_model_abiotic_sapling,
                                       pcf_model_abiotic_adult) %>% 
   dplyr::mutate(data_type_model = factor(data_type_model, 
-                                         levels = c("Biotic model",
-                                                    "Abiotic model")),
+                                         levels = c("Biotic model version",
+                                                    "Combined model version")),
                 size_model = factor(size_model, levels = c("Sapling", "Adult")))
 
 pcf_overall_field <- dplyr::bind_rows(pcf_2007_sapling,
@@ -280,31 +179,31 @@ correction_kmm <- "Ripley"
 
 # calculate kmm #
 kmm_model_biotic_sapling <- calc_kmm_comp(data = model_run_y50_e5_r50_biotic_sapling,
-                                          sim_i = 15,
+                                          sim_i = sim_i,
                                           r = r_kmm, correction = correction_kmm,
                                           window = window) %>% 
-  dplyr::mutate(data_type_model = "Biotic model", 
+  dplyr::mutate(data_type_model = "Biotic model version", 
                 size_model = "Sapling")
 
 kmm_model_biotic_adult <- calc_kmm_comp(data = model_run_y50_e5_r50_biotic_adult,
-                                        sim_i = 15,
+                                        sim_i = sim_i,
                                         r = r_kmm, correction = correction_kmm,
                                         window = window) %>% 
-  dplyr::mutate(data_type_model = "Biotic model", 
+  dplyr::mutate(data_type_model = "Biotic model version", 
                 size_model = "Adult")
 
 kmm_model_abiotic_sapling <- calc_kmm_comp(data = model_run_y50_e5_r50_abiotic_sapling,
-                                           sim_i = 15,
+                                           sim_i = sim_i,
                                            r = r_kmm, correction = correction_kmm,
                                            window = window) %>% 
-  dplyr::mutate(data_type_model = "Abiotic model", 
+  dplyr::mutate(data_type_model = "Combined model version", 
                 size_model = "Sapling")
 
 kmm_model_abiotic_adult <- calc_kmm_comp(data = model_run_y50_e5_r50_abiotic_adult,
-                                         sim_i = 15,
+                                         sim_i = sim_i,
                                          r = r_kmm, correction = correction_kmm,
                                          window = window) %>% 
-  dplyr::mutate(data_type_model = "Abiotic model", 
+  dplyr::mutate(data_type_model = "Combined model version", 
                 size_model = "Adult")
 
 kmm_2007_sapling <- spatstat::markcorr(spatstat::subset.ppp(beech_2007_sapling_ppp, 
@@ -344,8 +243,8 @@ kmm_overall_model <- dplyr::bind_rows(kmm_model_biotic_sapling,
                                       kmm_model_abiotic_sapling,
                                       kmm_model_abiotic_adult) %>% 
   dplyr::mutate(data_type_model = factor(data_type_model, 
-                                         levels = c("Biotic model",
-                                                    "Abiotic model")),
+                                         levels = c("Biotic model version",
+                                                    "Combined model version")),
                 size_model = factor(size_model, levels = c("Sapling", "Adult")))
 
 kmm_overall_field <- dplyr::bind_rows(kmm_2007_sapling,
@@ -388,31 +287,31 @@ from_ci <- 0.25
 to_ci <- 1
 
 ci_model_biotic_sapling <- calc_ci_comp(data = model_run_y50_e5_r50_biotic_sapling, 
-                                        sim_i = 15,
+                                        sim_i = sim_i,
                                         parameters = parameters_fitted_biotic, 
                                         from = from_ci, to = to_ci) %>% 
-  dplyr::mutate(data_type_model = "Biotic model", 
+  dplyr::mutate(data_type_model = "Biotic model version", 
                 size_model = "Sapling")
 
 ci_model_biotic_adult <- calc_ci_comp(data = model_run_y50_e5_r50_biotic_adult, 
-                                      sim_i = 15,  
+                                      sim_i = sim_i,  
                                       parameters = parameters_fitted_biotic, 
                                       from = from_ci, to = to_ci) %>% 
-  dplyr::mutate(data_type_model = "Biotic model", 
+  dplyr::mutate(data_type_model = "Biotic model version", 
                 size_model = "Adult")
 
 ci_model_abiotic_sapling <- calc_ci_comp(data = model_run_y50_e5_r50_abiotic_sapling, 
-                                         sim_i = 15,
+                                         sim_i = sim_i,
                                          parameters = parameters_fitted_abiotic, 
                                          from = from_ci, to = to_ci) %>% 
-  dplyr::mutate(data_type_model = "Abiotic model", 
+  dplyr::mutate(data_type_model = "Combined model version", 
                 size_model = "Sapling")
 
 ci_model_abiotic_adult <- calc_ci_comp(data = model_run_y50_e5_r50_abiotic_adult, 
-                                       sim_i = 15,
+                                       sim_i = sim_i,
                                        parameters = parameters_fitted_abiotic, 
                                        from = from_ci, to = to_ci) %>% 
-  dplyr::mutate(data_type_model = "Abiotic model", 
+  dplyr::mutate(data_type_model = "Combined model version", 
                 size_model = "Adult")
 
 ci_2007_sapling <- spatstat::subset.ppp(beech_2007_sapling_ppp, 
@@ -481,8 +380,8 @@ ci_overall_model <- dplyr::bind_rows(ci_model_biotic_sapling,
                                      ci_model_abiotic_sapling,
                                      ci_model_abiotic_adult) %>% 
   dplyr::mutate(data_type_model = factor(data_type_model, 
-                                         levels = c("Biotic model",
-                                                    "Abiotic model")), 
+                                         levels = c("Biotic model version",
+                                                    "Combined model version")), 
                 size_model = factor(size_model, levels = c("Sapling", "Adult")))
 
 ci_overall_field <- dplyr::bind_rows(ci_2007_sapling,

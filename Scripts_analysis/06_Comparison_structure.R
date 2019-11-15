@@ -20,11 +20,10 @@ model_run_y50_e5_r50_biotic <- readr::read_rds("Data/Output/model_runs/model_run
 model_run_y50_e5_r50_abiotic <- readr::read_rds("Data/Output/model_runs/model_run_y50_e5_r50_real_a.rds")
 
 #### Preprocess data ####
-
-names(model_run_y50_e5_r50_biotic) <- rep("Biotic model", 
+names(model_run_y50_e5_r50_biotic) <- rep("Biotic model version", 
                                           times = length(model_run_y50_e5_r50_biotic))
 
-names(model_run_y50_e5_r50_abiotic) <- rep("Abiotic model", 
+names(model_run_y50_e5_r50_abiotic) <- rep("Combined model version", 
                                            times = length(model_run_y50_e5_r50_abiotic))
 
 df_1999 <- tibble::as_tibble(pattern_1999) %>% 
@@ -38,6 +37,8 @@ df_2007 <- tibble::as_tibble(pattern_2007) %>%
 df_2013 <- tibble::as_tibble(pattern_2013) %>% 
   dplyr::filter(species == "beech", type == "living",
                 dbh_13 > 1, inside_fence == 0)
+
+sim_i <- 15
 
 #### Number of individuals ####
 individual_biotic <- calc_n_comp(model_run_y50_e5_r50_biotic) %>% 
@@ -71,7 +72,7 @@ individual_2013 <- dplyr::mutate(df_2013,
 by_dist <- 10
 
 dbh_dist_model_biotic <- calc_dbh_dist_comp(data = model_run_y50_e5_r50_biotic, 
-                                            sim_i = 15,
+                                            sim_i = sim_i,
                                             by = by_dist) %>% 
   dplyr::bind_rows() %>% 
   dplyr::group_by(dbh_class) %>% 
@@ -79,10 +80,10 @@ dbh_dist_model_biotic <- calc_dbh_dist_comp(data = model_run_y50_e5_r50_biotic,
                    n_sd = sd(n),
                    n_rel_mean = mean(n_rel), 
                    n_rel_sd = sd(n_rel)) %>% 
-  dplyr::mutate(data_type = "Biotic model")
+  dplyr::mutate(data_type = "Biotic model version")
 
 dbh_dist_model_abiotic <- calc_dbh_dist_comp(data = model_run_y50_e5_r50_abiotic, 
-                                             sim_i = 15,
+                                             sim_i = sim_i,
                                              by = by_dist) %>% 
   dplyr::bind_rows() %>% 
   dplyr::group_by(dbh_class) %>% 
@@ -90,7 +91,7 @@ dbh_dist_model_abiotic <- calc_dbh_dist_comp(data = model_run_y50_e5_r50_abiotic
                    n_sd = sd(n),
                    n_rel_mean = mean(n_rel), 
                    n_rel_sd = sd(n_rel)) %>% 
-  dplyr::mutate(data_type = "Abiotic model")
+  dplyr::mutate(data_type = "Combined model version")
 
 dbh_dist_2007 <- dplyr::filter(df_2007, 
                                type != "dead", !is.na(dbh_07), inside_fence == 0) %>% 
@@ -118,8 +119,8 @@ dbh_dist_overall <- dplyr::bind_rows(dbh_dist_model_biotic,
                                      dbh_dist_2013) %>% 
   tidyr::replace_na(replace = list(n_sd = 0, n_rel_sd = 0)) %>% 
   dplyr::mutate(data_type = factor(data_type, 
-                                   levels = c("Biotic model", 
-                                              "Abiotic model", 
+                                   levels = c("Biotic model version", 
+                                              "Combined model version", 
                                               "Field data 2007",
                                               "Field data 2013")), 
                 dbh_class = factor(dbh_class, ordered = TRUE), 
@@ -165,7 +166,7 @@ high <- 0.75
 max <- 0.9
 
 dbh_growth_model_biotic <- calc_growth_comp(data = model_run_y50_e5_r50_biotic,
-                                            sim_i = 15,
+                                            sim_i = sim_i,
                                             by = by_growth) %>% 
   dplyr::bind_rows() %>% 
   dplyr::group_by(dbh_class) %>% 
@@ -174,10 +175,10 @@ dbh_growth_model_biotic <- calc_growth_comp(data = model_run_y50_e5_r50_biotic,
                    inc_median = quantile(dbh_inc, probs = median),
                    inc_high = quantile(dbh_inc, probs = high),
                    inc_max = quantile(dbh_inc, probs = max)) %>% 
-  dplyr::mutate(data_type = "Biotic model")
+  dplyr::mutate(data_type = "Biotic model version")
 
 dbh_growth_model_abiotic <- calc_growth_comp(data = model_run_y50_e5_r50_abiotic,
-                                             sim_i = 15,
+                                             sim_i = sim_i,
                                              by = by_growth) %>% 
   dplyr::bind_rows() %>% 
   dplyr::group_by(dbh_class) %>% 
@@ -186,7 +187,7 @@ dbh_growth_model_abiotic <- calc_growth_comp(data = model_run_y50_e5_r50_abiotic
                    inc_median = quantile(dbh_inc, probs = median),
                    inc_high = quantile(dbh_inc, probs = high),
                    inc_max = quantile(dbh_inc, probs = max)) %>% 
-  dplyr::mutate(data_type = "Abiotic model")
+  dplyr::mutate(data_type = "Combined model version")
 
 dbh_growth_2013 <- dplyr::filter(df_2013,  
                                  type != "dead", !is.na(dbh_13),!is.na(dbh_99),
@@ -207,8 +208,8 @@ dbh_growth_overall <- dplyr::bind_rows(dbh_growth_model_biotic,
                                        dbh_growth_model_abiotic,
                                        dbh_growth_2013) %>% 
   dplyr::mutate(data_type = factor(data_type, 
-                                   levels = c("Biotic model",
-                                              "Abiotic model",
+                                   levels = c("Biotic model version",
+                                              "Combined model version",
                                               "Field data 1999-2013")), 
                 dbh_class = factor(dbh_class, ordered = TRUE))
 
