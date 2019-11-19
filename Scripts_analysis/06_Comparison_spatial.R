@@ -28,7 +28,7 @@ window <- readr::read_rds("Data/Raw/plot_area_owin.rds")
 parameters_fitted_biotic <- rabmp::read_parameters("Data/Input/parameters_fitted_biotic.txt",
                                                    sep = ";")
 
-parameters_fitted_abiotic <- rabmp::read_parameters("Data/Input/parameters_fitted_abiotic.txt",
+parameters_fitted_abiotic <- rabmp::read_parameters("Data/Input/parameters_fitted_abiotic_real.txt",
                                                     sep = ";")
 
 #### Preprocess data ####
@@ -57,7 +57,7 @@ model_run_y50_e5_r50_abiotic_adult <- purrr::map(model_run_y50_e5_r50_abiotic,
                                                  function(x) 
                                                    dplyr::filter(x, type == "adult"))
 
-sim_i <- 15
+sim_i <- 50
 
 #### Pair-correlation function #### 
 r_pcf <- seq(from = 0, to = 50, length.out = 525)

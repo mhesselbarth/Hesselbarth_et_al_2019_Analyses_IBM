@@ -24,7 +24,6 @@ parameters_default_abiotic$growth_abiotic <- 0
 
 # import data  #
 abiotic_conditions_real <- readr::read_rds("Data/Input/abiotic_cond_real_fit.rds")
-abiotic_conditions_reco <- readr::read_rds("Data/Input/abiotic_cond_reco_fit.rds")
 
 beech_2013_df <- readr::read_rds("Data/Input/beech_2013_ppp.rds") %>% 
   tibble::as_tibble()
@@ -109,6 +108,7 @@ fitted_fun_actual_real <- optim(par = start_values_actual,
                                 df = dplyr::filter(beech_2013_df, 
                                                    !id %in% beech_2013_df_top), 
                                 method = "BFGS",
+                                hessian = TRUE,
                                 control = list(trace = TRUE, 
                                                maxit = 1000,
                                                REPORT = 1))
@@ -124,56 +124,8 @@ broom::tidy(fitted_fun_actual_real)
 fitted_fun_actual_real$value
 # [1] 685.4118
 
-############################
-####                    ####
-#### Reconstructed data ####
-####                    ####
-############################
-
-#### Get abiotic conditions ####
-beech_2013_df$abiotic_reco <- rabmp::extract_abiotic(data = data.table::data.table(x = beech_2013_df$x, 
-                                                                                   y = beech_2013_df$y), 
-                                                     abiotic = abiotic_conditions_reco)[, 2]
-
-#### Fit growth parameters ####
-
-# initialse function #
-fun_actual_reco <- function(df, par) { 
-  
-  data_matrix <- as.matrix(df[, c("x", "y", "dbh_99", "growth_pot", "abiotic_reco")])
-  
-  growth_modelled <- rabmp:::rcpp_calculate_actual_abiotic(matrix = data_matrix, 
-                                                           alpha = par[1], 
-                                                           beta = par[2],
-                                                           mod = 1,
-                                                           gamma = par[3],
-                                                           max_dist = 30)
-  
-  difference <- sum(abs(df$growth_full - growth_modelled))
-  
-  return(difference)
-}
-
-# fit fun #
-fitted_fun_actual_reco <- optim(par = start_values_actual,
-                                fn = fun_actual_reco, 
-                                df = dplyr::filter(beech_2013_df, 
-                                                   !id %in% beech_2013_df_top), 
-                                method = "BFGS",
-                                control = list(trace = TRUE, 
-                                               maxit = 1000,
-                                               REPORT = 1))
-
-broom::tidy(fitted_fun_actual_reco)
-# A tibble: 3 x 2
-# parameter   value
-# <chr>       <dbl>
-# parameter1  1.11 
-# parameter2  0.437  
-# parameter3  -0.0231
-
-fitted_fun_actual_reco$value
-# [1] 687.9963
+standard_errors <- sqrt(abs(diag(solve(-fitted_fun_actual_real$hessian))))
+# [1] 0.061667117 0.005603104 0.014348723
 
 ####################################
 ####                            ####
@@ -231,12 +183,5 @@ parameters_fitted_abiotic_real$ci_alpha <- fitted_fun_actual_real$par[[1]]
 parameters_fitted_abiotic_real$ci_beta <- fitted_fun_actual_real$par[[2]]
 parameters_fitted_abiotic_real$growth_abiotic <- fitted_fun_actual_real$par[[3]]
 
-parameters_fitted_abiotic_reco <- parameters_default_abiotic
-
-parameters_fitted_abiotic_reco$ci_alpha <- fitted_fun_actual_reco$par[[1]]
-parameters_fitted_abiotic_reco$ci_beta <- fitted_fun_actual_reco$par[[2]]
-parameters_fitted_abiotic_reco$growth_abiotic <- fitted_fun_actual_reco$par[[3]]
-
 #### Write parameters ####
 write.table(parameters_fitted_abiotic_real, row.names = FALSE, sep = ";")
-write.table(parameters_fitted_abiotic_reco, row.names = FALSE, sep = ";")
