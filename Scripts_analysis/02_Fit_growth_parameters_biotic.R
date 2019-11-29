@@ -184,7 +184,7 @@ beech_2013 <- dplyr::mutate(beech_2013, ci = ci)
 ggplot_fitting_actual <- ggplot(beech_2013) +
   geom_point(aes(x = dbh_99, y = growth_full, col = ci), pch = 1,  size = 2) + 
   geom_line(aes(x = dbh_99, y = growth_pot), size = 1) +
-  scale_x_continuous(name = "DBH [cm]") +
+  scale_x_continuous(name = "dbh [cm]") +
   scale_y_continuous(name = "", limits = c(0, 1.25)) +
   scale_color_viridis_c(name = expression(c[i]^{trans}), option = "A") +
   theme_classic(base_size = base_size) + 
