@@ -71,24 +71,24 @@ ggplot_sa_individuals <- ggplot(data = sa_individuals) +
   geom_bar(aes(x = parameter, y = diff_n * 100, 
                fill = direction), col = "black",
            stat = "identity", position = "dodge") + 
-  geom_hline(yintercept = -10, linetype = 2, col = "#0D0887FF") +
-  geom_hline(yintercept = -5, linetype = 2, col = "#9C179EFF") +
+  geom_hline(yintercept = -10, linetype = 2, col = "#000004FF") +
+  geom_hline(yintercept = -5, linetype = 2, col = "#781C6DFF") +
   geom_hline(yintercept = 0, linetype = 1) +
   geom_hline(yintercept = 5, linetype = 2, col = "#ED7953FF") +
-  geom_hline(yintercept = 10, linetype = 2, col = "#F0F921FF") +
+  geom_hline(yintercept = 10, linetype = 2, col = "#FCFFA4FF") +
   coord_flip() +
   scale_x_discrete(name = "Parameter") +
   scale_y_continuous(name = "Difference individuals [%]",
                      breaks = seq(-50, 50, 10),
                      limits = c(-50, 50)) +
   scale_fill_manual(name = "Parameter change",
-                    values = c("#0D0887FF", "#9C179EFF" ,
-                               "#ED7953FF", "#F0F921FF")) +
+                    values = c("#000004FF", "#781C6DFF" ,
+                               "#ED6925FF", "#FCFFA4FF")) +
   theme_classic(base_size = base_size) + 
   theme(legend.position = "bottom")
 
 suppoRt::save_ggplot(plot = ggplot_sa_individuals, 
-                     filename = "ggplot_sa_individuals.png", 
+                     filename = "ggplot_sa_individuals_y50.png", 
                      path = "Figures/Appendix/",     
                      dpi = dpi,
                      width = width_full, height = height_full * (2/3), units = units, 

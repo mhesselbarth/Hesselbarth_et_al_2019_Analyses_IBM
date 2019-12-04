@@ -9,7 +9,7 @@
 #### Helper functions SA spatial #### 
 
 #### PCF #### 
-calc_pcf_sa_int <- function(default, changed, window, verbose = TRUE, ...) {
+calc_pcf_sa_int <- function(default, changed, window, nsim, verbose = TRUE, ...) {
   
   arguments <- list(...)
   
@@ -48,18 +48,11 @@ calc_pcf_sa_int <- function(default, changed, window, verbose = TRUE, ...) {
                               window = window)
     
     # calculate pcf
-    # temp_sf <- spatstat::pcf(temp_ppp, r = r, ...)
-    temp_sf <- spatstat::pcf(temp_ppp, ...) %>% 
-      tibble::as_tibble() %>%
-      purrr::set_names(c("r", "theo", "pcf"))
+    temp_env <- spatstat::envelope(Y = temp_ppp, fun = "pcf", nsim = nsim, 
+                                   verbose = FALSE,
+                                   funargs = arguments)
     
-    # # get function of pcf
-    # temp_fun <- spatstat::as.function.fv(temp_sf)
-    # 
-    # # get integral
-    # integrate(f = temp_fun, lower = min(r), upper = max(r))[[1]]
-    MESS::auc(temp_sf$r, temp_sf$pcf, 
-              from = min(temp_sf$r), to = max(temp_sf$r))
+    onpoint::summarise_envelope(x = temp_env)
   })
   
   if (verbose) {
@@ -82,18 +75,11 @@ calc_pcf_sa_int <- function(default, changed, window, verbose = TRUE, ...) {
                               window = window)
     
     # calculate pcf
-    # temp_sf <- spatstat::pcf(temp_ppp, r = r, ...)
-    temp_sf <- spatstat::pcf(temp_ppp, ...) %>% 
-      tibble::as_tibble() %>% 
-      purrr::set_names(c("r", "theo", "pcf"))
+    temp_env <- spatstat::envelope(Y = temp_ppp, fun = "pcf", nsim = nsim, 
+                                   verbose = FALSE,
+                                   funargs = arguments)
     
-    # # get function of pcf
-    # temp_fun <- spatstat::as.function.fv(temp_sf)
-    # 
-    # # get integral
-    # integrate(f = temp_fun, lower = min(r), upper = max(r))[[1]]
-    temp_pcf <- MESS::auc(temp_sf$r, temp_sf$pcf, 
-                          from = min(temp_sf$r), to = max(temp_sf$r))
+    temp_pcf <- onpoint::summarise_envelope(x = temp_env)
     
     # get default pcf values
     temp_pcf_default <- pcf_default[[counter_default[x]]]

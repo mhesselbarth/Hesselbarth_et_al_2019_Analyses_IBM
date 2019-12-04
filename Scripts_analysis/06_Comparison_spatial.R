@@ -57,7 +57,7 @@ model_run_y50_e5_r50_abiotic_adult <- purrr::map(model_run_y50_e5_r50_abiotic,
                                                  function(x) 
                                                    dplyr::filter(x, type == "adult"))
 
-sim_i <- 50
+sim_i <- 15
 
 #### Pair-correlation function #### 
 r_pcf <- seq(from = 0, to = 50, length.out = 525)

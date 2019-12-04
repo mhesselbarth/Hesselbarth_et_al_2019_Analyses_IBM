@@ -38,7 +38,7 @@ df_2013 <- tibble::as_tibble(pattern_2013) %>%
   dplyr::filter(species == "beech", type == "living",
                 dbh_13 > 1, inside_fence == 0)
 
-sim_i <- 15
+sim_i <- 50
 
 #### Number of individuals ####
 individual_biotic <- calc_n_comp(model_run_y50_e5_r50_biotic) %>% 
@@ -146,7 +146,7 @@ ggplot_dbh_dist <- ggplot(data = dbh_dist_overall) +
                     ymin = (n_rel_mean - n_rel_sd) * 100, 
                     ymax = (n_rel_mean + n_rel_sd) * 100),
                 width = 0.5, position = position_dodge(0.9)) +
-  scale_fill_viridis_d(name = "", option = "C") + 
+  scale_fill_viridis_d(name = "", option = "D") + 
   scale_x_discrete(name = "dbh class [cm]",
                    breaks = seq(from = 1,
                                 to = as.numeric(max(dbh_dist_overall$dbh_class)),
@@ -241,7 +241,7 @@ ggplot_growth <- ggplot(data = dbh_growth_overall) +
                    middle = inc_median,  
                    upper = inc_high, ymax = inc_max), 
                stat = "identity") + 
-  scale_fill_viridis_d(name = "", option = "C") +
+  scale_fill_viridis_d(name = "", option = "D") +
   scale_x_discrete(name = "dbh class [cm]",
                    breaks = seq(from = 1, 
                                 to = as.numeric(max(dbh_growth_overall$dbh_class)), 
