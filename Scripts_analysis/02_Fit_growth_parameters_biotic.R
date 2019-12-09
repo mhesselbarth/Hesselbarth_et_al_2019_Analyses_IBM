@@ -68,7 +68,8 @@ beech_2013 <- dplyr::mutate(beech_2013,
 ggplot_fitting_dbh_growth <- ggplot(beech_2013) +
   geom_point(aes(x = dbh_99, y = growth_full, col = top_n), pch = 1, size = 2) + 
   scale_x_continuous(name = "dbh [cm]") +
-  scale_y_continuous(name = "Mean annual growth [cm]", limits = c(0, 1.25)) +
+  scale_y_continuous(name = "Mean annual growth 1999 - 2013 [cm]", 
+                     limits = c(0, 1.25)) +
   scale_color_manual(name = "5% highest growth per class", 
                      values = c("#440154FF", "#21908CFF")) +
   theme_classic(base_size = base_size) + 
@@ -108,7 +109,7 @@ ggplot_fitting_potential <- ggplot(beech_2013) +
   geom_point(aes(x = dbh_99, y = growth_full, col = top_n), pch = 1, size = 2) + 
   geom_line(aes(x = dbh_99, y = growth_pot), size = 1) +
   scale_x_continuous(name = "dbh [cm]") +
-  scale_y_continuous(name = "Mean annual growth [cm]", limits = c(0, 1.25)) +
+  scale_y_continuous(name = "Mean annual growth 1999 - 2013 [cm]", limits = c(0, 1.25)) +
   scale_color_manual(name = "5% highest growth per class", 
                      values = c("#440154FF", "#21908CFF")) +
   theme_classic(base_size = base_size) + 
@@ -224,5 +225,5 @@ suppoRt::save_ggplot(plot = ggplot_fitting_growth,
                      path = "Figures/",
                      filename = "ggplot_fitting_growth.png", 
                      dpi = dpi, units = units, 
-                     height = height_full * 1/3, width = width_full, 
+                     height = height_full * 3/8, width = width_full, 
                      overwrite = overwrite)
