@@ -14,9 +14,6 @@
 source("Helper_functions/helper_functions_setup.R")
 source("Helper_functions/helper_functions_sa_spatial.R")
 
-# import data #
-beech_1999_rec <- readr::read_rds("Data/Input/beech_1999_rec_ppp.rds")
-
 # import model runs default
 sa_default <- readr::read_rds("Data/Output/SA/sa_default_y50_e5_r50.rds")
 
@@ -208,14 +205,15 @@ rm(sa_decreased_10)
 #### Pair-correlation function ####
 
 # set parameters #
-r_pcf <- seq(from = 0, to = 50, length.out = 525)
-correction_pcf <- "Ripley"
+r_pcf <- seq(from = 0, to = 75, length.out = 525)
+correction_pcf <- "good"
 stoyan_pcf <- 0.25
 divisor_pcf <- "d"
 
 # increased parameters #
 sa_pcf_increased_5_sapling <- calc_pcf_sa_int(default = sa_default_sapling,
                                               changed = sa_increased_5_sapling,
+                                              nsim = 199,
                                               correction = correction_pcf,
                                               divisor = divisor_pcf,
                                               stoyan = stoyan_pcf,
@@ -226,6 +224,7 @@ sa_pcf_increased_5_sapling <- calc_pcf_sa_int(default = sa_default_sapling,
 
 sa_pcf_increased_5_adult <- calc_pcf_sa_int(default = sa_default_adult,
                                             changed = sa_increased_5_adult,
+                                            nsim = 199,
                                             correction = correction_pcf,
                                             divisor = divisor_pcf,
                                             stoyan = stoyan_pcf,
@@ -236,6 +235,7 @@ sa_pcf_increased_5_adult <- calc_pcf_sa_int(default = sa_default_adult,
 
 sa_pcf_increased_10_sapling <- calc_pcf_sa_int(default = sa_default_sapling,
                                                changed = sa_increased_10_sapling,
+                                               nsim = 199,
                                                correction = correction_pcf,
                                                divisor = divisor_pcf,
                                                stoyan = stoyan_pcf,
@@ -246,6 +246,7 @@ sa_pcf_increased_10_sapling <- calc_pcf_sa_int(default = sa_default_sapling,
 
 sa_pcf_increased_10_adult <- calc_pcf_sa_int(default = sa_default_adult,
                                              changed = sa_increased_10_adult,
+                                             nsim = 199,
                                              correction = correction_pcf,
                                              divisor = divisor_pcf,
                                              stoyan = stoyan_pcf,
@@ -257,6 +258,7 @@ sa_pcf_increased_10_adult <- calc_pcf_sa_int(default = sa_default_adult,
 # decreased parameters #
 sa_pcf_decreased_5_sapling <- calc_pcf_sa_int(default = sa_default_sapling,
                                               changed = sa_decreased_5_sapling,
+                                              nsim = 199,
                                               correction = correction_pcf,
                                               divisor = divisor_pcf,
                                               stoyan = stoyan_pcf,
@@ -267,6 +269,7 @@ sa_pcf_decreased_5_sapling <- calc_pcf_sa_int(default = sa_default_sapling,
 
 sa_pcf_decreased_5_adult <- calc_pcf_sa_int(default = sa_default_adult,
                                             changed = sa_decreased_5_adult,
+                                            nsim = 199,
                                             correction = correction_pcf,
                                             divisor = divisor_pcf,
                                             stoyan = stoyan_pcf,
@@ -277,6 +280,7 @@ sa_pcf_decreased_5_adult <- calc_pcf_sa_int(default = sa_default_adult,
 
 sa_pcf_decreased_10_sapling <- calc_pcf_sa_int(default = sa_default_sapling,
                                                changed = sa_decreased_10_sapling,
+                                               nsim = 199,
                                                correction = correction_pcf,
                                                divisor = divisor_pcf,
                                                stoyan = stoyan_pcf,
@@ -287,6 +291,7 @@ sa_pcf_decreased_10_sapling <- calc_pcf_sa_int(default = sa_default_sapling,
 
 sa_pcf_decreased_10_adult <- calc_pcf_sa_int(default = sa_default_adult,
                                              changed = sa_decreased_10_adult,
+                                             nsim = 199,
                                              correction = correction_pcf,
                                              divisor = divisor_pcf,
                                              stoyan = stoyan_pcf,

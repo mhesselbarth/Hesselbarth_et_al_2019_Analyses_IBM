@@ -38,7 +38,7 @@ df_2013 <- tibble::as_tibble(pattern_2013) %>%
   dplyr::filter(species == "beech", type == "living",
                 dbh_13 > 1, inside_fence == 0)
 
-sim_i <- 15
+sim_i <- 50
 
 #### Number of individuals ####
 individual_biotic <- calc_n_comp(model_run_y50_e5_r50_biotic) %>% 
@@ -75,17 +75,21 @@ dbh_dist_model_biotic <- calc_dbh_dist_comp(data = model_run_y50_e5_r50_biotic,
                                             sim_i = sim_i,
                                             by = by_dist) %>% 
   dplyr::bind_rows() %>% 
+  dplyr::mutate(dbh_class = dplyr::case_when(dbh_class <= 10 ~ dbh_class, 
+                                             dbh_class > 10 ~ as.integer(11))) %>% 
   dplyr::group_by(dbh_class) %>% 
   dplyr::summarise(n_mean = mean(n), 
                    n_sd = sd(n),
                    n_rel_mean = mean(n_rel), 
                    n_rel_sd = sd(n_rel)) %>% 
   dplyr::mutate(data_type = "Biotic model version")
-
+  
 dbh_dist_model_abiotic <- calc_dbh_dist_comp(data = model_run_y50_e5_r50_abiotic, 
                                              sim_i = sim_i,
                                              by = by_dist) %>% 
-  dplyr::bind_rows() %>% 
+  dplyr::bind_rows() %>%
+  dplyr::mutate(dbh_class = dplyr::case_when(dbh_class <= 10 ~ dbh_class, 
+                                             dbh_class > 10 ~ as.integer(11))) %>% 
   dplyr::group_by(dbh_class) %>% 
   dplyr::summarise(n_mean = mean(n), 
                    n_sd = sd(n),
@@ -98,6 +102,8 @@ dbh_dist_2007 <- dplyr::filter(df_2007,
   dplyr::mutate(dbh_class = cut(dbh_07, breaks = seq(from = 0, 
                                                      to = max(dbh_07) + by_dist, 
                                                      by = by_dist), labels = FALSE)) %>%
+  dplyr::mutate(dbh_class = dplyr::case_when(dbh_class <= 10 ~ dbh_class, 
+                                             dbh_class > 10 ~ as.integer(11))) %>% 
   dplyr::group_by(dbh_class) %>% 
   dplyr::summarise(n_mean = dplyr::n(), 
                    n_rel_mean = n_mean / nrow(.)) %>% 
@@ -108,6 +114,8 @@ dbh_dist_2013 <- dplyr::filter(df_2013,
   dplyr::mutate(dbh_class = cut(dbh_13, breaks = seq(from = 0, 
                                                      to = max(dbh_13) + by_dist, 
                                                      by = by_dist), labels = FALSE)) %>%
+  dplyr::mutate(dbh_class = dplyr::case_when(dbh_class <= 10 ~ dbh_class, 
+                                             dbh_class > 10 ~ as.integer(11))) %>% 
   dplyr::group_by(dbh_class) %>% 
   dplyr::summarise(n_mean = dplyr::n(), 
                    n_rel_mean = n_mean / nrow(.)) %>% 
@@ -127,6 +135,10 @@ dbh_dist_overall <- dplyr::bind_rows(dbh_dist_model_biotic,
                 n_rel_sd = dplyr::case_when(n_rel_sd != 0 ~ n_rel_sd, 
                                             n_rel_sd == 0 ~ -1))
 
+labels <- c(paste0("<", seq(from = 1,
+                          to = as.numeric(max(dbh_dist_overall$dbh_class)) - 1,
+                          by = 1) * by_dist), ">100")
+
 ggplot_dbh_dist <- ggplot(data = dbh_dist_overall) + 
   geom_bar(aes(x = dbh_class, y = n_rel_mean * 100, fill = data_type), 
            position = position_dodge(), stat = "identity") +
@@ -134,14 +146,12 @@ ggplot_dbh_dist <- ggplot(data = dbh_dist_overall) +
                     ymin = (n_rel_mean - n_rel_sd) * 100, 
                     ymax = (n_rel_mean + n_rel_sd) * 100),
                 width = 0.5, position = position_dodge(0.9)) +
-  scale_fill_viridis_d(name = "", option = "C") + 
+  scale_fill_viridis_d(name = "", option = "D") + 
   scale_x_discrete(name = "dbh class [cm]",
-                   breaks = seq(from = 1, 
-                                to = as.numeric(max(dbh_dist_overall$dbh_class)), 
-                                by = 1), 
-                   labels = paste0("<", seq(from = 1, 
-                                            to = as.numeric(max(dbh_dist_overall$dbh_class)), 
-                                            by = 1) * by_dist)) +
+                   breaks = seq(from = 1,
+                                to = as.numeric(max(dbh_dist_overall$dbh_class)),
+                                by = 1),
+                   labels = labels) +
   scale_y_continuous(name = "Relative frequency [%]",
                      breaks = seq(from = 0, to = 65, by = 10),
                      limits = c(0, 65)) +
@@ -169,6 +179,8 @@ dbh_growth_model_biotic <- calc_growth_comp(data = model_run_y50_e5_r50_biotic,
                                             sim_i = sim_i,
                                             by = by_growth) %>% 
   dplyr::bind_rows() %>% 
+  dplyr::mutate(dbh_class = dplyr::case_when(dbh_class <= 10 ~ dbh_class, 
+                                             dbh_class > 10 ~ as.integer(11))) %>% 
   dplyr::group_by(dbh_class) %>% 
   dplyr::summarise(inc_min = quantile(dbh_inc, probs = min), 
                    inc_low = quantile(dbh_inc, probs = low), 
@@ -181,6 +193,10 @@ dbh_growth_model_abiotic <- calc_growth_comp(data = model_run_y50_e5_r50_abiotic
                                              sim_i = sim_i,
                                              by = by_growth) %>% 
   dplyr::bind_rows() %>% 
+  dplyr::mutate(dbh_class = dplyr::case_when(dbh_class <= 10 ~ dbh_class, 
+                                             dbh_class > 10 ~ as.integer(11))) %>% 
+  dplyr::mutate(dbh_class = dplyr::case_when(dbh_class <= 10 ~ dbh_class, 
+                                             dbh_class > 10 ~ as.integer(11))) %>% 
   dplyr::group_by(dbh_class) %>% 
   dplyr::summarise(inc_min = quantile(dbh_inc, probs = min), 
                    inc_low = quantile(dbh_inc, probs = low), 
@@ -196,6 +212,8 @@ dbh_growth_2013 <- dplyr::filter(df_2013,
                                                      to = max(dbh_99) + by_growth, 
                                                      by = by_growth), 
                                 labels = FALSE)) %>% 
+  dplyr::mutate(dbh_class = dplyr::case_when(dbh_class <= 10 ~ dbh_class, 
+                                             dbh_class > 10 ~ as.integer(11))) %>% 
   dplyr::group_by(dbh_class) %>% 
   dplyr::summarise(inc_min = quantile(growth_13, probs = min), 
                    inc_low = quantile(growth_13, probs = low), 
@@ -213,20 +231,22 @@ dbh_growth_overall <- dplyr::bind_rows(dbh_growth_model_biotic,
                                               "Field data 1999-2013")), 
                 dbh_class = factor(dbh_class, ordered = TRUE))
 
+labels <- c(paste0("<", seq(from = 1,
+                            to = as.numeric(max(dbh_growth_overall$dbh_class)) - 1,
+                            by = 1) * by_dist), ">100")
+
 ggplot_growth <- ggplot(data = dbh_growth_overall) +
   geom_boxplot(aes(x = dbh_class, fill = data_type,
                    ymin = inc_min, lower = inc_low, 
                    middle = inc_median,  
                    upper = inc_high, ymax = inc_max), 
                stat = "identity") + 
-  scale_fill_viridis_d(name = "", option = "C") +
+  scale_fill_viridis_d(name = "", option = "D") +
   scale_x_discrete(name = "dbh class [cm]",
                    breaks = seq(from = 1, 
                                 to = as.numeric(max(dbh_growth_overall$dbh_class)), 
                                 by = 1), 
-                   labels = paste0("<", seq(from = 1, 
-                                            to = as.numeric(max(dbh_growth_overall$dbh_class)), 
-                                            by = 1) * by_growth)) +
+                   labels = labels) +
   scale_y_continuous(name = "Annual growth [cm]", 
                      breaks = seq(from = 0, to = max(dbh_growth_overall$inc_max),
                                   by = 0.2)) + 
