@@ -24,8 +24,6 @@ save_each <- years
 
 n <- 250 # 100
 
-set.seed(42)
-
 #### Pre-process data ####
 pattern_1999_dt <- tibble::as_tibble(pattern_1999) %>%
   dplyr::select(x, y, species, dbh_99, type) %>% 
@@ -35,6 +33,8 @@ pattern_1999_dt <- tibble::as_tibble(pattern_1999) %>%
   rabmp::prepare_data(x = "x", y = "y", type = "type", dbh = "dbh_99")
 
 #### Number of individuals ####
+
+set.seed(42)
 
 # sample parameters #
 param_set_1_indiv <- tgp::lhs(n = n, rect = matrix(data = c(0.9879718, 1.125665, # ci_alpha +- SE * 1.96
@@ -246,7 +246,7 @@ sobol_model_pcf_adult_df <- tibble::as_tibble(sobol_model_pcf_adult$S) %>%
   dplyr::mutate(parameter = c("ci_alpha", "ci_beta", "growth_infl", 
                               "mort_dbh_early", "mort_int_late"), 
                 effect = "Main effect", 
-                output = "Integral pair-correlation function", 
+                output = "Summarised pair-correlation function", 
                 group = "Adults")
 
 sobol_model_pcf_adult_df <- tibble::as_tibble(sobol_model_pcf_adult$T) %>% 
@@ -254,7 +254,7 @@ sobol_model_pcf_adult_df <- tibble::as_tibble(sobol_model_pcf_adult$T) %>%
   dplyr::mutate(parameter = c("ci_alpha", "ci_beta", "growth_infl", 
                               "mort_dbh_early", "mort_int_late"), 
                 effect = "Total effect", 
-                output = "Integral pair-correlation function", 
+                output = "Summarised pair-correlation function", 
                 group = "Adults") %>% 
   dplyr::bind_rows(sobol_model_pcf_adult_df, .) %>% 
   dplyr::mutate(value = dplyr::case_when(value < 0 ~ 0, 
@@ -271,7 +271,7 @@ sobol_model_pcf_sapling_df <- tibble::as_tibble(sobol_model_pcf_sapling$S) %>%
   dplyr::mutate(parameter = c("ci_alpha", "ci_beta", "growth_infl", 
                               "mort_dbh_early", "mort_int_late"), 
                 effect = "Main effect", 
-                output = "Integral pair-correlation function", 
+                output = "Summarised pair-correlation function", 
                 group = "Saplings")
 
 sobol_model_pcf_sapling_df <- tibble::as_tibble(sobol_model_pcf_sapling$T) %>% 
@@ -279,7 +279,7 @@ sobol_model_pcf_sapling_df <- tibble::as_tibble(sobol_model_pcf_sapling$T) %>%
   dplyr::mutate(parameter = c("ci_alpha", "ci_beta", "growth_infl", 
                               "mort_dbh_early", "mort_int_late"), 
                 effect = "Total effect", 
-                output = "Integral pair-correlation function", 
+                output = "Summarised pair-correlation function", 
                 group = "Saplings") %>% 
   dplyr::bind_rows(sobol_model_pcf_sapling_df, .) %>% 
   dplyr::mutate(value = dplyr::case_when(value < 0 ~ 0, 
@@ -298,14 +298,14 @@ sobol_model_overall_df <- dplyr::bind_rows(sobol_model_indiv_adult_df,
   dplyr::mutate(effect = factor(effect, levels = c("Main effect", 
                                                    "Total effect")), 
                 output = factor(output, levels = c("Number of individuals",
-                                                   "Integral pair-correlation function")), 
+                                                   "Summarised pair-correlation function")), 
                 group = factor(group, levels = c("Saplings", "Adults")))
 
 dplyr::group_by(sobol_model_overall_df, effect, output, group) %>% 
   dplyr::summarise(value = round(sum(value), digits = 2))
 
 dplyr::filter(sobol_model_overall_df, output == "Number of individuals")
-dplyr::filter(sobol_model_overall_df, output == "Integral pair-correlation function")
+dplyr::filter(sobol_model_overall_df, output == "Summarised pair-correlation function")
 
 ggplot_sobol <- ggplot(data = sobol_model_overall_df) + 
   geom_point(aes(x = parameter, y = value, col = effect),
@@ -316,7 +316,7 @@ ggplot_sobol <- ggplot(data = sobol_model_overall_df) +
   facet_wrap(~ output + group, scales = "free_x") +
   scale_color_manual(name = "", values = c("Main effect" = "#0D0887FF",
                                            "Total effect" = "#ED7953FF")) +
-  scale_y_continuous(name = "Effect strength", limits = c(0, 1)) +
+  scale_y_continuous(name = "Effect strength", limits = c(0, .75)) +
   scale_x_discrete(name = "Parameter") +
   theme_classic(base_size = base_size) + 
   theme(legend.position = "bottom", 
@@ -327,4 +327,4 @@ suppoRt::save_ggplot(plot = ggplot_sobol,
                      path = "Figures/", 
                      units = units, dpi = dpi, 
                      width = width_full, height = height_full * 2/3, 
-                     overwrite = T)
+                     overwrite = overwrite)
