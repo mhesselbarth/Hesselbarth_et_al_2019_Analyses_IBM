@@ -143,15 +143,15 @@ stand_2 <- 3.7 / 652
 stand_3 <- 2.6 / 307
 default <- mean(c(stand_1, stand_2, stand_3))
 
-# use SD from paper for abiotic
-stand_1_hi <- 2.6 / 973
-stand_2_hi <- 3.7 / 359
-stand_3_hi <- 2.6 / 157
+# use CI from paper for abiotic
+stand_1_hi <- 2.6 / 786.76 # 973
+stand_2_hi <- 3.7 / 77.72 # 359
+stand_3_hi <- 2.6 / 13 # 157
 high <- mean(c(stand_1_hi, stand_2_hi, stand_3_hi))
 
-stand_1_lo <- 2.6 / 1361
-stand_2_lo <- 3.7 / 945
-stand_3_lo <- 2.6 / 457
+stand_1_lo <- 2.6 / 1547.24 # 1361
+stand_2_lo <- 3.7 / 1226.28 # 945
+stand_3_lo <- 2.6 / 601 # 457
 low <- mean(c(stand_1_lo, stand_2_lo, stand_3_lo))
 
 # Holzwarth, F., Kahl, A., Bauhus, J., Wirth, C., 2013. Many ways to die - 
