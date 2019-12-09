@@ -17,12 +17,14 @@ parameters_fitted_abiotic <- rabmp::read_parameters("Data/Input/parameters_fitte
 
 pattern_1999 <- readr::read_rds("Data/Input/beech_1999_ppp.rds")
 
+abiotic_habitats_real <- readr::read_rds("Data/Input/abiotic_cond_real_model.rds")
+
 plot_area <- readr::read_rds("Data/Raw/plot_area_owin.rds")
 
 years <- 50
 save_each <- years
 
-n <- 250 # 100
+n <- 100 # 250
 
 set.seed(42)
 
@@ -35,6 +37,8 @@ pattern_1999_dt <- tibble::as_tibble(pattern_1999) %>%
   rabmp::prepare_data(x = "x", y = "y", type = "type", dbh = "dbh_99")
 
 #### Number of individuals ####
+
+set.seed(42)
 
 # sample parameters #
 param_set_1_indiv <- tgp::lhs(n = n, rect = matrix(data = c(-0.0824235, -0.0261765,  # growth_abiotic +- SE * 1.96
@@ -49,7 +53,7 @@ param_set_1_indiv <- tgp::lhs(n = n, rect = matrix(data = c(-0.0824235, -0.02617
                                                             -10, -8.9, # mort_int_late_low
                                                             -8.9, -7.8, # mort_int_late_high
                                                             0.003838327, 0.005457279, # seed_success_high
-                                                            0.005457279, 0.009846355), # seed_success_high
+                                                            0.005457279, 0.009846355), # seed_success_low
                                                    ncol = 2, byrow = TRUE))
 
 param_set_2_indiv <- tgp::lhs(n = n, rect = matrix(data = c(-0.0824235, -0.0261765,  # growth_abiotic +- SE * 1.96
@@ -64,7 +68,7 @@ param_set_2_indiv <- tgp::lhs(n = n, rect = matrix(data = c(-0.0824235, -0.02617
                                                             -10, -8.9, # mort_int_late_low
                                                             -8.9, -7.8, # mort_int_late_high
                                                             0.003838327, 0.005457279, # seed_success_high
-                                                            0.005457279, 0.009846355), # seed_success_high
+                                                            0.005457279, 0.009846355), # seed_success_low
                                                    ncol = 2, byrow = TRUE))
 
 # create an instance of the class sobol #
@@ -77,31 +81,32 @@ sobol_model_indiv <- sensitivity::sobol2007(model = NULL,
 param_sampled_indiv <- purrr::map(seq_len(nrow(sobol_model_indiv$X)), 
                                   function(x) as.numeric(sobol_model_indiv$X[x, ]))
 
-# get the simulated model response #
-simulation_results_indiv_abiotic <-
-  suppoRt::submit_to_cluster(calc_sobol_indiv,
-                             x = param_sampled_indiv,
-                             const = list(data = pattern_1999_dt,
-                                          parameters = parameters_fitted_biotic,
-                                          plot_area = plot_area,
-                                          years = years,
-                                          save_each = save_each),
-                             n_jobs = length(param_sampled_indiv),
-                             template = list(job_name = "sobol_indiv",
-                                             walltime = "03:00:00",
-                                             queue = "medium",
-                                             service = "normal",
-                                             mem_cpu = "2048",
-                                             log_file = "sobol_indiv.log"))
-
-# flatten to vector #
-simulation_results_indiv_abiotic <- purrr::flatten_dbl(simulation_results_indiv_abiotic)
-
-# save results #
-suppoRt::save_rds(object = simulation_results_indiv_abiotic,
-                  filename = "sa_simulation_results_indiv_abiotic.rds",
-                  path = "Data/Output/SA/",
-                  overwrite = overwrite)
+# # get the simulated model response #
+# simulation_results_indiv_abiotic <-
+#   suppoRt::submit_to_cluster(calc_sobol_indiv_abiotic,
+#                              x = param_sampled_indiv,
+#                              const = list(data = pattern_1999_dt,
+#                                           parameters = parameters_fitted_abiotic,
+#                                           abiotic = abiotic_habitats_real$scaled,
+#                                           plot_area = plot_area,
+#                                           years = years,
+#                                           save_each = save_each),
+#                              n_jobs = length(param_sampled_indiv),
+#                              log_worker = TRUE,
+#                              template = list(job_name = "sobol_indiv",
+#                                              walltime = "04:00:00",
+#                                              queue = "medium",
+#                                              mem_cpu = "4096",
+#                                              log_file = "sobol_indiv.log"))
+# 
+# # flatten to vector #
+# simulation_results_indiv_abiotic <- purrr::flatten_dbl(simulation_results_indiv_abiotic)
+# 
+# # save results #
+# suppoRt::save_rds(object = simulation_results_indiv_abiotic,
+#                   filename = "sa_simulation_results_indiv_abiotic.rds",
+#                   path = "Data/Output/SA/",
+#                   overwrite = overwrite)
 
 simulation_results_indiv_abiotic <- readr::read_rds("Data/Output/SA/sa_simulation_results_indiv_abiotic.rds")
 simulation_results_indiv_centered <- simulation_results_indiv_abiotic - mean(simulation_results_indiv_abiotic)
@@ -112,15 +117,25 @@ sensitivity::tell(sobol_model_indiv, simulation_results_indiv_centered)
 # convert to df # 
 sobol_model_indiv_df <- tibble::as_tibble(sobol_model_indiv$S) %>% 
   purrr::set_names(c("value", "bias", "std_error", "min_ci", "max_ci")) %>% 
-  dplyr::mutate(parameter = c("ci_alpha", "ci_beta", "growth_infl", 
-                              "mort_dbh_early", "mort_int_early"), 
+  dplyr::mutate(parameter = c("growth_abiotic", 
+                              "mort_dbh_early_low", "mort_dbh_early_high", 
+                              "mort_dbh_late_low", "mort_dbh_late_high", 
+                              "mort_dinc_low", "mort_dinc_high", 
+                              "mort_int_early_low", "mort_int_early_high", 
+                              "mort_int_late_low", "mort_int_late_high", 
+                              "seed_success_high", "seed_success_low"),
                 effect = "Main effect", 
                 output = "Number of individuals")
 
 sobol_model_indiv_df <- tibble::as_tibble(sobol_model_indiv$T) %>% 
   purrr::set_names(c("value", "bias", "std_error", "min_ci", "max_ci")) %>% 
-  dplyr::mutate(parameter = c("ci_alpha", "ci_beta", "growth_infl", 
-                              "mort_dbh_early", "mort_int_early"), 
+  dplyr::mutate(parameter = c("growth_abiotic", 
+                              "mort_dbh_early_low", "mort_dbh_early_high", 
+                              "mort_dbh_late_low", "mort_dbh_late_high", 
+                              "mort_dinc_low", "mort_dinc_high", 
+                              "mort_int_early_low", "mort_int_early_high", 
+                              "mort_int_late_low", "mort_int_late_high", 
+                              "seed_success_high", "seed_success_low"),
                 effect = "Total effect", 
                 output = "Number of individuals") %>% 
   dplyr::bind_rows(sobol_model_indiv_df, .) %>% 
@@ -137,18 +152,34 @@ sobol_model_indiv_df <- tibble::as_tibble(sobol_model_indiv$T) %>%
 set.seed(42)
 
 # sample parameters #
-param_set_1_pcf <- tgp::lhs(n = n, rect = matrix(data = c(0.9879718, 1.125665, # ci_alpha +- SE * 1.96
-                                                          0.4242094, 0.4458642, # ci_beta +- SE * 1.96
-                                                          1.251156, 1.44794, # growth_infl +- SE * 1.96
-                                                          -2.4, -1.9, # mort_dbh_early CI from Holzwarth et al.
-                                                          -10, -7.8),  # mort_int_late CI from Holzwarth et al.
+param_set_1_pcf <- tgp::lhs(n = n, rect = matrix(data = c(-0.0824235, -0.0261765,  # growth_abiotic +- SE * 1.96
+                                                          -2.4, -2.1, # mort_dbh_early_low
+                                                          -2.1, -1.9, # mort_dbh_early_high
+                                                          0.033 ,0.052, # mort_dbh_late_low
+                                                          0.052, 0.07, # mort_dbh_late_high
+                                                          -2.4, -1.4, # mort_dinc_low, 
+                                                          -1.4, -0.45, # mort_dinc_high
+                                                          1.2, 1.8, # mort_int_early_low
+                                                          1.8, 2.5, # mort_int_early_high
+                                                          -10, -8.9, # mort_int_late_low
+                                                          -8.9, -7.8, # mort_int_late_high
+                                                          0.003838327, 0.005457279, # seed_success_high
+                                                          0.005457279, 0.009846355), # seed_success_low
                                                  ncol = 2, byrow = TRUE))
 
-param_set_2_pcf <- tgp::lhs(n = n, rect = matrix(data = c(0.9879718, 1.125665, # ci_alpha +- SE * 1.96
-                                                          0.4242094, 0.4458642, # ci_beta +- SE * 1.96
-                                                          1.251156, 1.44794, # growth_infl +- SE * 1.96
-                                                          -2.4, -1.9, # mort_dbh_early CI from Holzwarth et al.
-                                                          -10, -7.8),  # mort_int_late CI from Holzwarth et al.
+param_set_2_pcf <- tgp::lhs(n = n, rect = matrix(data = c(-0.0824235, -0.0261765,  # growth_abiotic +- SE * 1.96
+                                                          -2.4, -2.1, # mort_dbh_early_low
+                                                          -2.1, -1.9, # mort_dbh_early_high
+                                                          0.033 ,0.052, # mort_dbh_late_low
+                                                          0.052, 0.07, # mort_dbh_late_high
+                                                          -2.4, -1.4, # mort_dinc_low, 
+                                                          -1.4, -0.45, # mort_dinc_high
+                                                          1.2, 1.8, # mort_int_early_low
+                                                          1.8, 2.5, # mort_int_early_high
+                                                          -10, -8.9, # mort_int_late_low
+                                                          -8.9, -7.8, # mort_int_late_high
+                                                          0.003838327, 0.005457279, # seed_success_high
+                                                          0.005457279, 0.009846355), # seed_success_low
                                                  ncol = 2, byrow = TRUE))
 
 # create an instance of the class sobol #
@@ -161,8 +192,35 @@ sobol_model_pcf <- sensitivity::sobol2007(model = NULL,
 param_sampled_pcf <- purrr::map(seq_len(nrow(sobol_model_pcf$X)), 
                                 function(x) as.numeric(sobol_model_pcf$X[x, ]))
 
-simulation_results_pcf <- readr::read_rds("Data/Output/SA/sa_simulation_results_pcf.rds")
-simulation_results_pcf_centered <- simulation_results_pcf - mean(simulation_results_pcf)
+# # get the simulated model response #
+# simulation_results_pcf_abiotic <-
+#   suppoRt::submit_to_cluster(calc_sobol_pcf_abiotic,
+#                              x = param_sampled_pcf,
+#                              const = list(data = pattern_1999_dt,
+#                                           parameters = parameters_fitted_abiotic,
+#                                           abiotic = abiotic_habitats_real$scaled,
+#                                           plot_area = plot_area,
+#                                           years = years,
+#                                           save_each = save_each),
+#                              n_jobs = length(param_sampled_pcf),
+#                              log_worker = TRUE,
+#                              template = list(job_name = "sobol_pcf",
+#                                              walltime = "24:00:00",
+#                                              queue = "medium",
+#                                              mem_cpu = "8192",
+#                                              log_file = "sobol_pcf.log"))
+# 
+# # flatten to vector #
+# simulation_results_pcf_abiotic <- purrr::flatten_dbl(simulation_results_pcf_abiotic)
+# 
+# # save results #
+# suppoRt::save_rds(object = simulation_results_pcf_abiotic,
+#                   filename = "sa_simulation_results_pcf_abiotic.rds",
+#                   path = "Data/Output/SA/",
+#                   overwrite = overwrite)
+
+simulation_results_pcf_abiotic <- readr::read_rds("Data/Output/SA/sa_simulation_results_pcf_abiotic.rds")
+simulation_results_pcf_centered <- simulation_results_pcf_abiotic - mean(simulation_results_pcf_abiotic)
 
 # add the simulation results to the sobol instance #   
 sensitivity::tell(sobol_model_pcf, simulation_results_pcf_centered)
@@ -170,15 +228,25 @@ sensitivity::tell(sobol_model_pcf, simulation_results_pcf_centered)
 # convert to df # 
 sobol_model_pcf_df <- tibble::as_tibble(sobol_model_pcf$S) %>% 
   purrr::set_names(c("value", "bias", "std_error", "min_ci", "max_ci")) %>% 
-  dplyr::mutate(parameter = c("ci_alpha", "ci_beta", "growth_infl", 
-                              "mort_dbh_early", "mort_int_late"), 
+  dplyr::mutate(parameter = c("growth_abiotic", 
+                              "mort_dbh_early_low", "mort_dbh_early_high", 
+                              "mort_dbh_late_low", "mort_dbh_late_high", 
+                              "mort_dinc_low", "mort_dinc_high", 
+                              "mort_int_early_low", "mort_int_early_high", 
+                              "mort_int_late_low", "mort_int_late_high", 
+                              "seed_success_high", "seed_success_low"),
                 effect = "Main effect", 
                 output = "Integral pair-correlation function")
 
 sobol_model_pcf_df <- tibble::as_tibble(sobol_model_pcf$T) %>% 
   purrr::set_names(c("value", "bias", "std_error", "min_ci", "max_ci")) %>% 
-  dplyr::mutate(parameter = c("ci_alpha", "ci_beta", "growth_infl", 
-                              "mort_dbh_early", "mort_int_late"), 
+  dplyr::mutate(parameter = c("growth_abiotic", 
+                              "mort_dbh_early_low", "mort_dbh_early_high", 
+                              "mort_dbh_late_low", "mort_dbh_late_high", 
+                              "mort_dinc_low", "mort_dinc_high", 
+                              "mort_int_early_low", "mort_int_early_high", 
+                              "mort_int_late_low", "mort_int_late_high", 
+                              "seed_success_high", "seed_success_low"),
                 effect = "Total effect", 
                 output = "Integral pair-correlation function") %>% 
   dplyr::bind_rows(sobol_model_pcf_df, .) %>% 
@@ -222,7 +290,7 @@ ggplot_sobol <- ggplot(data = sobol_model_overall_df) +
         axis.text.x = element_text(angle = 45, hjust = 1))
 
 suppoRt::save_ggplot(plot = ggplot_sobol, 
-                     filename = "ggplot_sobol.png", 
+                     filename = "ggplot_sobol_abiotic.png", 
                      path = "Figures/", 
                      units = units, dpi = dpi, 
                      width = width_full, height = height_small, 

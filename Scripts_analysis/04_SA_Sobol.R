@@ -52,19 +52,24 @@ param_set_2_indiv <- tgp::lhs(n = n, rect = matrix(data = c(0.9879718, 1.125665,
                                                    ncol = 2, byrow = TRUE))
 
 # create an instance of the class sobol #
-sobol_model_indiv <- sensitivity::sobol2007(model = NULL, 
-                                            X1 =  data.frame(param_set_1_indiv), 
-                                            X2 =  data.frame(param_set_2_indiv), 
-                                            nboot = 10000) 
+sobol_model_indiv_adult <- sensitivity::sobol2007(model = NULL, 
+                                                  X1 = data.frame(param_set_1_indiv), 
+                                                  X2 = data.frame(param_set_2_indiv), 
+                                                  nboot = 10000) 
+
+sobol_model_indiv_sapling <- sensitivity::sobol2007(model = NULL, 
+                                                    X1 = data.frame(param_set_1_indiv), 
+                                                    X2 = data.frame(param_set_2_indiv), 
+                                                    nboot = 10000) 
 
 # get parameter combinitations from sobol model
-param_sampled_indiv <- purrr::map(seq_len(nrow(sobol_model_indiv$X)), 
-                                  function(x) as.numeric(sobol_model_indiv$X[x, ]))
+param_sampled_indiv <- purrr::map(seq_len(nrow(sobol_model_indiv_adult$X)), 
+                                  function(x) as.numeric(sobol_model_indiv_adult$X[x, ]))
 
-# # get the simulated model response #
-# simulation_results_indiv <- 
-#   suppoRt::submit_to_cluster(calc_sobol_indiv, 
-#                              x = param_sampled_indiv, 
+# # # get the simulated model response #
+# simulation_results_indiv <-
+#   suppoRt::submit_to_cluster(calc_sobol_indiv,
+#                              x = param_sampled_indiv,
 #                              const = list(data = pattern_1999_dt,
 #                                           parameters = parameters_fitted_biotic,
 #                                           plot_area = plot_area,
@@ -72,14 +77,11 @@ param_sampled_indiv <- purrr::map(seq_len(nrow(sobol_model_indiv$X)),
 #                                           save_each = save_each),
 #                              n_jobs = length(param_sampled_indiv),
 #                              template = list(job_name = "sobol_indiv",
-#                                              walltime = "03:00:00",
-#                                              queue = "medium", 
+#                                              walltime = "04:00:00",
+#                                              queue = "medium",
 #                                              service = "normal",
-#                                              mem_cpu = "2048", 
+#                                              mem_cpu = "4096",
 #                                              log_file = "sobol_indiv.log"))
-# 
-# # flatten to vector #
-# simulation_results_indiv <- purrr::flatten_dbl(simulation_results_indiv)
 # 
 # # save results #
 # suppoRt::save_rds(object = simulation_results_indiv,
@@ -87,30 +89,72 @@ param_sampled_indiv <- purrr::map(seq_len(nrow(sobol_model_indiv$X)),
 #                   path = "Data/Output/SA/",
 #                   overwrite = overwrite)
 
+# read data 
 simulation_results_indiv <- readr::read_rds("Data/Output/SA/sa_simulation_results_indiv.rds")
-simulation_results_indiv_centered <- simulation_results_indiv - mean(simulation_results_indiv)
+
+# get only number of individuals #
+simulation_results_indiv_adult <- purrr::map_dbl(simulation_results_indiv, 
+                                                 function(x) x$adult)
+
+simulation_results_indiv_sapling <- purrr::map_dbl(simulation_results_indiv, 
+                                                 function(x) x$sapling)
+
+# center results by mean #
+simulation_results_indiv_adult_centered <- simulation_results_indiv_adult - 
+  mean(simulation_results_indiv_adult)
+
+simulation_results_indiv_sapling_centered <- simulation_results_indiv_sapling - 
+  mean(simulation_results_indiv_sapling)
 
 # add the simulation results to the sobol instance #   
-sensitivity::tell(sobol_model_indiv, simulation_results_indiv_centered)
+sensitivity::tell(sobol_model_indiv_adult, simulation_results_indiv_adult_centered)
+
+sensitivity::tell(sobol_model_indiv_sapling, simulation_results_indiv_sapling_centered)
 
 # convert to df # 
-sobol_model_indiv_df <- tibble::as_tibble(sobol_model_indiv$S) %>% 
+sobol_model_indiv_adult_df <- tibble::as_tibble(sobol_model_indiv_adult$S) %>% 
   purrr::set_names(c("value", "bias", "std_error", "min_ci", "max_ci")) %>% 
   dplyr::mutate(parameter = c("ci_alpha", "ci_beta", "growth_infl", 
                               "mort_dbh_early", "mort_int_early"), 
                 effect = "Main effect", 
-                output = "Number of individuals")
+                output = "Number of individuals", 
+                group = "Adults")
 
-sobol_model_indiv_df <- tibble::as_tibble(sobol_model_indiv$T) %>% 
+sobol_model_indiv_adult_df <- tibble::as_tibble(sobol_model_indiv_adult$T) %>% 
   purrr::set_names(c("value", "bias", "std_error", "min_ci", "max_ci")) %>% 
   dplyr::mutate(parameter = c("ci_alpha", "ci_beta", "growth_infl", 
                               "mort_dbh_early", "mort_int_early"), 
                 effect = "Total effect", 
-                output = "Number of individuals") %>% 
-  dplyr::bind_rows(sobol_model_indiv_df, .) %>% 
+                output = "Number of individuals", 
+                group = "Adults") %>% 
+  dplyr::bind_rows(sobol_model_indiv_adult_df, .) %>% 
   dplyr::mutate(value = dplyr::case_when(value < 0 ~ 0, 
                                           value > 1 ~ 1, 
                                           value > 0 & value < 1 ~ value), 
+                min_ci = dplyr::case_when(min_ci < 0 ~ 0, 
+                                          min_ci > 0 ~ min_ci), 
+                max_ci = dplyr::case_when(max_ci > 1 ~ 1, 
+                                          max_ci < 1 ~ max_ci))
+
+sobol_model_indiv_sapling_df <- tibble::as_tibble(sobol_model_indiv_sapling$S) %>% 
+  purrr::set_names(c("value", "bias", "std_error", "min_ci", "max_ci")) %>% 
+  dplyr::mutate(parameter = c("ci_alpha", "ci_beta", "growth_infl", 
+                              "mort_dbh_early", "mort_int_early"), 
+                effect = "Main effect", 
+                output = "Number of individuals", 
+                group = "Saplings")
+
+sobol_model_indiv_sapling_df <- tibble::as_tibble(sobol_model_indiv_sapling$T) %>% 
+  purrr::set_names(c("value", "bias", "std_error", "min_ci", "max_ci")) %>% 
+  dplyr::mutate(parameter = c("ci_alpha", "ci_beta", "growth_infl", 
+                              "mort_dbh_early", "mort_int_early"), 
+                effect = "Total effect", 
+                output = "Number of individuals", 
+                group = "Saplings") %>% 
+  dplyr::bind_rows(sobol_model_indiv_sapling_df, .) %>% 
+  dplyr::mutate(value = dplyr::case_when(value < 0 ~ 0, 
+                                         value > 1 ~ 1, 
+                                         value > 0 & value < 1 ~ value), 
                 min_ci = dplyr::case_when(min_ci < 0 ~ 0, 
                                           min_ci > 0 ~ min_ci), 
                 max_ci = dplyr::case_when(max_ci > 1 ~ 1, 
@@ -136,36 +180,108 @@ param_set_2_pcf <- tgp::lhs(n = n, rect = matrix(data = c(0.9879718, 1.125665, #
                                                  ncol = 2, byrow = TRUE))
 
 # create an instance of the class sobol #
-sobol_model_pcf <- sensitivity::sobol2007(model = NULL, 
-                                          X1 =  data.frame(param_set_1_pcf), 
-                                          X2 =  data.frame(param_set_1_pcf), 
-                                          nboot = 10000) 
+sobol_model_pcf_adult <- sensitivity::sobol2007(model = NULL, 
+                                                X1 =  data.frame(param_set_1_pcf), 
+                                                X2 =  data.frame(param_set_1_pcf), 
+                                                nboot = 10000) 
+
+sobol_model_pcf_sapling <- sensitivity::sobol2007(model = NULL, 
+                                                  X1 =  data.frame(param_set_1_pcf), 
+                                                  X2 =  data.frame(param_set_1_pcf), 
+                                                  nboot = 10000) 
 
 # get parameter combinitations from sobol model
-param_sampled_pcf <- purrr::map(seq_len(nrow(sobol_model_pcf$X)), 
-                                function(x) as.numeric(sobol_model_pcf$X[x, ]))
+param_sampled_pcf <- purrr::map(seq_len(nrow(sobol_model_pcf_adult$X)), 
+                                function(x) as.numeric(sobol_model_pcf_adult$X[x, ]))
 
+# # get the simulated model response #
+# simulation_results_pcf <-
+#   suppoRt::submit_to_cluster(calc_sobol_pcf,
+#                              x = param_sampled_pcf,
+#                              const = list(data = pattern_1999_dt,
+#                                           parameters = parameters_fitted_biotic,
+#                                           plot_area = plot_area,
+#                                           years = years,
+#                                           save_each = save_each),
+#                              n_jobs = length(param_sampled_pcf),
+#                              log_worker = TRUE,
+#                              template = list(job_name = "sobol_pcf",
+#                                              walltime = "48:00:00",
+#                                              queue = "medium",
+#                                              service = "normal",
+#                                              mem_cpu = "24576",
+#                                              log_file = "sobol_pcf.log"))
+# 
+# # save results #
+# suppoRt::save_rds(object = simulation_results_pcf,
+#                   filename = "sa_simulation_results_pcf.rds",
+#                   path = "Data/Output/SA/",
+#                   overwrite = overwrite)
+
+# read data
 simulation_results_pcf <- readr::read_rds("Data/Output/SA/sa_simulation_results_pcf.rds")
-simulation_results_pcf_centered <- simulation_results_pcf - mean(simulation_results_pcf)
+
+# get only number of individuals #
+simulation_results_pcf_adult <- purrr::map_dbl(simulation_results_pcf, 
+                                                 function(x) x$adult)
+
+simulation_results_pcf_sapling <- purrr::map_dbl(simulation_results_pcf, 
+                                                   function(x) x$sapling)
+
+# center results by mean
+simulation_results_pcf_adult_centered <- simulation_results_pcf_adult -
+  mean(simulation_results_pcf_adult)
+
+simulation_results_pcf_sapling_centered <- simulation_results_pcf_sapling - 
+  mean(simulation_results_pcf_sapling)
 
 # add the simulation results to the sobol instance #   
-sensitivity::tell(sobol_model_pcf, simulation_results_pcf_centered)
+sensitivity::tell(sobol_model_pcf_adult, simulation_results_pcf_adult_centered)
+
+sensitivity::tell(sobol_model_pcf_sapling, simulation_results_pcf_sapling_centered)
 
 # convert to df # 
-sobol_model_pcf_df <- tibble::as_tibble(sobol_model_pcf$S) %>% 
+sobol_model_pcf_adult_df <- tibble::as_tibble(sobol_model_pcf_adult$S) %>% 
   purrr::set_names(c("value", "bias", "std_error", "min_ci", "max_ci")) %>% 
   dplyr::mutate(parameter = c("ci_alpha", "ci_beta", "growth_infl", 
                               "mort_dbh_early", "mort_int_late"), 
                 effect = "Main effect", 
-                output = "Integral pair-correlation function")
+                output = "Integral pair-correlation function", 
+                group = "Adults")
 
-sobol_model_pcf_df <- tibble::as_tibble(sobol_model_pcf$T) %>% 
+sobol_model_pcf_adult_df <- tibble::as_tibble(sobol_model_pcf_adult$T) %>% 
   purrr::set_names(c("value", "bias", "std_error", "min_ci", "max_ci")) %>% 
   dplyr::mutate(parameter = c("ci_alpha", "ci_beta", "growth_infl", 
                               "mort_dbh_early", "mort_int_late"), 
                 effect = "Total effect", 
-                output = "Integral pair-correlation function") %>% 
-  dplyr::bind_rows(sobol_model_pcf_df, .) %>% 
+                output = "Integral pair-correlation function", 
+                group = "Adults") %>% 
+  dplyr::bind_rows(sobol_model_pcf_adult_df, .) %>% 
+  dplyr::mutate(value = dplyr::case_when(value < 0 ~ 0, 
+                                         value > 1 ~ 1, 
+                                         value > 0 & value < 1 ~ value), 
+                min_ci = dplyr::case_when(min_ci < 0 ~ 0, 
+                                          min_ci > 0 ~ min_ci), 
+                max_ci = dplyr::case_when(max_ci > 1 ~ 1, 
+                                          max_ci < 1 ~ max_ci))
+
+# convert to df # 
+sobol_model_pcf_sapling_df <- tibble::as_tibble(sobol_model_pcf_sapling$S) %>% 
+  purrr::set_names(c("value", "bias", "std_error", "min_ci", "max_ci")) %>% 
+  dplyr::mutate(parameter = c("ci_alpha", "ci_beta", "growth_infl", 
+                              "mort_dbh_early", "mort_int_late"), 
+                effect = "Main effect", 
+                output = "Integral pair-correlation function", 
+                group = "Saplings")
+
+sobol_model_pcf_sapling_df <- tibble::as_tibble(sobol_model_pcf_sapling$T) %>% 
+  purrr::set_names(c("value", "bias", "std_error", "min_ci", "max_ci")) %>% 
+  dplyr::mutate(parameter = c("ci_alpha", "ci_beta", "growth_infl", 
+                              "mort_dbh_early", "mort_int_late"), 
+                effect = "Total effect", 
+                output = "Integral pair-correlation function", 
+                group = "Saplings") %>% 
+  dplyr::bind_rows(sobol_model_pcf_sapling_df, .) %>% 
   dplyr::mutate(value = dplyr::case_when(value < 0 ~ 0, 
                                          value > 1 ~ 1, 
                                          value > 0 & value < 1 ~ value), 
@@ -175,19 +291,21 @@ sobol_model_pcf_df <- tibble::as_tibble(sobol_model_pcf$T) %>%
                                           max_ci < 1 ~ max_ci))
 
 #### Overall results ####
-sobol_model_overall_df <- dplyr::bind_rows(sobol_model_indiv_df, 
-                                           sobol_model_pcf_df) %>% 
+sobol_model_overall_df <- dplyr::bind_rows(sobol_model_indiv_adult_df, 
+                                           sobol_model_indiv_sapling_df,
+                                           sobol_model_pcf_adult_df, 
+                                           sobol_model_pcf_sapling_df) %>% 
   dplyr::mutate(effect = factor(effect, levels = c("Main effect", 
                                                    "Total effect")), 
                 output = factor(output, levels = c("Number of individuals",
-                                                   "Integral pair-correlation function")))
+                                                   "Integral pair-correlation function")), 
+                group = factor(group, levels = c("Saplings", "Adults")))
 
-dplyr::group_by(sobol_model_overall_df, effect, output) %>% 
+dplyr::group_by(sobol_model_overall_df, effect, output, group) %>% 
   dplyr::summarise(value = round(sum(value), digits = 2))
 
 dplyr::filter(sobol_model_overall_df, output == "Number of individuals")
 dplyr::filter(sobol_model_overall_df, output == "Integral pair-correlation function")
-
 
 ggplot_sobol <- ggplot(data = sobol_model_overall_df) + 
   geom_point(aes(x = parameter, y = value, col = effect),
@@ -195,10 +313,9 @@ ggplot_sobol <- ggplot(data = sobol_model_overall_df) +
   geom_errorbar(aes(x  = parameter, ymin = min_ci, ymax = max_ci,col = effect),
                 width = 0.1, position = position_dodge(width = 0.5),
                 size = 0.25) +
-  facet_wrap(~ output, scales = "free_x") +
-  # scale_color_viridis_d(name = "", option = "C") +
-  scale_color_manual(name = "", values = c("Main effect" = "#0D0887FF", 
-                                           "Total effect" = "#CC4678FF")) +
+  facet_wrap(~ output + group, scales = "free_x") +
+  scale_color_manual(name = "", values = c("Main effect" = "#0D0887FF",
+                                           "Total effect" = "#ED7953FF")) +
   scale_y_continuous(name = "Effect strength", limits = c(0, 1)) +
   scale_x_discrete(name = "Parameter") +
   theme_classic(base_size = base_size) + 
@@ -209,5 +326,5 @@ suppoRt::save_ggplot(plot = ggplot_sobol,
                      filename = "ggplot_sobol.png", 
                      path = "Figures/", 
                      units = units, dpi = dpi, 
-                     width = width_full, height = height_small, 
-                     overwrite = overwrite)
+                     width = width_full, height = height_full * 2/3, 
+                     overwrite = T)

@@ -58,7 +58,7 @@ model_run_y50_e5_r50_uncorr_a <- suppoRt::submit_to_cluster(rabmp::run_model_abi
                                                                             queue = "medium", 
                                                                             service = "short",
                                                                             mem_cpu = "2048", 
-                                                                            log_file = "abiotic_uncorr.logs"))
+                                                                            log_file = "abiotic_uncorr.log"))
 
 suppoRt::save_rds(object = model_run_y50_e5_r50_uncorr_a,
                   filename = "model_run_y50_e5_r50_uncorr_a.rds",
