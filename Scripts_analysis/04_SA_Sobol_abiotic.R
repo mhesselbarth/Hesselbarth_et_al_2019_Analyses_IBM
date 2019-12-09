@@ -26,8 +26,6 @@ save_each <- years
 
 n <- 100 # 250
 
-set.seed(42)
-
 #### Pre-process data ####
 pattern_1999_dt <- tibble::as_tibble(pattern_1999) %>%
   dplyr::select(x, y, species, dbh_99, type) %>% 
@@ -72,41 +70,42 @@ param_set_2_indiv <- tgp::lhs(n = n, rect = matrix(data = c(-0.0824235, -0.02617
                                                    ncol = 2, byrow = TRUE))
 
 # create an instance of the class sobol #
-sobol_model_indiv <- sensitivity::sobol2007(model = NULL, 
-                                            X1 =  data.frame(param_set_1_indiv), 
-                                            X2 =  data.frame(param_set_2_indiv), 
-                                            nboot = 10000) 
+sobol_model_indiv_adult <- sensitivity::sobol2007(model = NULL, 
+                                                  X1 =  data.frame(param_set_1_indiv), 
+                                                  X2 =  data.frame(param_set_2_indiv), 
+                                                  nboot = 10000) 
+
+sobol_model_indiv_sapling <- sensitivity::sobol2007(model = NULL, 
+                                                    X1 =  data.frame(param_set_1_indiv), 
+                                                    X2 =  data.frame(param_set_2_indiv), 
+                                                    nboot = 10000) 
 
 # get parameter combinitations from sobol model
-param_sampled_indiv <- purrr::map(seq_len(nrow(sobol_model_indiv$X)), 
-                                  function(x) as.numeric(sobol_model_indiv$X[x, ]))
+param_sampled_indiv <- purrr::map(seq_len(nrow(sobol_model_indiv_adult$X)), 
+                                  function(x) as.numeric(sobol_model_indiv_adult$X[x, ]))
 
-# # get the simulated model response #
-# simulation_results_indiv_abiotic <-
-#   suppoRt::submit_to_cluster(calc_sobol_indiv_abiotic,
-#                              x = param_sampled_indiv,
-#                              const = list(data = pattern_1999_dt,
-#                                           parameters = parameters_fitted_abiotic,
-#                                           abiotic = abiotic_habitats_real$scaled,
-#                                           plot_area = plot_area,
-#                                           years = years,
-#                                           save_each = save_each),
-#                              n_jobs = length(param_sampled_indiv),
-#                              log_worker = TRUE,
-#                              template = list(job_name = "sobol_indiv",
-#                                              walltime = "04:00:00",
-#                                              queue = "medium",
-#                                              mem_cpu = "4096",
-#                                              log_file = "sobol_indiv.log"))
-# 
-# # flatten to vector #
-# simulation_results_indiv_abiotic <- purrr::flatten_dbl(simulation_results_indiv_abiotic)
-# 
-# # save results #
-# suppoRt::save_rds(object = simulation_results_indiv_abiotic,
-#                   filename = "sa_simulation_results_indiv_abiotic.rds",
-#                   path = "Data/Output/SA/",
-#                   overwrite = overwrite)
+# get the simulated model response #
+simulation_results_indiv_abiotic <-
+  suppoRt::submit_to_cluster(calc_sobol_indiv_abiotic,
+                             x = param_sampled_indiv,
+                             const = list(data = pattern_1999_dt,
+                                          parameters = parameters_fitted_abiotic,
+                                          abiotic = abiotic_habitats_real$scaled,
+                                          plot_area = plot_area,
+                                          years = years,
+                                          save_each = save_each),
+                             n_jobs = length(param_sampled_indiv),
+                             template = list(job_name = "sobol_indiv",
+                                             walltime = "04:00:00",
+                                             queue = "medium",
+                                             mem_cpu = "4096",
+                                             log_file = "sobol_indiv.log"))
+
+# save results #
+suppoRt::save_rds(object = simulation_results_indiv_abiotic,
+                  filename = "sa_simulation_results_indiv_abiotic.rds",
+                  path = "Data/Output/SA/",
+                  overwrite = overwrite)
 
 simulation_results_indiv_abiotic <- readr::read_rds("Data/Output/SA/sa_simulation_results_indiv_abiotic.rds")
 simulation_results_indiv_centered <- simulation_results_indiv_abiotic - mean(simulation_results_indiv_abiotic)
