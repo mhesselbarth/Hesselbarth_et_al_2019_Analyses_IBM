@@ -162,9 +162,9 @@ ggplot_pcf <- ggplot(data = pcf_overall_model) +
                                            "Adult" = "#CC4678FF")) +
   scale_linetype_manual(name = "", values = c(1, 2)) +
   labs(x = "r [m]", y = expression(italic(g(r)))) +
+  guides(colour = FALSE) +
   theme_classic(base_size = base_size) + 
-  theme(legend.position = "bottom", 
-        legend.key.width = unit(0.5, units = "cm"))
+  theme(legend.position = "bottom")
 
 suppoRt::save_ggplot(plot = ggplot_pcf,
                      filename = "ggplot_pcf_y15.png",
@@ -271,6 +271,7 @@ ggplot_kmm <- ggplot(data = kmm_overall_model) +
   scale_linetype_manual(name = "", values = c(1, 2)) +
   coord_cartesian(ylim = c(0.5, 1.75)) +
   labs(x = "r [m]", y = expression(italic(k[mm](r)))) +
+  guides(colour = FALSE) +
   theme_classic(base_size = base_size) + 
   theme(legend.position = "bottom", 
         legend.key.width = unit(0.5, units = "cm"))
@@ -405,9 +406,9 @@ ggplot_ci <- ggplot(data = ci_overall_model) +
   scale_linetype_manual(name = "", values = c(1, 2)) +
   facet_wrap(~ data_type_model) + 
   labs(x = "Competition value", y = "Density") +
+  guides(colour = FALSE) +
   theme_classic(base_size = base_size) + 
-  theme(legend.position = "bottom", 
-        legend.key.width = unit(0.5, units = "cm"))
+  theme(legend.position = "bottom")
 
 suppoRt::save_ggplot(plot = ggplot_ci, 
                      filename = "ggplot_ci_y15.png", 

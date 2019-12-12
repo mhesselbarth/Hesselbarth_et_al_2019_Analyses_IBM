@@ -20,9 +20,6 @@ window <- readr::read_rds("Data/Raw/plot_area_owin.rds")
 parameters_fitted_abiotic_real <- rabmp::read_parameters("Data/Input/parameters_fitted_abiotic_real.txt",
                                                          sep = ";")
 
-parameters_fitted_abiotic_reco <- rabmp::read_parameters("Data/Input/parameters_fitted_abiotic_reco.txt",
-                                                         sep = ";")
-
 #### Preprocess data ####
 
 # set names # 
@@ -102,7 +99,8 @@ pcf_overall <- dplyr::bind_rows(pcf_model_corr_sapling,
 ggplot_pcf <- ggplot(data = pcf_overall) + 
   geom_ribbon(aes(x = r, ymin = fun_lo, ymax = fun_hi, fill = size_model),
               alpha = 0.5) +
-  facet_wrap(~ data_type_model, scales = "free_y") +
+  geom_hline(yintercept = 1, linetype = 3, size = 0.25) +
+  facet_wrap(~ data_type_model) +
   scale_fill_manual(name = "", values = c("Sapling" = "#0D0887FF", 
                                           "Adult" = "#CC4678FF")) +
   scale_color_manual(name = "", values = c("Sapling" = "#0D0887FF", 
@@ -110,8 +108,7 @@ ggplot_pcf <- ggplot(data = pcf_overall) +
   scale_linetype_manual(name = "", values = c(1, 2)) +
   labs(x = "r [m]", y = expression(italic(g(r)))) +
   theme_classic(base_size = base_size) + 
-  theme(legend.position = "bottom", 
-        legend.key.width = unit(0.5, units = "cm"))
+  theme(legend.position = "bottom")
 
 suppoRt::save_ggplot(plot = ggplot_pcf,
                      filename = "ggplot_pcf_uncorr.png",
@@ -166,7 +163,7 @@ ggplot_kmm <- ggplot(data = kmm_overall) +
   geom_ribbon(aes(x = r, ymin = fun_lo, ymax = fun_hi, fill = size_model),
               alpha = 0.5) +
   geom_hline(yintercept = 1, linetype = 3, size = 0.25) +
-  facet_wrap(~ data_type_model, scales = "free_y") + 
+  facet_wrap(~ data_type_model) + 
   scale_fill_manual(name = "", values = c("Sapling" = "#0D0887FF", 
                                           "Adult" = "#CC4678FF")) +
   scale_color_manual(name = "", values = c("Sapling" = "#0D0887FF", 
@@ -175,8 +172,7 @@ ggplot_kmm <- ggplot(data = kmm_overall) +
   coord_cartesian(ylim = c(0.5, 1.75)) +
   labs(x = "r [m]", y = expression(italic(k[mm](r)))) +
   theme_classic(base_size = base_size) + 
-  theme(legend.position = "bottom", 
-        legend.key.width = unit(0.5, units = "cm"))
+  theme(legend.position = "bottom")
 
 suppoRt::save_ggplot(plot = ggplot_kmm,
                      filename = "ggplot_kmm_uncorr.png",
@@ -191,28 +187,28 @@ to_ci <- 1
 
 ci_model_corr_sapling <- calc_ci_comp(data = model_run_y50_e5_r50_corr_sapling,
                                       sim_i = 50,
-                                      parameters = parameters_fitted_biotic_real, 
+                                      parameters = parameters_fitted_abiotic_real, 
                                       from = from_ci, to = to_ci) %>% 
   dplyr::mutate(data_type_model = "Correlated data", 
                 size_model = "Sapling")
 
 ci_model_corr_adult <- calc_ci_comp(data = model_run_y50_e5_r50_corr_adult,
                                     sim_i = 50,
-                                    parameters = parameters_fitted_biotic_real, 
+                                    parameters = parameters_fitted_abiotic_real, 
                                     from = from_ci, to = to_ci) %>% 
   dplyr::mutate(data_type_model = "Correlated data", 
                 size_model = "Adult")
 
 ci_model_uncorr_sapling <- calc_ci_comp(data = model_run_y50_e5_r50_uncorr_sapling,
                                         sim_i = 50,
-                                        parameters = parameters_fitted_biotic_reco, 
+                                        parameters = parameters_fitted_abiotic_real, 
                                         from = from_ci, to = to_ci) %>% 
   dplyr::mutate(data_type_model = "Uncorrelated data", 
                 size_model = "Sapling")
 
 ci_model_uncorr_adult <- calc_ci_comp(data = model_run_y50_e5_r50_uncorr_adult,
                                       sim_i = 50,
-                                      parameters = parameters_fitted_biotic_reco, 
+                                      parameters = parameters_fitted_abiotic_real, 
                                       from = from_ci, to = to_ci) %>% 
   dplyr::mutate(data_type_model = "Uncorrelated data", 
                 size_model = "Adult")
@@ -223,7 +219,7 @@ ci_overall <- dplyr::bind_rows(ci_model_corr_sapling,
                                ci_model_uncorr_sapling,
                                ci_model_uncorr_adult) %>% 
   dplyr::mutate(data_type_model = factor(data_type_model, 
-                                         levels = c("Correlated datal",
+                                         levels = c("Correlated data",
                                                     "Uncorrelated data")), 
                 size_model = factor(size_model, levels = c("Sapling", "Adult")))
 
@@ -238,8 +234,7 @@ ggplot_ci <- ggplot(data = ci_overall) +
   facet_wrap(~ data_type_model) + 
   labs(x = "Competition value", y = "Density") +
   theme_classic(base_size = base_size) + 
-  theme(legend.position = "bottom", 
-        legend.key.width = unit(0.5, units = "cm"))
+  theme(legend.position = "bottom")
 
 suppoRt::save_ggplot(plot = ggplot_ci, 
                      filename = "ggplot_ci_uncorr.png", 

@@ -48,7 +48,8 @@ calc_pcf_sa_int <- function(default, changed, window, nsim, verbose = TRUE, ...)
                               window = window)
     
     # calculate pcf
-    temp_env <- spatstat::envelope(Y = temp_ppp, fun = "pcf", nsim = nsim, 
+    temp_env <- spatstat::envelope(Y = temp_ppp, fun = onpoint::estimate_pcf_fast, 
+                                   nsim = nsim, 
                                    verbose = FALSE,
                                    funargs = arguments)
     
@@ -75,7 +76,8 @@ calc_pcf_sa_int <- function(default, changed, window, nsim, verbose = TRUE, ...)
                               window = window)
     
     # calculate pcf
-    temp_env <- spatstat::envelope(Y = temp_ppp, fun = "pcf", nsim = nsim, 
+    temp_env <- spatstat::envelope(Y = temp_ppp, fun = onpoint::estimate_pcf_fast,
+                                   nsim = nsim, 
                                    verbose = FALSE,
                                    funargs = arguments)
     

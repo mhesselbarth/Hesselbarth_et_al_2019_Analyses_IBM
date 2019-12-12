@@ -209,13 +209,16 @@ r_pcf <- seq(from = 0, to = 75, length.out = 525)
 correction_pcf <- "good"
 stoyan_pcf <- 0.25
 divisor_pcf <- "d"
+method_pcf <- "c"
+nsim_pcf <- 199
 
 # increased parameters #
 sa_pcf_increased_5_sapling <- calc_pcf_sa_int(default = sa_default_sapling,
                                               changed = sa_increased_5_sapling,
-                                              nsim = 199,
+                                              nsim = nsim_pcf,
                                               correction = correction_pcf,
                                               divisor = divisor_pcf,
+                                              method = method_pcf,
                                               stoyan = stoyan_pcf,
                                               r = r_pcf,
                                               window = window) %>% 
@@ -224,9 +227,10 @@ sa_pcf_increased_5_sapling <- calc_pcf_sa_int(default = sa_default_sapling,
 
 sa_pcf_increased_5_adult <- calc_pcf_sa_int(default = sa_default_adult,
                                             changed = sa_increased_5_adult,
-                                            nsim = 199,
+                                            nsim = nsim_pcf,
                                             correction = correction_pcf,
                                             divisor = divisor_pcf,
+                                            method = method_pcf,
                                             stoyan = stoyan_pcf,
                                             r = r_pcf,
                                             window = window) %>% 
@@ -235,9 +239,10 @@ sa_pcf_increased_5_adult <- calc_pcf_sa_int(default = sa_default_adult,
 
 sa_pcf_increased_10_sapling <- calc_pcf_sa_int(default = sa_default_sapling,
                                                changed = sa_increased_10_sapling,
-                                               nsim = 199,
+                                               nsim = nsim_pcf,
                                                correction = correction_pcf,
                                                divisor = divisor_pcf,
+                                               method = method_pcf,
                                                stoyan = stoyan_pcf,
                                                r = r_pcf,
                                                window = window) %>% 
@@ -246,9 +251,10 @@ sa_pcf_increased_10_sapling <- calc_pcf_sa_int(default = sa_default_sapling,
 
 sa_pcf_increased_10_adult <- calc_pcf_sa_int(default = sa_default_adult,
                                              changed = sa_increased_10_adult,
-                                             nsim = 199,
+                                             nsim = nsim_pcf,
                                              correction = correction_pcf,
                                              divisor = divisor_pcf,
+                                             method = method_pcf,
                                              stoyan = stoyan_pcf,
                                              r = r_pcf,
                                              window = window) %>% 
@@ -258,9 +264,10 @@ sa_pcf_increased_10_adult <- calc_pcf_sa_int(default = sa_default_adult,
 # decreased parameters #
 sa_pcf_decreased_5_sapling <- calc_pcf_sa_int(default = sa_default_sapling,
                                               changed = sa_decreased_5_sapling,
-                                              nsim = 199,
+                                              nsim = nsim_pcf,
                                               correction = correction_pcf,
                                               divisor = divisor_pcf,
+                                              method = method_pcf,
                                               stoyan = stoyan_pcf,
                                               r = r_pcf,
                                               window = window) %>% 
@@ -269,9 +276,10 @@ sa_pcf_decreased_5_sapling <- calc_pcf_sa_int(default = sa_default_sapling,
 
 sa_pcf_decreased_5_adult <- calc_pcf_sa_int(default = sa_default_adult,
                                             changed = sa_decreased_5_adult,
-                                            nsim = 199,
+                                            nsim = nsim_pcf,
                                             correction = correction_pcf,
                                             divisor = divisor_pcf,
+                                            method = method_pcf,
                                             stoyan = stoyan_pcf,
                                             r = r_pcf,
                                             window = window) %>% 
@@ -280,9 +288,10 @@ sa_pcf_decreased_5_adult <- calc_pcf_sa_int(default = sa_default_adult,
 
 sa_pcf_decreased_10_sapling <- calc_pcf_sa_int(default = sa_default_sapling,
                                                changed = sa_decreased_10_sapling,
-                                               nsim = 199,
+                                               nsim = nsim_pcf,
                                                correction = correction_pcf,
                                                divisor = divisor_pcf,
+                                               method = method_pcf,
                                                stoyan = stoyan_pcf,
                                                r = r_pcf,
                                                window = window) %>% 
@@ -291,9 +300,10 @@ sa_pcf_decreased_10_sapling <- calc_pcf_sa_int(default = sa_default_sapling,
 
 sa_pcf_decreased_10_adult <- calc_pcf_sa_int(default = sa_default_adult,
                                              changed = sa_decreased_10_adult,
-                                             nsim = 199,
+                                             nsim = nsim_pcf,
                                              correction = correction_pcf,
                                              divisor = divisor_pcf,
+                                             method = method_pcf,
                                              stoyan = stoyan_pcf,
                                              r = r_pcf,
                                              window = window) %>% 
@@ -319,22 +329,29 @@ sa_pcf <- dplyr::bind_rows(sa_pcf_increased_5_sapling,
                                               "Increased +5%", 
                                               "Increased +10%")))
 
+suppoRt::save_rds(object = sa_pcf, filename = "sa_local_pcf.rds", 
+                  path = "Data/Output/SA/", 
+                  overwrite = overwrite)
+
+sa_pcf <- readr::read_rds(path = "Data/Output/SA/sa_local_pcf.rds")
+
 ggplot_sa_pcf <- ggplot(data = sa_pcf) + 
   geom_bar(aes(x = parameter, y = pcf_mean * 100, fill = direction),
            col = "black", stat = "identity", position = position_dodge()) +
   facet_wrap(~ size) +
-  geom_hline(yintercept = -10, linetype = 2, col = "#0D0887FF") +
-  geom_hline(yintercept = -5, linetype = 2, col = "#9C179EFF") +
+  geom_hline(yintercept = -10, linetype = 2, col = "#000004FF") +
+  geom_hline(yintercept = -5, linetype = 2, col = "#781C6DFF") +
   geom_hline(yintercept = 0, linetype = 1) +
   geom_hline(yintercept = 5, linetype = 2, col = "#ED7953FF") +
-  geom_hline(yintercept = 10, linetype = 2, col = "#F0F921FF") +
+  geom_hline(yintercept = 10, linetype = 2, col = "#FCFFA4FF") +
   coord_flip() +
   scale_x_discrete(name = "Parameter") +
-  scale_y_continuous(name = expression(paste("Relative difference", integral(g(r), 0, r))),
-                     breaks = seq(-12.5, 12.5, 2.5)) +
+  scale_y_continuous(name = expression(paste("Difference summarised ", italic(g(r)))),
+                     breaks = seq(-100, 100, 25),
+                     limits = c(-100, 100)) +
   scale_fill_manual(name = "Parameter change",
-                    values = c("#0D0887FF", "#9C179EFF" ,
-                               "#ED7953FF", "#F0F921FF")) +
+                    values = c("#000004FF", "#781C6DFF" ,
+                               "#ED6925FF", "#FCFFA4FF")) +
   theme_classic(base_size = base_size) + 
   theme(legend.position = "bottom")
 
