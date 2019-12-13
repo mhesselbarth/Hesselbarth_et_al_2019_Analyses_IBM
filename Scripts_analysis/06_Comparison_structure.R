@@ -38,7 +38,7 @@ df_2013 <- tibble::as_tibble(pattern_2013) %>%
   dplyr::filter(species == "beech", type == "living",
                 dbh_13 > 1, inside_fence == 0)
 
-sim_i <- 50
+sim_i <- 15
 
 #### Number of individuals ####
 individual_biotic <- calc_n_comp(model_run_y50_e5_r50_biotic) %>% 

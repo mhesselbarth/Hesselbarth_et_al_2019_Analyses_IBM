@@ -163,7 +163,7 @@ ggplot_sa_individuals <- ggplot(data = sa_individuals) +
   theme(legend.position = "bottom")
 
 suppoRt::save_ggplot(plot = ggplot_sa_individuals, 
-                     filename = "ggplot_sa_individuals_y50.png", 
+                     filename = "ggplot_sa_individuals.png", 
                      path = "Figures/Appendix/",     
                      dpi = dpi,
                      width = width_full, height = height_full * (2/3), units = units, 

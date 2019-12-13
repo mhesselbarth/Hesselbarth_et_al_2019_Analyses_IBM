@@ -57,7 +57,7 @@ ggplot_kernel <- ggplot() +
                         values = c("dbh 10" = 2, "dbh 20" = 1)) + 
   scale_x_continuous(breaks = seq(-min_max, min_max, 5),
                      labels = abs(seq(-min_max, min_max, 5))) + 
-  labs(x = "Distance [m]", y = expression(c[i]^raw)) + 
+  labs(x = expression(paste(Distance[ij], " [m]")), y = expression(c[i]^raw)) + 
   guides(linetype = FALSE) +
   theme_classic(base_size = base_size) + 
   theme(legend.position = "bottom", 
