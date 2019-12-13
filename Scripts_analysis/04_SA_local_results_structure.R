@@ -35,35 +35,109 @@ parameter_levels <- rev(c("ci_alpha", "ci_beta",
                           "mort_int_early", "mort_int_late", 
                           "mort_dinc"))
 
+#### Preprocess data ####
+# filter size classes # 
+
+sa_default_sapling <- purrr::map(sa_default, function(x)
+  dplyr::filter(x, type == "sapling"))
+
+sa_default_adult <- purrr::map(sa_default, function(x) 
+  dplyr::filter(x, type == "adult"))
+
+rm(sa_default)
+
+sa_increased_5_sapling <- purrr::map(sa_increased_5, function(x) 
+  dplyr::filter(x, type == "sapling"))
+
+sa_increased_5_adult <- purrr::map(sa_increased_5, function(x) 
+  dplyr::filter(x, type == "adult"))
+
+rm(sa_increased_5)
+
+sa_increased_10_sapling <- purrr::map(sa_increased_10, function(x) 
+  dplyr::filter(x, type == "sapling"))
+
+sa_increased_10_adult <- purrr::map(sa_increased_10, function(x) 
+  dplyr::filter(x, type == "adult"))
+
+rm(sa_increased_10)
+
+sa_decreased_5_sapling <- purrr::map(sa_decreased_5, function(x) 
+  dplyr::filter(x, type == "sapling"))
+
+sa_decreased_5_adult <- purrr::map(sa_decreased_5, function(x) 
+  dplyr::filter(x, type == "adult"))
+
+rm(sa_decreased_5)
+
+sa_decreased_10_sapling <- purrr::map(sa_decreased_10, function(x) 
+  dplyr::filter(x, type == "sapling"))
+
+sa_decreased_10_adult <- purrr::map(sa_decreased_10, function(x) 
+  dplyr::filter(x, type == "adult"))
+
+rm(sa_decreased_10)
+
 #### n individuals ####
 
 # Increased parameters #
-sa_individuals_inc_5 <- calc_n_sa(default = sa_default,
-                                  changed = sa_increased_5) %>%
-  dplyr::mutate(direction = "Increased +5%")
+sa_individuals_inc_5_sapling <- calc_n_sa(default = sa_default_sapling,
+                                          changed = sa_increased_5_sapling) %>%
+  dplyr::mutate(size = "sapling", 
+                direction = "Increased +5%")
 
-sa_individuals_inc_10 <- calc_n_sa(default = sa_default,
-                                   changed = sa_increased_10) %>%
-  dplyr::mutate(direction = "Increased +10%")
+sa_individuals_inc_5_adult <- calc_n_sa(default = sa_default_adult,
+                                        changed = sa_increased_5_adult) %>%
+  dplyr::mutate(size = "adult", 
+                direction = "Increased +5%")
+
+sa_individuals_inc_10_sapling <- calc_n_sa(default = sa_default_sapling,
+                                           changed = sa_increased_10_sapling) %>%
+  dplyr::mutate(size = "sapling", 
+                direction = "Increased +10%")
+
+sa_individuals_inc_10_adult <- calc_n_sa(default = sa_default_adult,
+                                         changed = sa_increased_10_adult) %>%
+  dplyr::mutate(size = "adult", 
+                direction = "Increased +10%")
 
 # Decreased parameters #
-sa_individuals_dec_5 <- calc_n_sa(default = sa_default,
-                                  changed = sa_decreased_5) %>%
-  dplyr::mutate(direction = "Decreased -5%")
+sa_individuals_dec_5_sapling <- calc_n_sa(default = sa_default_sapling,
+                                          changed = sa_decreased_5_sapling) %>%
+  dplyr::mutate(size = "sapling", 
+                direction = "Decreased -5%")
 
-sa_individuals_dec_10 <- calc_n_sa(default = sa_default,
-                                   changed = sa_decreased_10) %>%
-  dplyr::mutate(direction = "Decreased -10%")
+sa_individuals_dec_5_adult <- calc_n_sa(default = sa_default_adult,
+                                        changed = sa_decreased_5_adult) %>%
+  dplyr::mutate(size = "adult", 
+                direction = "Decreased -5%")
 
-sa_individuals <- dplyr::bind_rows(sa_individuals_inc_5, 
-                                   sa_individuals_inc_10, 
-                                   sa_individuals_dec_5, 
-                                   sa_individuals_dec_10) %>% 
+sa_individuals_dec_10_sapling <- calc_n_sa(default = sa_default_sapling,
+                                           changed = sa_decreased_10_sapling) %>%
+  dplyr::mutate(size = "sapling", 
+                direction = "Decreased -10%")
+
+sa_individuals_dec_10_adult <- calc_n_sa(default = sa_default_adult,
+                                         changed = sa_decreased_10_adult) %>%
+  dplyr::mutate(size = "adult", 
+                direction = "Decreased -10%")
+
+# combine to one dataframe # 
+sa_individuals <- dplyr::bind_rows(sa_individuals_inc_5_sapling,
+                                   sa_individuals_inc_5_adult,
+                                   sa_individuals_inc_10_sapling,
+                                   sa_individuals_inc_10_adult,
+                                   sa_individuals_dec_5_sapling,
+                                   sa_individuals_dec_5_adult,
+                                   sa_individuals_dec_10_sapling,
+                                   sa_individuals_dec_10_adult) %>% 
   dplyr::mutate(parameter = factor(parameter, 
                                    levels = parameter_levels),
+                size = factor(size, levels = c("sapling", "adult"), 
+                              labels = c("Sapling", "Adult")),
                 direction = factor(direction, 
                                    levels = c("Decreased -10%", 
-                                              "Decreased -5%", 
+                                              "Decreased -5%",
                                               "Increased +5%", 
                                               "Increased +10%")))
 
@@ -77,10 +151,11 @@ ggplot_sa_individuals <- ggplot(data = sa_individuals) +
   geom_hline(yintercept = 5, linetype = 2, col = "#ED7953FF") +
   geom_hline(yintercept = 10, linetype = 2, col = "#FCFFA4FF") +
   coord_flip() +
+  facet_wrap(~ size) +
   scale_x_discrete(name = "Parameter") +
   scale_y_continuous(name = "Difference individuals [%]",
-                     breaks = seq(-50, 50, 10),
-                     limits = c(-50, 50)) +
+                     breaks = seq(-100, 100, 25),
+                     limits = c(-100, 100)) +
   scale_fill_manual(name = "Parameter change",
                     values = c("#000004FF", "#781C6DFF" ,
                                "#ED6925FF", "#FCFFA4FF")) +

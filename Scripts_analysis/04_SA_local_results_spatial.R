@@ -318,7 +318,7 @@ sa_pcf <- dplyr::bind_rows(sa_pcf_increased_5_sapling,
                            sa_pcf_decreased_5_sapling,
                            sa_pcf_decreased_5_adult,
                            sa_pcf_decreased_10_sapling,
-                           sa_pcf_decreased_10_adult,) %>% 
+                           sa_pcf_decreased_10_adult) %>% 
   dplyr::mutate(parameter = factor(parameter, 
                                    levels = parameter_levels),
                 size = factor(size, levels = c("sapling", "adult"), 
@@ -329,24 +329,25 @@ sa_pcf <- dplyr::bind_rows(sa_pcf_increased_5_sapling,
                                               "Increased +5%", 
                                               "Increased +10%")))
 
-suppoRt::save_rds(object = sa_pcf, filename = "sa_local_pcf.rds", 
-                  path = "Data/Output/SA/", 
-                  overwrite = overwrite)
-
-sa_pcf <- readr::read_rds(path = "Data/Output/SA/sa_local_pcf.rds")
+# suppoRt::save_rds(object = sa_pcf, filename = "sa_local_pcf.rds", 
+#                   path = "Data/Output/SA/", 
+#                   overwrite = overwrite)
+# 
+# sa_pcf <- readr::read_rds(path = "Data/Output/SA/sa_local_pcf.rds")
 
 ggplot_sa_pcf <- ggplot(data = sa_pcf) + 
   geom_bar(aes(x = parameter, y = pcf_mean * 100, fill = direction),
            col = "black", stat = "identity", position = position_dodge()) +
-  facet_wrap(~ size) +
   geom_hline(yintercept = -10, linetype = 2, col = "#000004FF") +
   geom_hline(yintercept = -5, linetype = 2, col = "#781C6DFF") +
   geom_hline(yintercept = 0, linetype = 1) +
   geom_hline(yintercept = 5, linetype = 2, col = "#ED7953FF") +
   geom_hline(yintercept = 10, linetype = 2, col = "#FCFFA4FF") +
   coord_flip() +
+  facet_wrap(~ size) +
   scale_x_discrete(name = "Parameter") +
-  scale_y_continuous(name = expression(paste("Difference summarised ", italic(g(r)))),
+  scale_y_continuous(name = expression(paste("Difference summarised ", 
+                                             italic(g(r)), " [%]")),
                      breaks = seq(-100, 100, 25),
                      limits = c(-100, 100)) +
   scale_fill_manual(name = "Parameter change",

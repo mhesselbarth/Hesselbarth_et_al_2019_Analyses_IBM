@@ -144,37 +144,37 @@ stand_3 <- 2.6 / 307
 default <- mean(c(stand_1, stand_2, stand_3))
 
 # use CI from paper for abiotic
-stand_1_hi <- 2.6 / 786.76 # 973
-stand_2_hi <- 3.7 / 77.72 # 359
-stand_3_hi <- 2.6 / 13 # 157
+stand_1_hi <- 2.6 / 973 # 786.76
+stand_2_hi <- 3.7 / 359 # 77.72
+stand_3_hi <- 2.6 / 157 # 13 
 high <- mean(c(stand_1_hi, stand_2_hi, stand_3_hi))
 
-stand_1_lo <- 2.6 / 1547.24 # 1361
-stand_2_lo <- 3.7 / 1226.28 # 945
-stand_3_lo <- 2.6 / 601 # 457
+stand_1_lo <- 2.6 / 1361 # 1547.24
+stand_2_lo <- 3.7 / 945 # 1226.28
+stand_3_lo <- 2.6 / 457 # 601
 low <- mean(c(stand_1_lo, stand_2_lo, stand_3_lo))
+
+parameters_default_abiotic$seed_success_high <- high
+parameters_default_abiotic$seed_success_low <- low
 
 # Holzwarth, F., Kahl, A., Bauhus, J., Wirth, C., 2013. Many ways to die - 
 # partitioning tree mortality dynamics in a near-natural mixed deciduous 
 # forest. J. Ecol. 101, 220–230.
 
-parameters_default_abiotic$mort_int_early_low <- 1.2
-parameters_default_abiotic$mort_int_early_high <- 2.5
+parameters_default_abiotic$mort_int_early_low <- 1.8 - ((1.8 - 1.2) / 1.96)
+parameters_default_abiotic$mort_int_early_high <- 1.8 + ((2.5 - 1.8) / 1.96)
 
-parameters_default_abiotic$mort_dbh_early_low <- -2.4
-parameters_default_abiotic$mort_dbh_early_high <- -1.9
+parameters_default_abiotic$mort_dbh_early_low <- -2.1 - ((-2.1 - -2.4) / 1.96)
+parameters_default_abiotic$mort_dbh_early_high <- -2.1 + ((-1.9 - -2.1) / 1.96)
 
-parameters_default_abiotic$mort_dinc_low <- -2.4
-parameters_default_abiotic$mort_dinc_high <- -0.45
+parameters_default_abiotic$mort_dinc_low <- -1.4 - ((-1.4 - -2.4) / 1.96)
+parameters_default_abiotic$mort_dinc_high <- -1.4 + ((-0.45 - -1.4) / 1.96)
 
-parameters_default_abiotic$mort_int_late_low <- -10.0
-parameters_default_abiotic$mort_int_late_high <- -7.8
+parameters_default_abiotic$mort_int_late_low <- -8.9 - ((-8.9 - -10.0) / 1.96)
+parameters_default_abiotic$mort_int_late_high <- -8.9 + ((-7.8 - -8.9) / 1.96)
 
-parameters_default_abiotic$mort_dbh_late_low <- 0.033
-parameters_default_abiotic$mort_dbh_late_high <- 0.070
-
-parameters_default_abiotic$seed_success_high <- high
-parameters_default_abiotic$seed_success_low <- low
+parameters_default_abiotic$mort_dbh_late_low <- 0.052 - ((0.052 - 0.033) / 1.96)
+parameters_default_abiotic$mort_dbh_late_high <- 0.052 + ((0.070 - 0.052) / 1.96)
 
 #### Update parameters ####
 parameters_fitted_abiotic_real <- parameters_default_abiotic
