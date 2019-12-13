@@ -1,0 +1,16 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# Hesselbarth_et_al_2019_Analyses_IBM
+
+Repository for: Hesselbarth, M.H.K., Enderle, L., Wiegand, K., Moloney, K.A., In prep. Environmental heterogeneity influences mostly earlier life-history stages in a temperate old-growth forest as shown by individual-based modelling.
