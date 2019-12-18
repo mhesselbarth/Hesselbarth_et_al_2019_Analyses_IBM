@@ -321,7 +321,7 @@ ggplot_sobol <- ggplot(data = sobol_model_overall_df) +
   facet_wrap(~ output + group, scales = "free_x") +
   scale_color_manual(name = "", values = c("Main effect" = "#0D0887FF",
                                            "Total effect" = "#ED7953FF")) +
-  scale_y_continuous(name = "Effect strength", limits = c(0, 1)) +
+  scale_y_continuous(name = "Effect strength", limits = c(0, 0.75)) +
   scale_x_discrete(name = "Parameter") +
   theme_classic(base_size = base_size) + 
   theme(legend.position = "bottom", 
