@@ -41,14 +41,16 @@ param_set_1_indiv <- tgp::lhs(n = n, rect = matrix(data = c(0.9879718, 1.125665,
                                                             0.4242094, 0.4458642, # ci_beta +- SE * 1.96
                                                             1.251156, 1.44794, # growth_infl +- SE * 1.96
                                                             -2.4, -1.9, # mort_dbh_early CI from Holzwarth et al.
-                                                            1.2, 2.5),  # mort_int_early CI from Holzwarth et al.
+                                                            1.2, 2.5,  # mort_int_early CI from Holzwarth et al.
+                                                            -10.0, -7.8), # mort_int_late
                                                    ncol = 2, byrow = TRUE))
 
 param_set_2_indiv <- tgp::lhs(n = n, rect = matrix(data = c(0.9879718, 1.125665, # ci_alpha +- SE * 1.96
                                                             0.4242094, 0.4458642, # ci_beta +- SE * 1.96
                                                             1.251156, 1.44794, # growth_infl +- SE * 1.96
                                                             -2.4, -1.9, # mort_dbh_early CI from Holzwarth et al.
-                                                            1.2, 2.5), # mort_int_early CI from Holzwarth et al.
+                                                            1.2, 2.5,  # mort_int_early CI from Holzwarth et al.
+                                                            -10.0, -7.8), # mort_int_late
                                                    ncol = 2, byrow = TRUE))
 
 # create an instance of the class sobol #
@@ -66,7 +68,7 @@ sobol_model_indiv_sapling <- sensitivity::sobol2007(model = NULL,
 param_sampled_indiv <- purrr::map(seq_len(nrow(sobol_model_indiv_adult$X)), 
                                   function(x) as.numeric(sobol_model_indiv_adult$X[x, ]))
 
-# # # get the simulated model response #
+# # get the simulated model response #
 # simulation_results_indiv <-
 #   suppoRt::submit_to_cluster(calc_sobol_indiv,
 #                              x = param_sampled_indiv,
@@ -77,10 +79,10 @@ param_sampled_indiv <- purrr::map(seq_len(nrow(sobol_model_indiv_adult$X)),
 #                                           save_each = save_each),
 #                              n_jobs = length(param_sampled_indiv),
 #                              template = list(job_name = "sobol_indiv",
-#                                              walltime = "04:00:00",
+#                                              walltime = "06:00:00",
 #                                              queue = "medium",
 #                                              service = "normal",
-#                                              mem_cpu = "4096",
+#                                              mem_cpu = "8192",
 #                                              log_file = "sobol_indiv.log"))
 # 
 # # save results #
@@ -115,7 +117,7 @@ sensitivity::tell(sobol_model_indiv_sapling, simulation_results_indiv_sapling_ce
 sobol_model_indiv_adult_df <- tibble::as_tibble(sobol_model_indiv_adult$S) %>% 
   purrr::set_names(c("value", "bias", "std_error", "min_ci", "max_ci")) %>% 
   dplyr::mutate(parameter = c("ci_alpha", "ci_beta", "growth_infl", 
-                              "mort_dbh_early", "mort_int_early"), 
+                              "mort_dbh_early", "mort_int_early", "mort_int_late"), 
                 effect = "Main effect", 
                 output = "Number of individuals", 
                 group = "Adults")
@@ -123,7 +125,7 @@ sobol_model_indiv_adult_df <- tibble::as_tibble(sobol_model_indiv_adult$S) %>%
 sobol_model_indiv_adult_df <- tibble::as_tibble(sobol_model_indiv_adult$T) %>% 
   purrr::set_names(c("value", "bias", "std_error", "min_ci", "max_ci")) %>% 
   dplyr::mutate(parameter = c("ci_alpha", "ci_beta", "growth_infl", 
-                              "mort_dbh_early", "mort_int_early"), 
+                              "mort_dbh_early", "mort_int_early", "mort_int_late"), 
                 effect = "Total effect", 
                 output = "Number of individuals", 
                 group = "Adults") %>% 
@@ -139,7 +141,7 @@ sobol_model_indiv_adult_df <- tibble::as_tibble(sobol_model_indiv_adult$T) %>%
 sobol_model_indiv_sapling_df <- tibble::as_tibble(sobol_model_indiv_sapling$S) %>% 
   purrr::set_names(c("value", "bias", "std_error", "min_ci", "max_ci")) %>% 
   dplyr::mutate(parameter = c("ci_alpha", "ci_beta", "growth_infl", 
-                              "mort_dbh_early", "mort_int_early"), 
+                              "mort_dbh_early", "mort_int_early", "mort_int_late"), 
                 effect = "Main effect", 
                 output = "Number of individuals", 
                 group = "Saplings")
@@ -147,7 +149,7 @@ sobol_model_indiv_sapling_df <- tibble::as_tibble(sobol_model_indiv_sapling$S) %
 sobol_model_indiv_sapling_df <- tibble::as_tibble(sobol_model_indiv_sapling$T) %>% 
   purrr::set_names(c("value", "bias", "std_error", "min_ci", "max_ci")) %>% 
   dplyr::mutate(parameter = c("ci_alpha", "ci_beta", "growth_infl", 
-                              "mort_dbh_early", "mort_int_early"), 
+                              "mort_dbh_early", "mort_int_early", "mort_int_late"), 
                 effect = "Total effect", 
                 output = "Number of individuals", 
                 group = "Saplings") %>% 
@@ -165,19 +167,22 @@ sobol_model_indiv_sapling_df <- tibble::as_tibble(sobol_model_indiv_sapling$T) %
 set.seed(42)
 
 # sample parameters #
+# sample parameters #
 param_set_1_pcf <- tgp::lhs(n = n, rect = matrix(data = c(0.9879718, 1.125665, # ci_alpha +- SE * 1.96
                                                           0.4242094, 0.4458642, # ci_beta +- SE * 1.96
                                                           1.251156, 1.44794, # growth_infl +- SE * 1.96
                                                           -2.4, -1.9, # mort_dbh_early CI from Holzwarth et al.
-                                                          -10, -7.8),  # mort_int_late CI from Holzwarth et al.
-                                                 ncol = 2, byrow = TRUE))
+                                                          1.2, 2.5,  # mort_int_early CI from Holzwarth et al.
+                                                          -10.0, -7.8), # mort_int_late
+                                                   ncol = 2, byrow = TRUE))
 
 param_set_2_pcf <- tgp::lhs(n = n, rect = matrix(data = c(0.9879718, 1.125665, # ci_alpha +- SE * 1.96
                                                           0.4242094, 0.4458642, # ci_beta +- SE * 1.96
                                                           1.251156, 1.44794, # growth_infl +- SE * 1.96
                                                           -2.4, -1.9, # mort_dbh_early CI from Holzwarth et al.
-                                                          -10, -7.8),  # mort_int_late CI from Holzwarth et al.
-                                                 ncol = 2, byrow = TRUE))
+                                                          1.2, 2.5,  # mort_int_early CI from Holzwarth et al.
+                                                          -10.0, -7.8), # mort_int_late
+                                                   ncol = 2, byrow = TRUE))
 
 # create an instance of the class sobol #
 sobol_model_pcf_adult <- sensitivity::sobol2007(model = NULL, 
@@ -244,7 +249,7 @@ sensitivity::tell(sobol_model_pcf_sapling, simulation_results_pcf_sapling_center
 sobol_model_pcf_adult_df <- tibble::as_tibble(sobol_model_pcf_adult$S) %>% 
   purrr::set_names(c("value", "bias", "std_error", "min_ci", "max_ci")) %>% 
   dplyr::mutate(parameter = c("ci_alpha", "ci_beta", "growth_infl", 
-                              "mort_dbh_early", "mort_int_late"), 
+                              "mort_dbh_early", "mort_int_early", "mort_int_late"), 
                 effect = "Main effect", 
                 output = "Summarised pair-correlation function", 
                 group = "Adults")
@@ -252,7 +257,7 @@ sobol_model_pcf_adult_df <- tibble::as_tibble(sobol_model_pcf_adult$S) %>%
 sobol_model_pcf_adult_df <- tibble::as_tibble(sobol_model_pcf_adult$T) %>% 
   purrr::set_names(c("value", "bias", "std_error", "min_ci", "max_ci")) %>% 
   dplyr::mutate(parameter = c("ci_alpha", "ci_beta", "growth_infl", 
-                              "mort_dbh_early", "mort_int_late"), 
+                              "mort_dbh_early", "mort_int_early", "mort_int_late"), 
                 effect = "Total effect", 
                 output = "Summarised pair-correlation function", 
                 group = "Adults") %>% 
@@ -269,7 +274,7 @@ sobol_model_pcf_adult_df <- tibble::as_tibble(sobol_model_pcf_adult$T) %>%
 sobol_model_pcf_sapling_df <- tibble::as_tibble(sobol_model_pcf_sapling$S) %>% 
   purrr::set_names(c("value", "bias", "std_error", "min_ci", "max_ci")) %>% 
   dplyr::mutate(parameter = c("ci_alpha", "ci_beta", "growth_infl", 
-                              "mort_dbh_early", "mort_int_late"), 
+                              "mort_dbh_early", "mort_int_early", "mort_int_late"), 
                 effect = "Main effect", 
                 output = "Summarised pair-correlation function", 
                 group = "Saplings")
@@ -277,7 +282,7 @@ sobol_model_pcf_sapling_df <- tibble::as_tibble(sobol_model_pcf_sapling$S) %>%
 sobol_model_pcf_sapling_df <- tibble::as_tibble(sobol_model_pcf_sapling$T) %>% 
   purrr::set_names(c("value", "bias", "std_error", "min_ci", "max_ci")) %>% 
   dplyr::mutate(parameter = c("ci_alpha", "ci_beta", "growth_infl", 
-                              "mort_dbh_early", "mort_int_late"), 
+                              "mort_dbh_early", "mort_int_early", "mort_int_late"), 
                 effect = "Total effect", 
                 output = "Summarised pair-correlation function", 
                 group = "Saplings") %>% 
@@ -316,7 +321,7 @@ ggplot_sobol <- ggplot(data = sobol_model_overall_df) +
   facet_wrap(~ output + group, scales = "free_x") +
   scale_color_manual(name = "", values = c("Main effect" = "#0D0887FF",
                                            "Total effect" = "#ED7953FF")) +
-  scale_y_continuous(name = "Effect strength", limits = c(0, .75)) +
+  scale_y_continuous(name = "Effect strength", limits = c(0, 1)) +
   scale_x_discrete(name = "Parameter") +
   theme_classic(base_size = base_size) + 
   theme(legend.position = "bottom", 

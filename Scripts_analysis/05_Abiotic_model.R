@@ -89,7 +89,7 @@ model_run_y50_e5_r50_real_a <- suppoRt::submit_to_cluster(rabmp::run_model_abiot
                                                                           walltime = "02:00:00",
                                                                           queue = "medium", 
                                                                           service = "short",
-                                                                          mem_cpu = "2048", 
+                                                                          mem_cpu = "4096", 
                                                                           log_file = "abiotic_real.log"))
 
 suppoRt::save_rds(object = model_run_y50_e5_r50_real_a,
