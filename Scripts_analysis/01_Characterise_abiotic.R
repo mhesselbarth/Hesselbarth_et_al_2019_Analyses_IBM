@@ -180,14 +180,15 @@ ggplot_abiotic_cond <- ggplot(data = habitat_ras_full) +
   guides(size = FALSE) + 
   theme_void(base_size = base_size) + 
   theme(legend.position = "bottom", 
-        legend.key.width = unit(2, "cm"))
+        legend.key.width = unit(2, "cm"), 
+        text = element_text(family = "Calibri Light"))
 
 suppoRt::save_ggplot(plot = ggplot_abiotic_cond, 
                      file = "ggplot_abiotic_cond.png", 
-                     path = "Figures/Appendix/", 
-                     dpi = 300, units = units, 
-                     width = width_full, height = height_small, 
-                     overwrite = overwrite)
+                     path = "C:/Users/Maximilian/ownCloud/13_Disputation/Figures/",
+                     dpi = 300, units = "mm", 
+                     width = 225, height = 150, 
+                     overwrite = FALSE)
 
 ######################################
 ####                              ####

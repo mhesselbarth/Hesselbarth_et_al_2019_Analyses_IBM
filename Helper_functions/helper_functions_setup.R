@@ -8,6 +8,7 @@
 
 # load packages #
 library(data.table)
+library(extrafont)
 library(magrittr)
 library(landscapemetrics)
 library(MESS)
