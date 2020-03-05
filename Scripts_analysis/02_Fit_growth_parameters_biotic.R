@@ -73,7 +73,8 @@ ggplot_fitting_dbh_growth <- ggplot(beech_2013) +
   scale_color_manual(name = "5% highest growth per class", 
                      values = c("#440154FF", "#21908CFF")) +
   theme_classic(base_size = base_size) + 
-  theme(legend.position = "bottom")
+  theme(legend.position = "bottom", 
+        text = element_text(family = "Calibri Light"))
 
 # initialse function #
 fun_potential <- function(dbh, assymp, rate, infl) {     
@@ -113,7 +114,8 @@ ggplot_fitting_potential <- ggplot(beech_2013) +
   scale_color_manual(name = "5% highest growth per class", 
                      values = c("#440154FF", "#21908CFF")) +
   theme_classic(base_size = base_size) + 
-  theme(legend.position = "bottom")
+  theme(legend.position = "bottom", 
+        text = element_text(family = "Calibri Light"))
 
 # get summary of model fit #
 # summary(fitted_fun_potential)
@@ -190,7 +192,8 @@ ggplot_fitting_actual <- ggplot(beech_2013) +
   scale_color_viridis_c(name = expression(c[i]^{trans}), option = "A") +
   theme_classic(base_size = base_size) + 
   theme(legend.position = "bottom", 
-        legend.key.width = unit(1.5, "cm"))
+        legend.key.width = unit(1.5, "cm"), 
+        text = element_text(family = "Calibri Light"))
 
 #### Fit biotic seed dispersal ####
 # Olesen, C.R., Madsen, P., 2008. The impact of roe deer (Capreolus capreolus),
@@ -222,8 +225,8 @@ ggplot_fitting_growth <- ggplot_fitting_potential + ggplot_fitting_actual +
   patchwork::plot_annotation(tag_levels = "a", tag_suffix = ")")
 
 suppoRt::save_ggplot(plot = ggplot_fitting_growth, 
-                     path = "Figures/",
                      filename = "ggplot_fitting_growth.png", 
-                     dpi = dpi, units = units, 
-                     height = height_full * 3/8, width = width_full, 
-                     overwrite = overwrite)
+                     path = "C:/Users/Maximilian/ownCloud/13_Disputation/Figures/",
+                     dpi = dpi, units = units,
+                     width = 200, height = 125,
+                     overwrite = FALSE)

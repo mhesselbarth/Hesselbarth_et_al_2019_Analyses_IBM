@@ -61,7 +61,8 @@ ggplot_kernel <- ggplot() +
   guides(linetype = FALSE) +
   theme_classic(base_size = base_size) + 
   theme(legend.position = "bottom", 
-        plot.margin = margin(0, 0, 0, 0, "mm"))
+        plot.margin = margin(0, 0, 0, 0, "mm"), 
+        text = element_text(family = "Calibri Light"))
 
 #### Plot point pattern ####
 # calculat ci
@@ -91,19 +92,21 @@ ggplot_pattern_ci <- ggplot(data = data_ci) +
   guides(size = FALSE, col = FALSE) +
   theme_void(base_size = base_size) + 
   theme(legend.position = "bottom", 
-        plot.margin = margin(0, 0, 0, 0, "mm"))
+        plot.margin = margin(0, 0, 0, 0, "mm"), 
+        text = element_text(family = "Calibri Light"))
 
 
 #### Overall plot ####
 ggplot_overall <- ggplot_kernel + ggplot_pattern_ci + 
   patchwork::plot_layout(ncol = 2, nrow = 1,
                          widths = c(0.5, 0.5), heights = c(0.5, 0.5)) + 
-  patchwork::plot_annotation(tag_levels = "a", tag_suffix = ")")
+  patchwork::plot_annotation(tag_levels = "a", tag_suffix = ")", 
+                             theme = theme(text = element_text(family = "Calibri Light")))
 
 #### Save plots #### 
 suppoRt::save_ggplot(plot = ggplot_overall, 
-                     path = "Figures/",
                      filename = "ggplot_ci_overall.png", 
-                     dpi = dpi, units = units, 
-                     height = height_full * 1/3, width = width_full, 
-                     overwrite = overwrite)
+                     path = "C:/Users/Maximilian/ownCloud/13_Disputation/Figures/",
+                     dpi = dpi, units = units,
+                     width = 200, height = 125, 
+                     overwrite = FALSE)

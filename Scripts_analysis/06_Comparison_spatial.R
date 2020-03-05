@@ -164,14 +164,15 @@ ggplot_pcf <- ggplot(data = pcf_overall_model) +
   labs(x = "r [m]", y = expression(italic(g(r)))) +
   guides(colour = FALSE) +
   theme_classic(base_size = base_size) + 
-  theme(legend.position = "bottom")
+  theme(legend.position = "bottom", 
+        text = element_text(family = "Calibri Light"))
 
 suppoRt::save_ggplot(plot = ggplot_pcf,
-                     filename = "ggplot_pcf_y15.png",
-                     path = "Figures/",
-                     dpi = dpi, 
-                     width = width_full, height = height_small, units = units,
-                     overwrite = overwrite)
+                     filename = "ggplot_pcf_y50.png",
+                     path = "C:/Users/Maximilian/ownCloud/13_Disputation/Figures/",
+                     dpi = dpi, units = units,                
+                     width = 225, height = 150, 
+                     overwrite = FALSE)
 
 #### Mark-correlation function #### 
 r_kmm <- seq(from = 0, to = 50, length.out = 525)
@@ -274,14 +275,14 @@ ggplot_kmm <- ggplot(data = kmm_overall_model) +
   guides(colour = FALSE) +
   theme_classic(base_size = base_size) + 
   theme(legend.position = "bottom", 
-        legend.key.width = unit(0.5, units = "cm"))
+        text = element_text(family = "Calibri Light"))
 
 suppoRt::save_ggplot(plot = ggplot_kmm,
                      filename = "ggplot_kmm_y15.png",
-                     path = "Figures/",
-                     dpi = dpi, 
-                     width = width_full, height = height_small, units = units,
-                     overwrite = overwrite)
+                     path = "C:/Users/Maximilian/ownCloud/13_Disputation/Figures/",
+                     dpi = dpi, units = units,
+                     width = 225, height = 150, 
+                     overwrite = FALSE)
 
 #### CI index ####
 from_ci <- 0.25
@@ -408,11 +409,12 @@ ggplot_ci <- ggplot(data = ci_overall_model) +
   labs(x = "Competition value", y = "Density") +
   guides(colour = FALSE) +
   theme_classic(base_size = base_size) + 
-  theme(legend.position = "bottom")
+  theme(legend.position = "bottom", 
+        text = element_text(family = "Calibri Light"))
 
 suppoRt::save_ggplot(plot = ggplot_ci, 
                      filename = "ggplot_ci_y15.png", 
-                     path = "Figures/", 
-                     dpi = dpi, 
-                     width = width_full, height = height_small, units = units, 
-                     overwrite = overwrite)
+                     path = "C:/Users/Maximilian/ownCloud/13_Disputation/Figures/",
+                     dpi = dpi, units = units,                
+                     width = 225, height = 150, 
+                     overwrite = FALSE)

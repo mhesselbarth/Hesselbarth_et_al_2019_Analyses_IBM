@@ -146,7 +146,7 @@ ggplot_dbh_dist <- ggplot(data = dbh_dist_overall) +
                     ymin = (n_rel_mean - n_rel_sd) * 100, 
                     ymax = (n_rel_mean + n_rel_sd) * 100),
                 width = 0.5, position = position_dodge(0.9)) +
-  scale_fill_viridis_d(name = "", option = "D") + 
+  scale_fill_viridis_d(name = "", option = "B") + 
   scale_x_discrete(name = "dbh class [cm]",
                    breaks = seq(from = 1,
                                 to = as.numeric(max(dbh_dist_overall$dbh_class)),
@@ -157,14 +157,15 @@ ggplot_dbh_dist <- ggplot(data = dbh_dist_overall) +
                      limits = c(0, 65)) +
   theme_classic(base_size = base_size) + 
   theme(legend.position = "bottom", 
-        legend.key.width = unit(0.5, units = "cm"))
+        legend.key.width = unit(0.5, units = "cm"), 
+        text = element_text(family = "Calibri Light"))
 
 suppoRt::save_ggplot(plot = ggplot_dbh_dist, 
                      filename = "ggplot_dbh_dist_y15.png",
-                     path = "Figures/", 
-                     dpi = dpi, 
-                     width = width_full, height = height_small, units = units, 
-                     overwrite = overwrite)
+                     path = "C:/Users/Maximilian/ownCloud/13_Disputation/Figures/", 
+                     dpi = dpi, units = units, 
+                     width = 225, height = 150, 
+                     overwrite = FALSE)
 
 #### Growth ####
 by_growth <- 10
@@ -241,7 +242,7 @@ ggplot_growth <- ggplot(data = dbh_growth_overall) +
                    middle = inc_median,  
                    upper = inc_high, ymax = inc_max), 
                stat = "identity") + 
-  scale_fill_viridis_d(name = "", option = "D") +
+  scale_fill_manual(name = "", values = c("#000004FF", "#781C6DFF", "#FCFFA4FF")) +
   scale_x_discrete(name = "dbh class [cm]",
                    breaks = seq(from = 1, 
                                 to = as.numeric(max(dbh_growth_overall$dbh_class)), 
@@ -251,11 +252,13 @@ ggplot_growth <- ggplot(data = dbh_growth_overall) +
                      breaks = seq(from = 0, to = max(dbh_growth_overall$inc_max),
                                   by = 0.2)) + 
   theme_classic(base_size = base_size) +
-  theme(legend.position = "bottom")
+  theme(legend.position = "bottom", 
+        text = element_text(family = "Calibri Light"))
 
 suppoRt::save_ggplot(plot = ggplot_growth, 
                      filename = "ggplot_growth_y15.png", 
-                     path = "Figures/", 
-                     dpi = dpi, 
-                     width = width_small, height = height_small, units = units, 
-                     overwrite = overwrite)
+                     path = "C:/Users/Maximilian/ownCloud/13_Disputation/Figures/", 
+                     dpi = dpi, units = units, 
+                     width = 225, height = 150, 
+                     overwrite = FALSE)
+

@@ -11,15 +11,17 @@
 #### Import libraries and data ####
 
 # load packages
+library(extrafont)
 library(suppoRt) # devtools::install_github("mhesselbarth/suppoRt")
 library(rabmp)
 library(spatstat)
 library(tidyverse)
 
 # import parameters
-parameters_beech_fitted <- rabmp::read_parameters("Data/Input/parameters_beech_fitted.txt")
+parameters_beech_fitted <- rabmp::read_parameters("Data/Input/parameters_fitted_biotic.txt", 
+                                                  sep = ";")
 
-pattern_1999_recon <- readr::read_rds("Data/Input/beech_1999_rec_ppp.rds")
+pattern_1999_recon <- readr::read_rds("Data/Input/beech_1999_ppp_rec.rds")
 
 plot_area <- pattern_1999_recon$window
 
@@ -31,29 +33,24 @@ input_data <- tibble::as_tibble(pattern_1999_recon) %>%
   dplyr::mutate(id = 1:nrow(.)) %>% 
   dplyr::filter(species == "beech", id %in% sample_id) %>%
   dplyr::select(-id) %>% 
-  rabmp::prepare_data(x = "x", y = "y", species = "species", 
-                      type = "type", dbh = "dbh")
+  rabmp::prepare_data(x = "x", y = "y", type = "type", dbh = "dbh")
 
 rm(pattern_1999_recon)
 
 #### Plot Probability ####
 distance_density <- rabmp:::rcpp_random_distance(number_seeds = 1000000, 
-                                                 species = "beech", 
-                                                 beta_beech = parameters_beech_fitted$seed_beta_beech,
-                                                 beta_ash = 0,
-                                                 beta_sycamore = 0,
-                                                 beta_hornbeam = 0,
-                                                 beta_others = 0,
+                                                 beta = parameters_beech_fitted$seed_beta,
                                                  max_dist = parameters_beech_fitted$seed_max_dist) %>% 
   tibble::tibble(prob = .)
 
 plot_dist_density <- ggplot(data = distance_density) + 
   geom_density(aes(prob)) +   
   labs(x = "Distance [m]", y = "Density") + 
-  theme_classic(base_size = 15)
+  theme_classic(base_size = 15) +
+  theme(text = element_text(family  = "Calibri Light"))
 
 #### Plot point pattern ####
-seedlings <- simulate_seed_dispersal(data = input_data, 
+seedlings <- rabmp::simulate_seed_dispersal_biotic(data = input_data, 
                                      parameters = parameters_beech_fitted, 
                                      plot_area = plot_area) %>%
   tibble::as_tibble() %>% 
@@ -69,10 +66,25 @@ plot_seed_pattern <- ggplot(data = seedlings) +
   guides(size = FALSE) +
   coord_equal() + 
   theme_void(base_size = 15) + 
-  theme(legend.position = "bottom")
+  theme(legend.position = "bottom", 
+        text = element_text(family  = "Calibri Light"))
 
 #### Save plots #### 
 overwrite <- FALSE
+
+ggplot_overall <- plot_dist_density + plot_seed_pattern + 
+  patchwork::plot_layout(ncol = 2, nrow = 1,
+                         widths = c(0.5, 0.5), heights = c(0.5, 0.5)) + 
+  patchwork::plot_annotation(tag_levels = "a", tag_suffix = ")", 
+                             theme = theme(text = element_text(family = "Calibri Light")))
+
+suppoRt::save_ggplot(plot = ggplot_overall, 
+                     filename = "ggplot_seed_overall.png", 
+                     path = "C:/Users/Maximilian/ownCloud/13_Disputation/Figures/",
+                     dpi = dpi, units = units,
+                     width = 200, height = 125, 
+                     overwrite = FALSE)
+
 
 suppoRt::save_ggplot(plot = plot_dist_density, 
                      filename = "ggplot_structure_seed_density.png", 

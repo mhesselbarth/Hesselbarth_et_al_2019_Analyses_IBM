@@ -325,11 +325,12 @@ ggplot_sobol <- ggplot(data = sobol_model_overall_df) +
   scale_x_discrete(name = "Parameter") +
   theme_classic(base_size = base_size) + 
   theme(legend.position = "bottom", 
-        axis.text.x = element_text(angle = 45, hjust = 1))
+        axis.text.x = element_text(angle = 45, hjust = 1), 
+        text = element_text(family = "Calibri Light"))
 
 suppoRt::save_ggplot(plot = ggplot_sobol, 
                      filename = "ggplot_sobol.png", 
-                     path = "Figures/", 
+                     path = "C:/Users/Maximilian/ownCloud/13_Disputation/Figures/", 
                      units = units, dpi = dpi, 
-                     width = width_full, height = height_full * 2/3, 
-                     overwrite = overwrite)
+                     width = 225, height = 150, 
+                     overwrite = FALSE)
