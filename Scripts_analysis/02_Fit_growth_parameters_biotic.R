@@ -62,7 +62,8 @@ beech_2013_top <- dplyr::mutate(beech_2013,
 beech_2013 <- dplyr::mutate(beech_2013, 
                             top_n = dplyr::case_when(id %in% beech_2013_top ~ 1,
                                                      !id %in% beech_2013_top ~ 0), 
-                            top_n = factor(top_n, levels = c(0, 1)))
+                            top_n = factor(top_n, levels = c(0, 1), 
+                                           labels = c("no", "yes")))
 
 # plot growth vs dbh #
 ggplot_fitting_dbh_growth <- ggplot(beech_2013) +

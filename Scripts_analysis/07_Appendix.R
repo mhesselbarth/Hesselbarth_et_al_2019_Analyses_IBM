@@ -95,3 +95,15 @@ suppoRt::save_ggplot(plot = ggplot_nnd_nn,
                      dpi = dpi, 
                      width = width_full, height = height_small, units = units,
                      overwrite = overwrite)
+
+#### Summarise g(r) ####
+set.seed(42)
+
+input_pattern <- spatstat::rThomas(kappa = 15, scale = 0.05, mu = 5)
+
+cluster_env <- spatstat::envelope(input_pattern, fun = "pcf", nsim = 199,
+                                  funargs = list(divisor = "d", 
+                                                 correction = "Ripley", 
+                                                 stoyan = 0.25))
+
+onpoint::summarise_envelope(cluster_env, plot_result = TRUE)

@@ -85,12 +85,12 @@ ggplot_pattern_ci <- ggplot(data = data_ci) +
                aes(x = x, y = y),
                col = "black", fill = "grey", alpha = 0.65) +
   geom_point(aes(x = x, y = y, col = ci, size = dbh), pch = 19) + 
-  scale_size_continuous(name = "dbh [cm]") + 
+  scale_size_continuous(name = "dbh [cm]", guide = FALSE) + 
   scale_color_viridis_c(name = expression(c[i]^trans), option = "C") +
   coord_equal() + 
-  guides(size = FALSE, col = FALSE) +
+  # guides(size = FALSE, col = TRUE) +
   theme_void(base_size = base_size) + 
-  theme(legend.position = "bottom", 
+  theme(legend.position = "right", 
         plot.margin = margin(0, 0, 0, 0, "mm"))
 
 
@@ -106,4 +106,4 @@ suppoRt::save_ggplot(plot = ggplot_overall,
                      filename = "ggplot_ci_overall.png", 
                      dpi = dpi, units = units, 
                      height = height_full * 1/3, width = width_full, 
-                     overwrite = overwrite)
+                     overwrite = T)
