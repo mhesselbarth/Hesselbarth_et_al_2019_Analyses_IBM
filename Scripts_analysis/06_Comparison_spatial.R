@@ -284,7 +284,7 @@ suppoRt::save_ggplot(plot = ggplot_kmm,
                      overwrite = overwrite)
 
 #### CI index ####
-from_ci <- 0.25
+from_ci <- 0
 to_ci <- 1
 
 ci_model_biotic_sapling <- calc_ci_comp(data = model_run_y50_e5_r50_biotic_sapling, 
@@ -405,7 +405,8 @@ ggplot_ci <- ggplot(data = ci_overall_model) +
                                            "Adult" = "#CC4678FF")) +
   scale_linetype_manual(name = "", values = c(1, 2)) +
   facet_wrap(~ data_type_model) + 
-  labs(x = "Competition value", y = "Density") +
+  labs(x = expression(paste("Competition value ", c[i]^{trans})), 
+       y = expression(paste("Density ", c[i]^{trans}))) +
   guides(colour = FALSE) +
   theme_classic(base_size = base_size) + 
   theme(legend.position = "bottom")

@@ -16,7 +16,7 @@ source("Helper_functions/helper_functions_setup.R")
 # import data  #
 beech_1999_ppp <- readr::read_rds("Data/Input/beech_1999_ppp.rds")
 
-beech_1999_ppp_rec <- readr::read_rds("Data/Input/beech_1999_ppp_rec.rds")
+# beech_1999_ppp_rec <- readr::read_rds("Data/Input/beech_1999_ppp_rec.rds")
 
 plot_area <- readr::read_rds("Data/Raw/plot_area_owin.rds")
 
@@ -171,16 +171,27 @@ habitat_ras_full <- raster::as.data.frame(habitat_ras_model, xy = TRUE) %>%
                               labels = c("Competition and growth parameters", 
                                          "Seed establishment and mortality parameters")))
 
+# cells with values divided by two because of ras_fit and ras_model
+nrow(habitat_ras_full[!is.na(habitat_ras_full$scaled), ]) / 2
+
+plot_area_extent <- tibble::tibble(x = c(min(habitat_ras_full$x), max(habitat_ras_full$x), 
+                                         max(habitat_ras_full$x), min(habitat_ras_full$x)),
+                                   y = c(min(habitat_ras_full$y), min(habitat_ras_full$y),
+                                         max(habitat_ras_full$y), max(habitat_ras_full$y)))
+
 ggplot_abiotic_cond <- ggplot(data = habitat_ras_full) + 
   geom_raster(aes(x = x, y = y, fill = scaled)) + 
   geom_polygon(data = plot_area_df, aes(x = x, y = y), fill = NA, col = "black") + 
+  geom_polygon(data = plot_area_extent, aes(x = x, y = y), fill = NA, col = "grey") + 
   facet_wrap(~ data) + 
-  scale_fill_viridis_c(name = "Intensity", na.value = "white") + 
+  scale_fill_viridis_c(name = expression(paste("Scaled intensity [", events/m^2, "]")), 
+                                         na.value = "white") + 
   coord_equal() + 
   guides(size = FALSE) + 
   theme_void(base_size = base_size) + 
   theme(legend.position = "bottom", 
-        legend.key.width = unit(2, "cm"))
+        legend.key.width = unit(2, "cm"), 
+        legend.spacing.x = unit(1, 'cm'))
 
 suppoRt::save_ggplot(plot = ggplot_abiotic_cond, 
                      file = "ggplot_abiotic_cond.png", 
