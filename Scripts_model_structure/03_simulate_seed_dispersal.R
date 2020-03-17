@@ -49,6 +49,13 @@ plot_dist_density <- ggplot(data = distance_density) +
   theme_classic(base_size = 15) +
   theme(text = element_text(family  = "Calibri Light"))
 
+suppoRt::save_ggplot(plot = plot_dist_density, 
+                     filename = "plot_dist_density.png", 
+                     path = "C:/Users/Maximilian/ownCloud/13_Thesis_defense/Figures/",
+                     dpi = dpi, units = units,
+                     width = 50, height = 50, 
+                     overwrite = FALSE)
+
 #### Plot point pattern ####
 seedlings <- rabmp::simulate_seed_dispersal_biotic(data = input_data, 
                                      parameters = parameters_beech_fitted, 

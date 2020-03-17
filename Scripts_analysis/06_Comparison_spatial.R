@@ -57,7 +57,7 @@ model_run_y50_e5_r50_abiotic_adult <- purrr::map(model_run_y50_e5_r50_abiotic,
                                                  function(x) 
                                                    dplyr::filter(x, type == "adult"))
 
-sim_i <- 15
+sim_i <- 50
 
 #### Pair-correlation function #### 
 r_pcf <- seq(from = 0, to = 50, length.out = 525)
@@ -149,7 +149,7 @@ pcf_overall_field <- dplyr::bind_rows(pcf_2007_sapling,
                 size_field = factor(size_field, levels = c("Sapling", "Adult")))
 
 # create plot #
-ggplot_pcf <- ggplot(data = pcf_overall_model) + 
+ggplot_pcf <- ggplot(data = pcf_overall_model) +
   geom_ribbon(aes(x = r, ymin = fun_lo, ymax = fun_hi, fill = size_model),
               alpha = 0.5) +
   geom_line(data = pcf_overall_field,
@@ -161,17 +161,19 @@ ggplot_pcf <- ggplot(data = pcf_overall_model) +
   scale_color_manual(name = "", values = c("Sapling" = "#0D0887FF", 
                                            "Adult" = "#CC4678FF")) +
   scale_linetype_manual(name = "", values = c(1, 2)) +
+  scale_x_continuous(breaks = seq(from = 0, to = 50, by = 10), limits = c(0, 50)) +
+  scale_y_continuous(breaks = seq(from = 0, to = 5, by = 1), limits = c(0, 5)) +
   labs(x = "r [m]", y = expression(italic(g(r)))) +
-  guides(colour = FALSE) +
+  guides(colour = FALSE, fill = FALSE, linetype = FALSE) +
   theme_classic(base_size = base_size) + 
   theme(legend.position = "bottom", 
         text = element_text(family = "Calibri Light"))
 
 suppoRt::save_ggplot(plot = ggplot_pcf,
-                     filename = "ggplot_pcf_y50.png",
-                     path = "C:/Users/Maximilian/ownCloud/13_Disputation/Figures/",
+                     filename = "ggplot_pcf_y50_c.png",
+                     path = "C:/Users/Maximilian/ownCloud/13_Thesis_defense/Figures/",
                      dpi = dpi, units = units,                
-                     width = 225, height = 150, 
+                     width = 225, height = 125, 
                      overwrite = FALSE)
 
 #### Mark-correlation function #### 

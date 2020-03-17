@@ -191,9 +191,17 @@ ggplot_fitting_actual <- ggplot(beech_2013) +
   scale_y_continuous(name = "", limits = c(0, 1.25)) +
   scale_color_viridis_c(name = expression(c[i]^{trans}), option = "A") +
   theme_classic(base_size = base_size) + 
+  # guides(colour = FALSE) +
   theme(legend.position = "bottom", 
         legend.key.width = unit(1.5, "cm"), 
         text = element_text(family = "Calibri Light"))
+
+suppoRt::save_ggplot(plot = ggplot_fitting_actual, 
+                     filename = "ggplot_fitting_actual.png", 
+                     path = "C:/Users/Maximilian/ownCloud/13_Thesis_defense/Figures/",
+                     dpi = dpi, units = units,
+                     width = 65, height = 50, 
+                     overwrite = FALSE)
 
 #### Fit biotic seed dispersal ####
 # Olesen, C.R., Madsen, P., 2008. The impact of roe deer (Capreolus capreolus),

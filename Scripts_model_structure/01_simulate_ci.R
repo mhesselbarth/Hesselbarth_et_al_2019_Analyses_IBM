@@ -64,6 +64,13 @@ ggplot_kernel <- ggplot() +
         plot.margin = margin(0, 0, 0, 0, "mm"), 
         text = element_text(family = "Calibri Light"))
 
+suppoRt::save_ggplot(plot = ggplot_kernel, 
+                     filename = "ggplot_ci_kernel.png", 
+                     path = "C:/Users/Maximilian/ownCloud/13_Thesis_defense/Figures/",
+                     dpi = dpi, units = units,
+                     width = 50, height = 50, 
+                     overwrite = FALSE)
+
 #### Plot point pattern ####
 # calculat ci
 data_ci <- rabmp::simulate_ci(input_data, parameters = parameters_fitted_biotic) %>% 

@@ -49,15 +49,13 @@ mort_prob <- purrr::map_dbl(0:120, function(x)
 plot_mort_prob <- ggplot() + 
   geom_line(aes(x = 0:120, y = mort_prob)) + 
   labs(x = "DBH [cm]", y = "Mortality probability") + 
-  theme_classic(base_size = 15) +
+  theme_classic(base_size = 12.5) +
   theme(text = element_text(family = "Calibri Light"))
 
 #### Save plots ####
-overwrite <- FALSE
-
 suppoRt::save_ggplot(plot = plot_mort_prob, 
                     filename = "ggplot_structure_mortality.png", 
-                    path = "C:/Users/Maximilian/ownCloud/13_Disputation/Figures/",
+                    path = "C:/Users/Maximilian/ownCloud/13_Thesis_defense/Figures/",
                     dpi = 300, units = "mm",
-                    width = 200, height = 125, 
-                    overwrite = FALSE)
+                    width = 50, height = 50, # width = 200, height = 125, 
+                    overwrite = T)
