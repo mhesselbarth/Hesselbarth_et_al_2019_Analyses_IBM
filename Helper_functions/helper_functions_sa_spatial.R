@@ -137,6 +137,76 @@ calc_pcf_sa_int <- function(default, changed, window, nsim, verbose = TRUE, ...)
   return(pcf_changed)
 }
 
+summarise_pcf_hpc <- function(x, fast = FALSE, nsim = 199, window, verbose = FALSE, ...) {
+  
+  if (fast) {
+    
+    # create quiet kfun
+    quiet_kfun <- purrr::quietly(ads::kfun)
+  }
+  
+  else {
+    arguments <- list(...)
+    
+    if (!"correction" %in% names(arguments)) {
+      stop("Please provide correction argument")
+    }
+    
+    else {
+      if (length(arguments$correction) > 1) {
+        stop("Please provide only one correction argument")
+      }
+    }
+  }
+  
+  # get only latest time step of data
+  temp_x <- dplyr::filter(x, i == max(i), type != "dead")
+  
+  # convert to ppp
+  temp_ppp <- spatstat::ppp(x = temp_x$x, y = temp_x$y,
+                            window = window)
+  
+  if (fast) {
+    
+    # convert to spp
+    temp_ppp <- ads::ppp2spp(p = temp_ppp)
+  
+    # calculate pcf
+    temp_env <- quiet_kfun(p = temp_ppp, upto = 120, by = 1,
+                           nsim = nsim, alpha = 0.05)
+    
+    # convert to data.frame
+    temp_env <- data.frame(r = temp_env$result$r, 
+                           theo = temp_env$result$g$theo, 
+                           obs = temp_env$result$g$obs, 
+                           lo = temp_env$result$g$inf, 
+                           hi = temp_env$result$g$sup)
+  }
+  
+  else {
+   
+    # calculate pcf
+    temp_env <- spatstat::envelope(Y = temp_ppp, 
+                                   fun = spatstat::pcf,
+                                   nsim = nsim,
+                                   verbose = verbose,
+                                   funargs = arguments)
+    
+    # convert to data.frame
+    temp_env <- data.frame(r = temp_env$r, 
+                           theo = temp_env$theo, 
+                           obs = temp_env$obs, 
+                           lo = temp_env$lo, 
+                           hi = temp_env$hi)
+  }
+  
+  
+  # summarise envelope
+  summarised_pcf <- onpoint::summarise_envelope(x = temp_env)
+  
+  return(summarised_pcf)
+}
+
 #### Nearest neigbor ####
 
 calc_nnd_sa_int <- function(default, changed, 

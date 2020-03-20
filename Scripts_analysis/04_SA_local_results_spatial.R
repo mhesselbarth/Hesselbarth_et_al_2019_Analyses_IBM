@@ -346,8 +346,8 @@ ggplot_sa_pcf <- ggplot(data = sa_pcf) +
   coord_flip() +
   facet_wrap(~ size) +
   scale_x_discrete(name = "Parameter") +
-  scale_y_continuous(name = expression(paste("Difference summarised ", 
-                                             italic(g(r)), " [%]")),
+  scale_y_continuous(name = expression(paste("Difference ", 
+                                             italic(g(r)[summarised]), " [%]")),
                      breaks = seq(-100, 100, 25),
                      limits = c(-100, 100)) +
   scale_fill_manual(name = "Parameter change",
@@ -364,6 +364,32 @@ suppoRt::save_ggplot(plot = ggplot_sa_pcf,
                      units = units, 
                      overwrite = overwrite)
 
+# #### HPC Cluster ####
+# r_pcf <- seq(from = 0, to = 75, length.out = 525)
+# correction_pcf <- "good"
+# stoyan_pcf <- 0.25
+# divisor_pcf <- "d"
+# method_pcf <- "c"
+# nsim_pcf <- 199
+# 
+# sa_pcf_default_sapling <- suppoRt::submit_to_cluster(summarise_pcf_hpc, 
+#                                                      x = sa_default_sapling, 
+#                                                      n_jobs = length(sa_default_sapling),
+#                                                      const = list(fast = FALSE,
+#                                                                   nsim = nsim_pcf,
+#                                                                   correction = correction_pcf,
+#                                                                   divisor = divisor_pcf,
+#                                                                   method = method_pcf,
+#                                                                   stoyan = stoyan_pcf,
+#                                                                   r = r_pcf,
+#                                                                   window = window), 
+#                                                      template = list(job_name = "sa_default_sapling",
+#                                                                      walltime = "02:00:00", # <hh:mm:ss>
+#                                                                      queue = "medium", 
+#                                                                      service = "short",
+#                                                                      mem_cpu = "5120", # 5120
+#                                                                      log_file = "sa_default_sapling.log"))
+# 
 ### Mark-correlation function ####
 # 
 # # set parameters #
