@@ -99,11 +99,24 @@ suppoRt::save_ggplot(plot = ggplot_nnd_nn,
 #### Summarise g(r) ####
 set.seed(42)
 
-input_pattern <- spatstat::rThomas(kappa = 15, scale = 0.05, mu = 5)
+input_pattern <- spatstat::rThomas(kappa = 0.005, scale = 2.5, mu = 5, 
+                                   win = spatstat::owin(xrange = c(0, 100), 
+                                                        yrange = c(0, 100)))
 
-cluster_env <- spatstat::envelope(input_pattern, fun = "pcf", nsim = 199,
+cluster_env <- spatstat::envelope(input_pattern, fun = "pcf", 
+                                  nsim = 199, nrank = 5,
                                   funargs = list(divisor = "d", 
                                                  correction = "Ripley", 
                                                  stoyan = 0.25))
 
-onpoint::summarise_envelope(cluster_env, plot_result = TRUE)
+cluster_env_sum <- onpoint::summarise_envelope(cluster_env)
+
+cluster_env_sum_gg <- plot(cluster_env_sum, x_lab = "r [m]", y = expression(italic(g(r))), 
+                           base_size = base_size)
+
+suppoRt::save_ggplot(plot = cluster_env_sum_gg,
+                     filename = "ggplot_summarised_env.png",
+                     path = "Figures/Appendix",
+                     dpi = dpi, 
+                     width = width_full, height = height_small, units = units,
+                     overwrite = overwrite)
