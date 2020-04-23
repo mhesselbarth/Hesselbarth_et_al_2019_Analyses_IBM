@@ -99,22 +99,44 @@ suppoRt::save_ggplot(plot = ggplot_nnd_nn,
 #### Summarise g(r) ####
 set.seed(42)
 
-input_pattern <- spatstat::rThomas(kappa = 0.005, scale = 2.5, mu = 5, 
-                                   win = spatstat::owin(xrange = c(0, 100), 
-                                                        yrange = c(0, 100)))
+pattern_complex <- expand.grid(x = seq(from = -10, to = 110, by = 20),
+                               y = seq(from = -10, to = 110, by = 20)) %>%
+  dplyr::mutate(x = x + runif(n = nrow(.), min = 0, max = 5),
+                y = y + runif(n = nrow(.), min = 0, max = 5)) %>%
+  spatstat::ppp(x = .$x, y = .$y,
+                window = owin(c(0, 100), c(0, 100)))
 
-cluster_env <- spatstat::envelope(input_pattern, fun = "pcf", 
+# conver to df
+pattern_complex_df <- tibble::as_tibble(pattern_complex)
+
+
+pattern_complex_df <- purrr::map_dfr(1:nrow(pattern_complex_df), function(i) {
+  
+  purrr::map_dfr(1:10, function(j) {
+    
+    tibble::tibble(x = pattern_complex_df[[i, 1]] + runif(n = 1, min = -5, max = 5), 
+                   y = pattern_complex_df[[i, 2]] + runif(n = 1, min = -5, max = 5))
+    
+  })
+  
+})
+
+pattern_complex <- spatstat::ppp(x = pattern_complex_df$x, 
+                                 y = pattern_complex_df$y, 
+                                 window = owin(c(0, 100), c(0, 100)))
+
+complex_env <- spatstat::envelope(pattern_complex, fun = "pcf", 
                                   nsim = 199, nrank = 5,
                                   funargs = list(divisor = "d", 
                                                  correction = "Ripley", 
                                                  stoyan = 0.25))
 
-cluster_env_sum <- onpoint::summarise_envelope(cluster_env)
+complex_env_sum <- onpoint::summarise_envelope(complex_env)
 
-cluster_env_sum_gg <- plot(cluster_env_sum, x_lab = "r [m]", y = expression(italic(g(r))), 
+complex_env_sum_gg <- plot(complex_env_sum, x_lab = "r [m]", y = expression(italic(g(r))), 
                            base_size = base_size)
 
-suppoRt::save_ggplot(plot = cluster_env_sum_gg,
+suppoRt::save_ggplot(plot = complex_env_sum_gg,
                      filename = "ggplot_summarised_env.png",
                      path = "Figures/Appendix",
                      dpi = dpi, 
