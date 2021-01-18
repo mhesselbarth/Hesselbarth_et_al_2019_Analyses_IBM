@@ -30,7 +30,7 @@ sa_decreased_10 <- readr::read_rds("Data/Output/SA/sa_decreased_10_y50_e5_r50.rd
 # reverse parameter levels because of coord_flip()
 parameter_levels <- rev(c("ci_alpha", "ci_beta", 
                           "growth_assymp", "growth_rate", "growth_infl", 
-                          "seed_str", "seed_empty", "seed_success", "seed_beta", 
+                          "seed_str", "seed_empty", "seed_success", "seed_eta", 
                           "mort_dbh_early", "mort_dbh_late", 
                           "mort_int_early", "mort_int_late", 
                           "mort_dinc"))
@@ -131,6 +131,8 @@ sa_individuals <- dplyr::bind_rows(sa_individuals_inc_5_sapling,
                                    sa_individuals_dec_5_adult,
                                    sa_individuals_dec_10_sapling,
                                    sa_individuals_dec_10_adult) %>% 
+  dplyr::mutate(parameter = dplyr::case_when(parameter == "seed_beta" ~  "seed_eta", 
+                                             TRUE ~ parameter)) %>% 
   dplyr::mutate(parameter = factor(parameter, 
                                    levels = parameter_levels),
                 size = factor(size, levels = c("sapling", "adult"), 

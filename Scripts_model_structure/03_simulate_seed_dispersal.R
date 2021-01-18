@@ -39,7 +39,7 @@ rm(pattern_1999_recon)
 #### Plot Probability ####
 distance_density <- rabmp:::rcpp_random_distance(number_seeds = 1000000, 
                                                  species = "beech", 
-                                                 beta_beech = parameters_beech_fitted$seed_beta_beech,
+                                                 beta_beech = parameters_beech_fitted$seed_eta_beech,
                                                  beta_ash = 0,
                                                  beta_sycamore = 0,
                                                  beta_hornbeam = 0,

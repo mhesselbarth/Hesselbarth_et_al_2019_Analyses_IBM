@@ -76,9 +76,9 @@ for (i in 1:n_rows) {
   habitat_ras_fit[neighbours_value$from] <- neighbours_value$x
 }
 
-# scale value to -1 to 1 #
+# scale value to 0 to 1 #
 habitat_ras_fit$scaled <- scales::rescale(raster::values(habitat_ras_fit), 
-                                          to = c(-1, 1), na.rm = TRUE)
+                                          to = c(0, 1), na.rm = TRUE)
 
 # set names #
 names(habitat_ras_fit) <- c("absolute", "scaled")
@@ -86,7 +86,7 @@ names(habitat_ras_fit) <- c("absolute", "scaled")
 #### Save data ####
 suppoRt::save_rds(object = habitat_ras_fit, 
                   filename = "abiotic_cond_real_fit.rds", 
-                  path = "Data/Input/", overwrite = overwrite)
+                  path = "Data/Input/", overwrite = FALSE)
 
 ##############################
 ####                      ####
@@ -142,9 +142,9 @@ for (i in 1:n_rows) {
   habitat_ras_model[neighbours_value$from] <- neighbours_value$x
 }
 
-# scale value to -1 to 1 #
+# scale value to 0 to 1 #
 habitat_ras_model$scaled <- scales::rescale(raster::values(habitat_ras_model), 
-                                            to = c(-1, 1), na.rm = TRUE)
+                                            to = c(0, 1), na.rm = TRUE)
 
 # set names #
 names(habitat_ras_model) <- c("absolute", "scaled")
@@ -152,7 +152,7 @@ names(habitat_ras_model) <- c("absolute", "scaled")
 #### Save data ####
 suppoRt::save_rds(object = habitat_ras_model, 
                   filename = "abiotic_cond_real_model.rds", 
-                  path = "Data/Input/", overwrite = overwrite)
+                  path = "Data/Input/", overwrite = FALSE)
 
 ##################################
 ####                          ####

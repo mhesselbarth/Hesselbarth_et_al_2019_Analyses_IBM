@@ -172,3 +172,51 @@ calc_ci_comp <- function(data, sim_i, parameters, from = 0, to = 1, verbose = TR
   
   return(ci_data)
 }
+
+calc_vario_comp <- function(data, sim_i, window, r, verbose = TRUE, ...) {
+  
+  # get length of input for printig
+  n_data <- length(data)
+  
+  gmm_data <- purrr::map(seq_along(data), function(x) {
+    
+    if (verbose) {
+      
+      message("\r> Progress: ", x, "/", n_data, appendLF = FALSE)
+    }
+    
+    # get data of last timestep
+    temp_data <- dplyr::filter(data[[x]], i == sim_i, type != "dead")
+    
+    # convert to ppp
+    temp_ppp <- spatstat::ppp(x = temp_data$x, y = temp_data$y,
+                              window = window)
+    
+    # check which points are inside
+    temp_inside <- spatstat::inside.owin(x = temp_data$x, y = temp_data$y,
+                                         w = window)
+    
+    temp_data <- temp_data[temp_inside, ]
+    
+    spatstat::marks(temp_ppp) <- temp_data$dbh
+    
+    temp_sf <- spatstat::markvario(temp_ppp, r = r, normalise = TRUE, ...)
+    
+    # convert to data frame
+    tibble::as_tibble(temp_sf) %>% 
+      purrr::set_names(c("r", "theo", "gmm"))
+  })
+  
+  if (verbose) {
+    message("")
+  }
+  
+  gmm_data <- dplyr::bind_rows(gmm_data) %>% 
+    dplyr::group_by(r) %>% 
+    dplyr::summarise(theo = mean(theo), 
+                     fun_mean = mean(gmm),
+                     fun_lo = min(gmm),
+                     fun_hi = max(gmm))
+  
+  return(gmm_data)
+}

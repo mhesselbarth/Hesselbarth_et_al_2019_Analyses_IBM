@@ -25,7 +25,7 @@ beech_2013_ppp <- readr::read_rds("Data/Input/beech_2013_ppp.rds")
 beech_2013_sapling_ppp <- readr::read_rds("Data/Input/beech_2013_sapling_ppp.rds")
 beech_2013_adult_ppp <- readr::read_rds("Data/Input/beech_2013_adult_ppp.rds")
 
-parameters_fitted_abiotic <- rabmp::read_parameters("Data/Input/parameters_fitted_abiotic.txt",
+parameters_fitted_abiotic <- rabmp::read_parameters("Data/Input/parameters_fitted_abiotic_real.txt",
                                                     sep = ";")
 
 #### Pre-process data ####

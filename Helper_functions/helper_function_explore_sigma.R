@@ -69,9 +69,9 @@ explore_sigma <- function(data,
     habitat[neighbours_value$from] <- neighbours_value$x
   }
   
-  # scale value to -1 to 1 #
+  # scale value to 0 to 1 #
   habitat$scaled <- scales::rescale(raster::values(habitat),
-                                    to = c(-1, 1), na.rm = TRUE)
+                                    to = c(0, 1), na.rm = TRUE)
   
   # set names #
   names(habitat) <- c("absolute", "scaled")

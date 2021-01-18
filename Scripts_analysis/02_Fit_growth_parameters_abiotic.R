@@ -19,7 +19,7 @@ Rcpp::sourceCpp("Helper_functions/rcpp_calculate_actual_abiotic.cpp",
 parameters_default_abiotic <- rabmp::read_parameters("Data/Input/parameters_fitted_biotic.txt", 
                                                      sep = ";")
 
-# set growth biotic parameter to 1
+# set growth biotic parameter to 0
 parameters_default_abiotic$growth_abiotic <- 0
 
 # import data  #
@@ -68,9 +68,9 @@ beech_2013_df$growth_pot <- fun_potential(dbh = beech_2013_df$dbh_99,
 # set starting functions adapted from Pommerening, A., Maleki, K., 2014. #
 # Differences between competition kernels and traditional size-ratio based #
 # competition indices used in forest ecology. For. Ecol. Manage. 331, 135-143. #
-start_values_actual <- c(parameters_default_abiotic$ci_alpha, 
-                         parameters_default_abiotic$ci_beta, 
-                         parameters_default_abiotic$growth_abiotic)
+start_values_actual <- c(ci_alpha = parameters_default_abiotic$ci_alpha, 
+                         ci_beta = parameters_default_abiotic$ci_beta, 
+                         growth_abiotic = parameters_default_abiotic$growth_abiotic)
 
 #########################
 ####                 ####
@@ -90,12 +90,12 @@ fun_actual_real <- function(df, par) {
   
   data_matrix <- as.matrix(df[, c("x", "y", "dbh_99", "growth_pot", "abiotic_real")])
   
-  growth_modelled <- rabmp:::rcpp_calculate_actual_abiotic(matrix = data_matrix, 
-                                                           alpha = par[1], 
-                                                           beta = par[2],
-                                                           mod = 1,
-                                                           gamma = par[3],
-                                                           max_dist = 30)
+  growth_modelled <- rcpp_calculate_actual_abiotic(matrix = data_matrix, 
+                                                   alpha = par[1], 
+                                                   beta = par[2],
+                                                   mod = 1,
+                                                   gamma = par[3],
+                                                   max_dist = 30)
   
   difference <- sum(abs(df$growth_full - growth_modelled))
   
@@ -114,18 +114,19 @@ fitted_fun_actual_real <- optim(par = start_values_actual,
                                                REPORT = 1))
 
 broom::tidy(fitted_fun_actual_real)
-# A tibble: 3 x 2
-# parameter   value
-# <chr>       <dbl>
-# parameter1  1.27 
-# parameter2  0.440  
-# parameter3  -0.0543
+# # A tibble: 3 x 3
+# parameter      value std.error
+# <chr>          <dbl>     <dbl>
+# 1 ci_alpha       2.06    0.115  
+# 2 ci_beta        0.286   0.00902
+# 3 growth_abiotic 0.228   0.0294 
 
 fitted_fun_actual_real$value
-# [1] 685.4118
+# [1] 669.8111
 
 standard_errors <- sqrt(abs(diag(solve(-fitted_fun_actual_real$hessian))))
-# [1] 0.061667117 0.005603104 0.014348723
+# ci_alpha      ci_beta       growth_abiotic 
+# 0.115212436   0.009017715   0.029418124 
 
 ####################################
 ####                            ####

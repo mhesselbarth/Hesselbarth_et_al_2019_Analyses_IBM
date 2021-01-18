@@ -23,7 +23,7 @@ calc_sobol_indiv <- function(x, data, parameters, plot_area, years, save_each) {
                           mort_int_late = x[6], 
                           seed_str = parameters$seed_str, 
                           seed_success = parameters$seed_success,
-                          seed_beta = parameters$seed_beta, 
+                          seed_eta = parameters$seed_eta, 
                           seed_max_dist = parameters$seed_max_dist)
   
   output <- rabmp::run_model_biotic(data = data, 
@@ -58,7 +58,7 @@ calc_sobol_pcf <- function(x, data, parameters, plot_area, years, save_each) {
                           mort_int_late = x[6], 
                           seed_str = parameters$seed_str, 
                           seed_success = parameters$seed_success,
-                          seed_beta = parameters$seed_beta, 
+                          seed_eta = parameters$seed_eta, 
                           seed_max_dist = parameters$seed_max_dist)
   
   output <- rabmp::run_model_biotic(data = data, 

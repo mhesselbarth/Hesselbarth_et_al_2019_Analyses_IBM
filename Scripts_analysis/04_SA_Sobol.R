@@ -22,7 +22,7 @@ plot_area <- readr::read_rds("Data/Raw/plot_area_owin.rds")
 years <- 50
 save_each <- years
 
-n <- 250 # 100
+n <- 250
 
 #### Pre-process data ####
 pattern_1999_dt <- tibble::as_tibble(pattern_1999) %>%
@@ -304,7 +304,9 @@ sobol_model_overall_df <- dplyr::bind_rows(sobol_model_indiv_adult_df,
                                                    "Total effect")), 
                 output = factor(output, levels = c("Number of individuals",
                                                    "Summarised pair-correlation function")), 
-                group = factor(group, levels = c("Saplings", "Adults")))
+                group = factor(group, levels = c("Saplings", "Adults")), 
+                parameter = factor(parameter, levels = c("ci_alpha", "ci_beta", "growth_infl", 
+                                                         "mort_dbh_early", "mort_int_early", "mort_int_late")))
 
 dplyr::group_by(sobol_model_overall_df, effect, output, group) %>% 
   dplyr::summarise(value = round(sum(value), digits = 2))

@@ -1,2 +1,2 @@
-"ci_alpha";"ci_beta";"ci_max_dist";"growth_assymp";"growth_infl";"growth_mod";"growth_rate";"mort_dbh_early";"mort_dbh_late";"mort_dinc";"mort_int_early";"mort_int_late";"seed_str";"seed_success";"seed_beta";"seed_max_dist"
+"ci_alpha";"ci_beta";"ci_max_dist";"growth_assymp";"growth_infl";"growth_mod";"growth_rate";"mort_dbh_early";"mort_dbh_late";"mort_dinc";"mort_int_early";"mort_int_late";"seed_str";"seed_success";"seed_eta";"seed_max_dist"
 1.0568182289627;0.435036811242368;30;204.910613558357;1.34954756114368;1;0.00649340666513721;-2.1;0.052;-1.4;1.8;-8.9;121.22;0.00545727895870316;3.412413;120

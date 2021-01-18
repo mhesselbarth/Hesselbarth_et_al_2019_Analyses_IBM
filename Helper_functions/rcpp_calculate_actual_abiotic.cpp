@@ -64,7 +64,9 @@ NumericVector rcpp_calculate_actual_abiotic(NumericMatrix matrix,
     ci[i] = ci[i] / (std::pow(dbh_i, alpha) + ci[i]);
     
     // calculate actual growth
-    result[i] = pot_i * mod * (1 - ci[i]) + pot_i * gamma * abiotic_i;
+    // result[i] = pot_i * mod * (1 - ci[i]) + pot_i * gamma * abiotic_i;
+    result[i] = pot_i * mod * (((1 - ci[i]) + gamma * abiotic_i) / 2);
+
   }
   
   // normalize last ci
@@ -72,8 +74,9 @@ NumericVector rcpp_calculate_actual_abiotic(NumericMatrix matrix,
   
   // calculate actual growth
   // result[nrow - 1] = matrix(nrow - 1, 3) * modifier * (1 - ci[nrow - 1]);
-  result[nrow - 1] = matrix(nrow - 1, 3) * mod * (1 - ci[nrow - 1]) + 
-    matrix(nrow - 1, 3) * gamma * matrix(nrow - 1, 4);
+  // result[nrow - 1] = matrix(nrow - 1, 3) * mod * (1 - ci[nrow - 1]) + 
+  //   matrix(nrow - 1, 3) * gamma * matrix(nrow - 1, 4);
+  result[nrow - 1] = matrix(nrow - 1, 3) * mod * (((1 - ci[nrow - 1]) + gamma * matrix(nrow - 1, 4)) / 2);
   
   return result;
 }
